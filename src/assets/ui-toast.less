@@ -1,0 +1,21 @@
+._sdk-toast {
+  position: fixed;
+  min-width: 7.6em;
+  top: 30%;
+  left: 50%;
+  transform: translate3d(-50%, 0, 0);
+  background: rgba(0, 0, 0, 0.8);
+  text-align: center;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  &-icon {
+    font-size: 48px;
+    ._sf-loading {
+      animation: _sdkRotate 3s linear 0s infinite normal;
+    }
+  }
+  &-message {
+    padding: 10px 18px;
+  }
+}

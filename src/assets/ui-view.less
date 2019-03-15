@@ -1,0 +1,54 @@
+._sdk-view {
+  position: fixed;
+  top: 40%;
+  top: calc(50% - 64px);
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  text-align: center;
+  cursor: pointer;
+  z-index: 1080;
+  user-select: none;
+
+  ._sdk-pos-center {
+    bottom: -60px;
+  }
+  ._sdk-view-preloader svg{
+    // ios 11
+    transform-box: fill-box;
+    transform-origin: center;    
+    animation: _sdkRotate 1s linear 0s infinite normal;
+  }
+
+  &-content {
+    color: #ffffff;
+    margin-top: 20px;
+    margin: 0 auto;
+    word-break: break-all;
+  }
+  &-full {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    transform: none;
+    ._sdk-view-image {
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+    }
+    ._sdk-pos-center {
+      bottom: 0;
+    }
+  }
+
+  &-image {
+    display: block;
+    margin: 0 auto;
+    max-width: 80vw;
+  }
+  &-icon {
+    font-size: 36px;
+    color: #fff;
+    position: absolute;
+  }
+}

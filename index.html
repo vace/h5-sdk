@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <!--author:Vace_Vlm(ocdo@qq.com),create:26 Feb 2019 9:52 AM-->
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-title" content="vace" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Dev</title>
+  <!-- 应用配置 -->
+  <meta name="sdk:app" appid="xxxxxx" scope="snsapi_base" wxappid="wxappid" jssdkappid="jsappid">
+  <!-- 音乐配置 -->
+  <meta
+    name="sdk:music"
+    autoplay
+    color=""
+    loop
+    offsetx="16"
+    offsety="16"
+    position="br"
+    size="32"
+    src="http://wx.diggid.cn/Wap1/Wd1228/music.mp3"
+    theme="theme3"
+  >
+  <!-- jssdk 配置 -->
+  <meta name="sdk:jssdk" api="openMap">
+  <meta name="sdk:share" title="shareTitle" desc="shareDesc">
+  <meta name="sdk:share" type="wxapp" title="shareAppTitle" desc="shareAppDesc">
+  <meta name="sdk:share" type="timeline" title="shareTimelineTitle">
+</head>
+
+<body>
+  <div id="app">
+    <div>
+      <button onclick="sdk.ui.alert({title: 'Are You Ok', content: 'Alert', okText: 'Ok', ok: onAlert})">alert1</button>
+      <button onclick="sdk.ui.alert({content: 'No Title', okText: 'Ok', ok: onAlert})">alert2</button>
+    </div>
+    <div>
+      <button onclick="sdk.ui.confirm({title: 'Are You Ok', content: 'Alert', okText: 'Ok', noText: 'No', ok: onAlert, no: onAlert})">confirm</button>
+      <button onclick="sdk.ui.confirm({content: 'No Title', okText: 'Ok', ok: onAlert})">alert2</button>
+    </div>
+
+    <div>
+      <button
+        onclick="sdk.ui.prompt({title: '留下姓名', content: '请输入您的姓名领取奖励', ok(){
+  console.log(this.value)
+  this.close()
+}})">prompt text</button>
+      <button onclick="sdk.ui.prompt({type: 'password', title: '输入密码', content: '请输入解锁密码查看', ok(){
+        console.log(this.value)
+        this.close()
+      }})">prompt password</button>
+
+      <button onclick="sdk.ui.userbox({title: '请留下姓名', content: '中奖了', profile: ['username', 'password', 'mobile']})">userbox-array</button>
+      <button onclick="sdk.ui.userbox({title: '请留下姓名', content: '中奖了', profile: {username: 'Vace', mobile: '18877777777'}})">userbox-object</button>
+      <button onclick="sdk.ui.userbox({title: '请留下姓名', content: '中奖了', profile: {username: {label: '自定义标签名称', tips: '自定义tip'}, mobile: '18877777777'}})">userbox-object1</button>
+      <button onclick="onActiveForm()">交互表单测试</button>
+    </div>
+
+    <div>
+      <button onclick="onInputText()">inpput</button>
+      <button onclick="sdk.ui.confirm({content: 'No Title', okText: 'Ok', ok: onAlert})">alert2</button>
+    </div>
+
+    <div>
+      <button onclick="sdk.ui.tips('操作成功')">tips</button>
+      <button onclick="sdk.ui.success('操作成功')">success</button>
+      <button onclick="sdk.ui.info('这是INFO')">info</button>
+      <button onclick="sdk.ui.warn('这是警告')">warn</button>
+      <button onclick="sdk.ui.error('操作失败')">error</button>
+      <button onclick="sdk.ui.loading('请稍后').wait(3000).close()">loading</button>
+    </div>
+
+    <div>
+      <button onclick="sdk.ui.image('https://gw.alicdn.com/tps/TB1W_X6OXXXXXcZXVXXXXXXXXXX-400-400.png')">image</button>
+      <button onclick="sdk.ui.image('https://gw.alicdn.com/tps/TB1W_X6OXXXXXcZXVXXXXXXXXXX-400-400.png', true)">full</button>
+      <button onclick="sdk.ui.preloader('正在上传').wait(3000).close()">preloader</button>
+      <button onclick="sdk.ui.loading('请稍后')">loading</button>
+    </div>
+  </div>
+  <script>
+    // Object.assign = undefined
+    // window.fetch = undefined
+    // window.Promise = undefined
+    // window.Map = undefined
+    
+  </script>
+  <script src="dist/sdk.js" autocss="true"></script>
+  <script>
+        wx.updateAppMessageShareData = e => console.log(e)
+    sdk.UiModal.option.theme = 'android'
+    function onAlert() {
+      this.close()
+    }
+    // var modal = new sdk.UiModal({
+    //   title: '标题测试',
+    //   // transparent: true,
+    //   // text: '自定义text',
+    //   content: '内容测试',
+    //   maskClose: true,
+    //   buttons: [
+    //     {key: 'key1', onClick(){console.log('key1 click')}, label: '按钮1'},
+    //     {key: 'key2', onClick(){console.log('key2 click')}, label: '按钮2', bold: true},
+    //     {key: 'key3', onClick(){console.log('key3 click')}, label: '按钮3', bold: true},
+    //   ],
+    //   onClose () {
+    //     console.log('close called')
+    //   },
+    //   onClick (key) {
+    //     console.log(key)
+    //     this.close()
+    //   }
+    // }).open()
+
+    function onInputText () {
+      var modal = new sdk.UiModal({
+        title: '标题测试',
+        // transparent: true,
+        // text: '自定义text',
+        content: '内容测试',
+        maskClose: true,
+        buttons: [
+          { key: 'key1', onClick() { console.log('key1 click') }, label: '按钮1' },
+          { key: 'key2', onClick() { console.log('key2 click') }, label: '按钮2', bold: true },
+          { key: 'key3', onClick() { console.log('key3 click') }, label: '按钮3', bold: true },
+        ],
+        inputs: [
+          { name: 'name', type: 'text', label: '姓名', tips: '请输入', value: '小明' },
+          { name: 'name', type: 'textarea', label: '内容', tips: '请输入', value: '小明' },
+          { name: 'ok', label: '性别', type: 'custom', value: '小明', innerHTML: '<select><option value="10">hello</option></select>' },
+        ],
+        onClose() {
+          console.log('close called')
+        },
+        onClick(key) {
+          console.log(key, this.data)
+          this.close()
+        }
+      }).open()
+    }
+
+    function onActiveForm () {
+      sdk.ui.userbox({
+        title: '请留下姓名',
+        content: '中奖了',
+        profile: { username: '小王', mobile: '18877777777' },
+        ok () {
+          console.log('获取到数据', JSON.stringify(this.data), '准备提交')
+          this.showSpinning('正在提交数据')
+          this.wait(2000).then(() => {
+            this.close()
+            sdk.ui.success('数据提交成功')
+          })
+        }
+      })
+    }
+    // const music = sdk.UiMusic.getInstance({src: 'http://wx.diggid.cn/Wap1/Wd1228/music.mp3'})
+  </script>
+  <!-- built files will be auto injected -->
+</body>
+
+</html>

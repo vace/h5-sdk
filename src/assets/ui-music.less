@@ -1,0 +1,47 @@
+._sdk-music {
+  position: fixed;
+  z-index: 1992;
+  display: block;
+  // opacity: 0;
+  &-view {
+    width: 100%;
+    height: 100%;
+    position: relative;
+
+    > div {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+    > div, img, svg {
+      width: 100%;
+      height: 100%;
+      max-width: 100%;
+    }
+  }
+  &-loading, &-playing {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: _sdkRotate 2s linear infinite normal;
+  }
+  &-loading {
+    animation-duration: 1s;
+  }
+
+  // control
+  &__loading {
+    ._sdk-music-playing, ._sdk-music-paused {
+      display: none;
+    }
+  }
+  &__playing {
+    ._sdk-music-loading, ._sdk-music-paused {
+      display: none;
+    }
+  }
+  &__paused {
+    ._sdk-music-playing, ._sdk-music-loading {
+      display: none;
+    }
+  }
+}

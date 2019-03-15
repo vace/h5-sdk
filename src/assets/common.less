@@ -1,0 +1,166 @@
+@import './src/assets/var.less';
+// position
+._sdk-pos {
+  &-center {
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  &-tl {
+    top: 0;
+    left: 10px;
+  }
+  &-tr {
+    top: 0;
+    right: 10px;
+  }
+  &-bl {
+    bottom: 0;
+    left: 10px;
+  }
+  &-br {
+    bottom: 0;
+    right: 10px;
+  }
+}
+
+// color
+._sdk-color-dark {
+  color: @DarkColor;
+}
+._sdk-color-main {
+  color: @MainColor;
+}
+._sdk-color-primary {
+  color: @PrimaryColor;
+}
+._sdk-color-warn {
+  color: @WarnColor;
+}
+._sdk-color-info {
+  color: @InfoColor;
+}
+
+// spinner
+._sdk-spinning {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  &-text {
+    text-align: center;
+    color: #222;
+    margin-top: 30px;
+  }
+  ._sdkfont {
+    font-size: 38px;
+  }
+}
+
+// animation
+._sdk-rotate {
+  animation:_sdkRotate 3s linear 0s infinite normal;
+}
+._sdk-fade-in {
+  animation: _sdkFadeIn ease .3s forwards;
+}
+._sdk-fade-out {
+  animation: _sdkFadeOut ease .3s forwards;
+}
+// _sdk-fade-in-down
+._sdk-in-down {
+  animation:_sdkFadeInDown ease .3s forwards;
+}
+// _sdk-fade-out-up
+._sdk-out-up {
+  animation:_sdkFadeOutUp ease .3s forwards;
+}
+._sdk-in-up {
+  animation: _sdkInDown ease .3s forwards;
+}
+._sdk-out-down {
+  animation: _sdkOutDown ease .3s forwards;  
+}
+
+@keyframes _sdkRotate {
+  0% {
+    transform:rotate(0);
+  }
+	to {
+    transform:rotate(360deg);
+  }
+}
+
+@keyframes _sdkOutDown {
+  0% {
+    transform: translateZ(0)
+  }
+
+  to {
+    transform: translate3d(0,100%,0)
+  }
+}
+
+@keyframes _sdkRotingRev {
+  0% {
+    transform: rotate(0)
+  }
+  to {
+    transform: rotate(-360deg)
+  }
+}
+
+@keyframes _sdkFadeIn {
+  0% {
+    opacity: 0
+  }
+  to {
+    opacity: 1
+  }
+}
+
+@keyframes _sdkFadeOut {
+  0% {
+    opacity: 1
+  }
+  to {
+    opacity: 0
+  }
+}
+@keyframes _sdkInDown {
+  0% {
+    transform: translate3d(0,100%,0)
+  }
+
+  to {
+    transform: translateZ(0)
+  }
+}
+
+
+@keyframes _sdkFadeInDown {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -150%, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes _sdkFadeOutUp {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -100%, 0);
+  }
+}

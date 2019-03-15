@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <!--author:Vace_Vlm(ocdo@qq.com),create:26 Feb 2019 9:52 AM-->
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="Cache-Control" content="no-siteapp" />
+  <meta name="apple-mobile-web-app-title" content="vace" />
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Dev</title>
+  <!-- 应用配置 -->
+  <meta name="sdk:app" plantform="wechat" appid="APP-JEk3TB2uSHzi" scope="snsapi_userinfo" wxappid="wx982f99be5f7073f0">
+  <!-- jssdk 配置 -->
+  <meta name="sdk:jssdk" debug="false" api="chooseImage,uploadImage,getLocalImgData,stopRecord,startRecord,uploadVoice">
+  <meta name="sdk:share" title="shareTitle" desc="shareDesc">
+  <meta name="sdk:share" type="wxapp" title="shareAppTitle" desc="shareAppDesc">
+  <meta name="sdk:share" type="timeline" title="shareTimelineTitle">
+</head>
+<body>
+  <div id="app">
+    <div class="action-group">
+      <button onclick="onUploadImage()">上传图片获取MediaId</button>
+      <button onclick="onGetImageBase64()">获取图片Base64</button>
+      <button onclick="onUploadBase64()">上传Base64文件</button>
+      <button onclick="onUploadMediaId()">上传MediaId</button>
+    </div>
+    <div class="action-group">
+      <button onclick="wx.startRecord()">开始录音</button>
+      <button onclick="onStopRecord()">停止录音并上传</button>
+    </div>
+
+    <form id="form"
+      action="http://127.0.0.1:3000/uploadfile"
+      enctype="multipart/form-data"
+      method="POST">
+      >
+      <input type="file" name="file" />
+      <input type="submit" value="Upload a file" />
+    </form>
+  </div>
+  
+  <!-- built files will be auto injected -->
+  <!-- <script src="//5.5u55.cn/_lib/eruda/1.5.4/eruda.min.js"></script> -->
+  <!-- <script>eruda.init()</script> -->
+  <script>
+    // Object.assign = undefined
+    // window.fetch = undefined
+    // window.Promise = undefined
+    // window.Map = undefined
+    document.write(`<script src="../dist/sdk.js?${Date.now()}" autocss="true"></` + 'script>')
+    
+  var MediaId
+  function onUploadImage () {
+    if (!sdk.isWechat) {
+      // MediaId = 'w8ASCshh0DDmsVKuhNzBOqHQcHu2GEqCXCiP-ZJOymBfXvsH5FVfqFGXtxrzDuI5'
+      MediaId = 'errorMediaIdTest'
+      return Promise.resolve(MediaId)
+    }
+    sdk.jssdk.api('chooseImage', { count: 1 })
+      .then(local => {
+        return sdk.jssdk.api('uploadImage', {
+          localId: local.localIds[0], // 需要上传的图片的本地ID，由chooseImage接口获得
+          isShowProgressTips: 1,
+        })
+      })
+      .then(server => {
+        const serverId = server.serverId
+        MediaId = serverId
+        sdk.ui.prompt({ title: 'ServerId', defaultValue: serverId })
+      })
+  }
+
+  function onGetImageBase64 () {
+    sdk.jssdk.api('chooseImage', { count: 1 }).then(local => {
+      return sdk.jssdk.api('getLocalImgData', { localId: local.localIds[0] })
+    }).then(ret => {
+      console.log(ret)
+    })
+  }
+
+  function onUploadBase64 () {
+    sdk.tool.autoGetImageBase64().then(base64 => {
+      return sdk.cloud.upbase64(base64)
+    }).then(resp => {
+      console.log(resp)
+    })
+  }
+
+  function onUploadMediaId () {
+      if (!MediaId) {
+        return sdk.ui.error('要先上传一个MediaId')
+      }
+      sdk.cloud.wxmedia(MediaId).then(console.log)
+  }
+
+  function onStopRecord () {
+    sdk.jssdk.api('stopRecord').then(({ localId }) => {
+      return sdk.jssdk.api('uploadVoice', { localId })
+    }).then(server => {
+      const serverId = server.serverId
+      sdk.ui.prompt({ title: 'ServerId', defaultValue: serverId })
+    })
+  }
+  </script>
+</body>
+
+</html>

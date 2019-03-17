@@ -9,11 +9,12 @@ import { uglify } from 'rollup-plugin-uglify'
 import autoprefixer from 'autoprefixer'
 import cssnano from 'cssnano'
 import { version } from '../package.json'
-const banner = `/*!==============================@preserve==================================
- * Version: v${version}
- * Create: ${(new Date).toLocaleString()}
- * Author: Vace(ocdo@qq.com)
- * ======================================================================== */`
+
+ const banner = `/*!
+ * h5-sdk v${version} ${(new Date).toLocaleString()}
+ * (c) 2018-2019 Vace(ocdo@qq.com)
+ * Released under the MIT License.
+ */\n`
 
 // BUILD 格式为 Plantform.Env
 //1. Web.Devlopment 用于网页应用debug模式
@@ -46,7 +47,7 @@ export default {
     }),
     isProduction && uglify({
       output: {
-        comments: (node, { value, type }) => type == "comment2" && /@preserve/i.test(value)
+        comments: (node, { value, type }) => type == "comment2" && /@License/i.test(value)
       }
     })
   ].filter(val => !!val),

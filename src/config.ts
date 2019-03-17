@@ -19,9 +19,8 @@ const config: DefaultConfig = {
   cdn: 'https://5.5u55.cn'
 }
 
-Object.assign(config, global)
-
-export default config
+// 合并配置文件后导出
+export default Object.assign(config, global) as DefaultConfig
 
 /**
  * 获取service的uri
@@ -30,4 +29,13 @@ export default config
  */
 export function getServiceUri (name: string): string {
   return `${config.service}/${name}`
+}
+
+/**
+ * 获取cdn文件
+ * @param filename 文件名
+ * @returns {string}
+ */
+export function getCdnRes (filename: string): string {
+  return `${config.cdn}/${filename}`
 }

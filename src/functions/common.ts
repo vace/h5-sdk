@@ -1,24 +1,19 @@
 /**
  * 字符串转驼峰
- * @example
+ * ```js
  * camelize('padding-left') // paddingLeft
- * @export
- * @param {string} str
- * @returns {string}
+ * ```
  */
 export function camelize (str: string): string {
-  return str.replace(/-+(.)?/g, function (match, chr) { return chr ? chr.toUpperCase() : '' })
+  return str.replace(/-+(.)?/g, function (match, chr: string) { return chr ? chr.toUpperCase() : '' })
 }
 
+/** 空函数 */
 export function noop () {}
 
 /**
  * 将驼峰字符串转换为 dasherize格式
- * @example
  * sdk.dasherize('paddingLeft') // padding-left
- * @export
- * @param {string} str
- * @returns {string}
  */
 export function dasherize(str: string): string {
   return str.replace(/::/g, '/')
@@ -30,13 +25,10 @@ export function dasherize(str: string): string {
 
 /**
  * 返回一个延迟执行的`Promise`，可通过cancel取消此请求
- * @example
+ * ```javascript
  * const waitTask = wait(100)
  * waitTask.cancel(new Error('选择取消此操作'))
- * @export
- * @param {number} ms
- * @param {*} arg
- * @returns {Promise<any>}
+ * ```
  */
 export function wait<T> (ms: number, arg?: T): Promise<T> {
   let cancel
@@ -52,20 +44,13 @@ export function wait<T> (ms: number, arg?: T): Promise<T> {
 }
 
 let _uid = 0
-/**
- * 生成下一个全局唯一Id
- * @export
- * @param {string} [prefix=''] 前缀
- * @returns {string}
- */
+
+/** 生成带前缀的唯一ID */
 export function uid(prefix: string = ''): string {
   return `${prefix}${++_uid}`
 }
 
-/**
- * 生成36位uuid
- * @returns {string}
- */
+/** 生成36位uuid */
 export function uuid (): string {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c: string) => {
     const r = Math.random() * 16 | 0; // eslint-disable-line
@@ -75,9 +60,8 @@ export function uuid (): string {
 }
 
 /**
- * 生成随机字符串
+ * 生成指定长度随机字符串
  * @param {number} [len=8]
- * @returns {string}
  */
 export function randomstr (len: number = 8): string {
   let str = '', repeat = Math.ceil(len / 8)

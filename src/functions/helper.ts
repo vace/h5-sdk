@@ -1,12 +1,7 @@
 import { document } from "../utils/global";
 
-/**
- * 监听事件
- * @param {HTMLElement} element
- * @param {string} event
- * @param {EventListener} callback
- * @returns {Function} 解绑函数
- */
+
+/** 监听事件 */
 export function addListener(element: HTMLElement | Document, event: string, callback: EventListener): Function {
   element.addEventListener(event, callback, false);
   return function unbind() {
@@ -14,11 +9,12 @@ export function addListener(element: HTMLElement | Document, event: string, call
   };
 }
 
-export const domready = /comp|inter|loaded/.test(document.readyState) ? Promise.resolve(true) : new Promise((resolve) => {
+/** 页面是否就绪 */
+export const domready: Promise<boolean> = /comp|inter|loaded/.test(document.readyState) ? Promise.resolve(true) : new Promise((resolve) => {
   const onDocumentLoaded = () => {
     unbind1()
     unbind2()
-    resolve()
+    resolve(true)
   }
   const unbind1 = addListener(document, 'DOMContentLoaded', onDocumentLoaded)
   const unbind2 = addListener(document, 'load', onDocumentLoaded)

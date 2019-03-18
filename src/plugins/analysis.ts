@@ -9,6 +9,7 @@ import { getServiceUri } from "../config";
 import _config from "../config";
 import { signature } from "./safety";
 
+/** 分析参数 */
 export type AnalysisOption = {
   /** 此函数返回真表示禁用 */
   disabled: boolean
@@ -20,6 +21,7 @@ export type AnalysisOption = {
   unloadData: any
 }
 
+/** 默认配置 */
 export const config: AnalysisOption = Object.assign({
   disabled: false,
   maxReportError: 3,
@@ -41,6 +43,7 @@ export const config: AnalysisOption = Object.assign({
  * 
  */
 
+/** 事件集合 */
 type ANA_EVENTS = 'VIEW' | 'ERROR' | 'SHARE' | 'UNLOAD' | string
 
 // 报错处理与上报
@@ -53,6 +56,7 @@ addEventListener('unload', (e) => {
   event('UNLOAD', config.unloadData, stayTime)
 }, false)
 
+/** 参数map */
 enum ANA {
   APPID = 'ai', // 应用appid
   USER_AGENT = 'ua', // 应用UA
@@ -66,11 +70,17 @@ enum ANA {
   REQEST_SIGNATURE = '_s' // 此次请求签名
 }
 
-async function send (event: ANA_EVENTS, data: string = '', value: number = 0) {
+/**
+ * 发送指定事件
+ * @param {ANA_EVENTS} event 事件名称
+ * @param {string} [data=''] 事件数据
+ * @param {number} [value=0] 事件数值
+ */
+async function send (event: ANA_EVENTS, data: string = '', value: number = 0): Promise<void> {
   const app = App.getInstance()
   // 无应用，不发送数据
   if (!app.appid || config.disabled) {
-    return false
+    return
   }
   let userId = 0
   // 如果应用已经启动，需要通过login接口获取uid

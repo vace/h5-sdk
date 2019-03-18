@@ -4,16 +4,23 @@ import { noop } from "../functions/common";
 import { classPrefix, createClsElement, createSdkIcon } from "../utils/shared";
 import { UiBase, UiBaseOption } from "./UiBase";
 
+/** 设置选项 */
 export type UiToastOption = UiBaseOption & {
-  icon?: string // 图标
+  /** 图标 */
+  icon?: string
+  /** 消息内容 */
   message?: string
-  className?: string
-  clickClosed?: boolean // 点击可关闭
-  onClick?: Function
+  /** 点击可关闭 */
+  clickClosed?: boolean
+  /** 点击回调 */
+  onClick?: (this: UiToast, instance: UiToast) => void
 }
 
+/**
+ * Toast提示类
+ */
 export class UiToast extends UiBase{
-  // 全局配置
+  /** 全局配置 */
   public static option: UiToastOption = {
     target: 'body',
     onClose: noop,
@@ -22,18 +29,15 @@ export class UiToast extends UiBase{
   }
 
   // jquery element cache
+  /** header 结构 */
   public $header?: ZeptoCollection
+  /** body 内容 */
   public $body?: ZeptoCollection
+  /** 消息内容 */
   public $message: ZeptoCollection
 
-  public inClassName: string = classPrefix('fade-in')
-  public outClassName: string = classPrefix('fade-out')
-
-  /**
-   * 组件ID
-   * @type {string}
-   * @memberof UiModal
-   */
+  // public inClassName: string = classPrefix('fade-in')
+  // public outClassName: string = classPrefix('fade-out')
 
   constructor (_option: UiToastOption) {
     super(Object.assign({}, UiToast.option, _option))
@@ -50,12 +54,12 @@ export class UiToast extends UiBase{
     this.on('open', this._openHook.bind(this))
     this.on('closed', this._closedHook.bind(this))
   }
-  // 更新消息内容
+  /** 更新消息内容 */
   public setMessage(message: string) {
     (<any>this.$message.html(message)).fadeIn()
     return this
   }
-  // 更新图标内容
+  /** 更新图标内容 */
   public setIcon(icon: string) {
     this.$root.find('._sdkfont').removeClass(this.option.icon).addClass(icon)
     return this

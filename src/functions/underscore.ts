@@ -16,8 +16,6 @@ debounce 策略的电梯。如果电梯里有人进来，等待15秒。如果又
 
 /**
  * 获取当前时间点的毫秒数
- * @function
- * @returns {number}
  */
 export const now: () => number = Date.now || function () {
   return new Date().getTime()
@@ -26,10 +24,8 @@ export const now: () => number = Date.now || function () {
 
 /**
  * 频率控制 返回函数连续调用时，func 执行频率限定为 次 / wait
- * 
  * @param  {function}   func      传入函数
  * @param  {number}     wait      表示时间窗口的间隔
- * @return {function}             返回客户调用函数   
  */
 export function throttle(func: Function, wait: number) {
   let ctx: any,
@@ -63,7 +59,6 @@ export function throttle(func: Function, wait: number) {
  * @param  {function} func        传入函数
  * @param  {number}   wait        表示时间窗口的间隔
  * @param  {boolean}  immediate   设置为ture时，调用触发于开始边界而不是结束边界
- * @return {function}             返回客户调用函数
  */
 export function debounce(func: Function, wait: number = 100, immediate: boolean = false) {
   var timeout: any,
@@ -123,9 +118,8 @@ export function debounce(func: Function, wait: number = 100, immediate: boolean 
  * sdk.random(0, 100) / 100 // 生成 0.00 - 1.00 之间的小数
  * @param {number} min 最小值
  * @param {number} max 最大值
- * @returns {number}
  */
-export function random(min: number, max?: number) {
+export function random(min: number, max?: number): number {
   if (max == null) {
     max = min
     min = 0
@@ -156,7 +150,6 @@ export function shuffle<T>(array: T[]): T[] {
  * @param {ArrayOrObject} obj 需要遍历的对象
  * @param {Function} iteratee 回调函数
  * @param {any} context 作用域
- * @returns {ArrayOrObject} 源对象obj
  */
 export function each(obj: any, iteratee: Function, context?: any) {
   // 作用域绑定
@@ -186,7 +179,7 @@ export function each(obj: any, iteratee: Function, context?: any) {
  */
 export function pick (obj: object, map: string[] | object) {
   const res = {}
-  each(map, (value, key) => {
+  each(map, (value: any, key: any) => {
     res[value] = typeof key === 'string' ? obj[key] : obj[value]
   })
   return res
@@ -197,7 +190,6 @@ export function pick (obj: object, map: string[] | object) {
  * 创建一个会缓存 func 结果的函数。 如果提供了 hasher，就用 hasher 的返回值作为 key 缓存函数的结果。 默认情况下用第一个参数作为缓存的 key。 func 在调用时 this 会绑定在缓存函数上。
  * @param {any} func 计算函数体
  * @param {any} hasher 可选的函数缓存key
- * @returns {Function}
  */
 export function memoize(func: Function, hasher?: Function) {
   const memoized: any = function (this: any, key: string) {

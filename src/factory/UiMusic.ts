@@ -1,6 +1,5 @@
 import '../assets/ui-music.less'
 import starLoadingSvg from '../assets/star-loading'
-
 import Emitter from "./Emitter";
 import { createClsElement, classPrefix } from "../utils/shared";
 import { addListener } from '../functions/helper';
@@ -11,46 +10,71 @@ import $ from '../venders/zepto';
 import { isWechat } from '../functions/environment';
 import { fire } from '../plugins/jssdk';
 
+/** 配置项 */
 export interface UiMusicOption {
+  /** 挂载元素 */
   target?: string
+  /** 音乐路径 */
   src?: string
+  /** 类名 */
   className?: string
+  /** 主题 */
   theme?: string
+  /** 位置 */
   position?: 'tl' | 'tr' | 'bl' | 'br'
+  /** 默认样式 */
   style?: any
+  /** 是否自动播放 */
   autoplay?: boolean
+  /** 是否循环播放 */
   loop?: boolean
+  /** 是否静音 */
   muted?: boolean
+  /** 默认音量 */
   volume?: number
+  /** 预加载付出 */
   preload?: 'none' | 'metadata' | 'auto'
+  /** X方向偏移量 */
   offsetX?: number | string
+  /** Y方向偏移量 */
   offsetY?: number | string
+  /** 图标尺寸 */
   size?: number | string
+  /** 点击回调 */
   onClick?: Function
 }
 
+/** 主题注册 */
 interface UiMusicTheme {
+  /** 播放中主题 */
   playing: string | Function
+  /** 暂停状态主题 */
   paused: string | Function
+  /** 加载中主题 */
   loading?: string | Function
 }
 
-enum PEvent {
+/** 事件处理 */
+enum UiMusicEvent {
   pause, playing, canplay, ended, loading
 }
 
 const createCdnImage = (type: string, idx: number) => `<img src="${config.cdn}/_res/music/${type}_${idx}.svg" alt="${type}">`
 
 export class UiMusic extends Emitter {
-  public static _instance: UiMusic
-
+  private static _instance: UiMusic
+  /** 获取默认实例 */
+  public static get instance () {
+    return this.getInstance({})
+  }
+  /** 获取单例 */
   public static getInstance (option: UiMusicOption): UiMusic {
     if (!this._instance) {
       this._instance = new UiMusic(option)
     }
     return this._instance
   }
-
+  /** 全局配置 */
   public static option: UiMusicOption ={
     target: 'body',
     src: 'music.mp3',
@@ -65,8 +89,9 @@ export class UiMusic extends Emitter {
     offsetY: 16,
     size: 36
   }
+  /** 主题列表 */
   public static themes = new Map
-
+  /** 注册主题 */
   public static registerTheme (themeName, adapter: UiMusicTheme | number[]): Map<string, UiMusicTheme> {
     let _adapter: UiMusicTheme
     if (Array.isArray(adapter)) {
@@ -81,15 +106,19 @@ export class UiMusic extends Emitter {
     return this.themes.set(themeName, _adapter)
   }
 
-  // 配置项
+  /** 实例配置 */
   public option: UiMusicOption
-  // 播放节点是否挂载
+  /** 是否挂载 */
   public isMounted: boolean = false
+  
+  /** 是否正在加载 */
   private _isLoading: boolean = false
+  /** 是否正在播放 */
   private _isPlaying: boolean = false
+  /** 是否暂停播放 */
   private _isPaused: boolean = false
 
-  // 是否能自动播放
+  /** 是否能自动播放 */
   public isSupportAutoPlay: boolean = false
   // 根节点
   public $root: ZeptoCollection = createClsElement('music')
@@ -129,8 +158,8 @@ export class UiMusic extends Emitter {
       .append($view)
 
     // 事件代理
-    for (const eventId of [PEvent.pause, PEvent.playing, PEvent.canplay, PEvent.ended]) {
-      addListener(audio, PEvent[eventId], (event: any) => this._handleEvent(eventId, event))
+    for (const eventId of [UiMusicEvent.pause, UiMusicEvent.playing, UiMusicEvent.canplay, UiMusicEvent.ended]) {
+      addListener(audio, UiMusicEvent[eventId], (event: any) => this._handleEvent(eventId, event))
     }
 
     // 自动播放处理
@@ -147,13 +176,15 @@ export class UiMusic extends Emitter {
       }
     })
   }
-  // 设置 & 读取播放时间
+  /** 设置播放进度 */
   public set currentTime (val: number) {
     this.audio.currentTime = val
   }
+  /** 读取播放进度 */
   public get currentTime (): number {
     return this.audio.currentTime
   }
+  /** 获取主题 */
   public get theme (): UiMusicTheme {
     return UiMusic.themes.get(this.option.theme)
   }
@@ -162,32 +193,39 @@ export class UiMusic extends Emitter {
     this._isLoading = val
     this.$root.toggleClass(classPrefix('music__loading'), val)
   }
+  /** 获取是否加载中状态 */
   public get isLoading (): boolean {
     return this._isLoading
   }
-  // 是否加载中
+  /** 设置暂停状态 */
   public set isPaused(val: boolean) {
     this._isPaused = val
     this.$root.toggleClass(classPrefix('music__paused'), val)
   }
+  /** 读取暂停状态 */
   public get isPaused(): boolean {
     return this._isPaused
   }
-  // 是否加载中
+  /** 设置播放状态 */
   public set isPlaying(val: boolean) {
     this._isPlaying = val
     this.$root.toggleClass(classPrefix('music__playing'), val)
   }
+  /** 读取播放状态 */
   public get isPlaying(): boolean {
     return this._isPlaying
   }
 
-  // 加载音频
+  /**
+   * 加载音乐路径
+   * @param {string} [src]
+   * @returns
+   */
   public load (src?: string) {
     const { option, audio } = this
     const _url = src || option.src
     // 开始加载
-    this._handleEvent(PEvent.loading)
+    this._handleEvent(UiMusicEvent.loading)
     if (_url) {
       audio.src = _url
     } else {
@@ -196,15 +234,18 @@ export class UiMusic extends Emitter {
     // 设置audio 属性
     const setting = pick(option, ['autoplay', 'loop', 'muted', 'volume', 'preload'])
     each(setting, (value: any, key: string) => !isNullOrUndefined(value) && (audio[key] = value))
+    return this
   }
+  /** 播放 */
   public play () {
     this.audio.play()
     return this
   }
+  /** 暂停 */
   public pause () {
     this.audio.pause()
   }
-  // 销毁
+  /** 销毁 */
   public destory () {
     this.pause()
     this.$root.remove()
@@ -216,7 +257,7 @@ export class UiMusic extends Emitter {
   }
   // 事件处理
   private _handleEvent (eventId: number, event?: any) {
-    const eventName = PEvent[eventId]
+    const eventName = UiMusicEvent[eventId]
     const {
       $root,
       $loading,
@@ -241,18 +282,18 @@ export class UiMusic extends Emitter {
       // dom ready
       $(target).append($root)
     }
-    if (eventId === PEvent.loading) {
+    if (eventId === UiMusicEvent.loading) {
       this.isPlaying = this.isPaused = false
       this.isLoading = true  
-    } else if (eventId === PEvent.playing) {
+    } else if (eventId === UiMusicEvent.playing) {
       this.isLoading = this.isPaused = false
       this.isPlaying = true
-    } else if (eventId === PEvent.pause || eventId === PEvent.canplay) {
+    } else if (eventId === UiMusicEvent.pause || eventId === UiMusicEvent.canplay) {
       this.isLoading = this.isPlaying = false
       this.isPaused = true
     }
     // 准备就绪
-    if (eventId === PEvent.canplay) {
+    if (eventId === UiMusicEvent.canplay) {
       // fixed 自动播放未播放，浏览器限制
       if (autoplay && audio.paused) {
         const trigger = this.play.bind(this)

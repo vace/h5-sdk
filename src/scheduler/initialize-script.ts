@@ -1,7 +1,11 @@
 import { getElementAttrs } from "../utils/shared";
 import { dirname } from "../functions/path";
 
-export default function () {
+/**
+ * 自动加载script
+ * @ignore
+ */
+export default function initializeScript () {
   let doc = document
   let js = doc.scripts
   // 当前的script

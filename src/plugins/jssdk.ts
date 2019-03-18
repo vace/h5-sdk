@@ -10,6 +10,7 @@ import { App } from '../factory/App';
 import { event } from './analysis';
 import { each } from '../functions/underscore';
 
+/** 配置结构 */
 type WxConfigOption = {
   url: string
   debug?: boolean
@@ -17,12 +18,14 @@ type WxConfigOption = {
   jsApiList: []
 }
 
+/** 返回结构 */
 interface ConfigResponse extends WxConfigOption {
   timestamp: string
   nonceStr: string
   signature: string
 }
 
+/** 设置分享 */
 interface ShareOption {
   /* 分享方式 *全部包含, timeline 朋友圈，app 个人|群组|QQ */
   type?: '*' | 'timeline' | 'wxapp'
@@ -36,6 +39,7 @@ interface ShareOption {
   success?: Function
 }
 
+/** 回调事件 */
 type WxEventType = 'beforeConfig' | 'config' | 'share' | 'updateShare' | 'error' | 'ready'
 
 /**
@@ -48,10 +52,12 @@ export const defaultJsApiList = [
   'previewImage', 'getNetworkType', 'closeWindow', 'openLocation'
 ]
 
+/** 事件分发器 */
 export const emitter = new Emitter()
 
 const emit = (evt: WxEventType, arg?: any, arg2?: any) => emitter.emit(evt, arg, arg2)
 
+/** 监听事件 */
 export const on = (type: WxEventType, callback: EventHandlerNonNull) => emitter.on(type, callback)
 
 
@@ -60,7 +66,6 @@ let _configPromise: Promise<any>
 /**
  * 获取微信签名，一般只用签名一次，不提供appid则从App中读取jsappid
  * @param {WxConfigOption} [option]
- * @returns {Promise<ConfigResponse>}
  */
 export function config (option?: WxConfigOption): Promise<ConfigResponse> {
   // fetch(url)

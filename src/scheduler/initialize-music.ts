@@ -2,7 +2,11 @@ import $ from "../venders/zepto";
 import { UiMusic } from "../factory/UiMusic";
 import { getElementAttrs } from "../utils/shared";
 
-export default function () {
+/**
+ * 自动加载音乐
+ * @ignore
+ */
+export default function initializeMusic () {
   const element: ZeptoCollection = $('meta[name="sdk:music"]')
   if (!element.length) {
     return

@@ -8,7 +8,6 @@ import { commonResponseReslove } from "../utils/shared";
  * @param {string} serviceName
  * @param {*} opt
  * @param {('get' | 'post')} [method='get']
- * @returns {Promise<any>}
  */
 export function service (serviceName: string, opt: any, method: 'get' | 'post' = 'get'): Promise<any> {
   const api = getServiceUri(`${serviceName}?appid=${App.getInstance().appid}`)

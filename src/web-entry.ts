@@ -21,6 +21,7 @@ export const version = '__VERSION__'
 /**
  * 导出辅助函数类
  */
+export * from './config'
 export * from './functions/index'
 export * from './venders/index'
 export * from './plugins/index'

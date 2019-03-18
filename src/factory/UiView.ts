@@ -7,16 +7,24 @@ import { createClsElement, createSdkIcon, classPrefix } from "../utils/shared";
 export interface UiViewOption extends UiBaseOption {
   /* image: 图片预览, preloader: 加载动画 */
   type: 'image' | 'preloader'
-  isFullScreen?: boolean // 是否全屏
-  src?: string // 图片路径
-  alt?: string // 图片描述
-  content?: string // 追加内容
-  icon?: string // 附加图标
-  iconPosition?: 'tl' | 'tr' | 'bl' | 'br' | 'center' // 图标位置
-  onClick?: Function // icon click
+  /** 是否全屏 */
+  isFullScreen?: boolean
+  /** 图片路径 */
+  src?: string
+  /** 图片描述 */
+  alt?: string
+  /** 追加内容 */
+  content?: string
+  /** 附加图标 */
+  icon?: string
+  /** 图标位置 */
+  iconPosition?: 'tl' | 'tr' | 'bl' | 'br' | 'center'
+  /** 图标点击回调函数 */
+  onClick?: (this: UiView, instance: UiView) => void
 }
 
 export class UiView extends UiBase {
+  /** 全局配置 */
   public static option = {
     isAddMask: true,
     target: 'body',
@@ -26,9 +34,11 @@ export class UiView extends UiBase {
       this.close()
     }
   }
-
+  /** view节点 */
   public $view: ZeptoCollection
+  /** 内容节点 */
   public $content?: ZeptoCollection
+
   constructor (_option: UiViewOption) {
     super(Object.assign({}, UiView.option, _option))
     this.$view = createClsElement('view')
@@ -59,7 +69,7 @@ export class UiView extends UiBase {
     $view.toggleClass(classPrefix('view-full'), !!isFullScreen)
   }
 
-  // 重新设置内容
+  /** 重新设置内容 */
   public setContent (content: string) {
     if (!this.$content) {
       this.$content = createClsElement('view-content')

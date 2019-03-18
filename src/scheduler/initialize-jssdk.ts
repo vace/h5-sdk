@@ -2,6 +2,10 @@ import { getElementAttrs } from "../utils/shared";
 import { config, share, defaultJsApiList } from "../plugins/jssdk";
 import $ from "../venders/zepto";
 
+/**
+ * 自动处理jssdk签名
+ * @ignore
+ */
 export default function initializeJssdk () {
   const element: ZeptoCollection = $('meta[name="sdk:jssdk"]')
   if (!element.length) {

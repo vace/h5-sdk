@@ -33,7 +33,7 @@ function formatDiff(diff: number) {
  * @param {number} unixTime 允许`Date`类型参数
  * @returns {string} 美化后的时间描述，如“3小时前”
  */
-export function timeago(unixTime: Date | number) {
+export function timeago (unixTime: Date | number): string {
   if (unixTime instanceof Date) unixTime = unixTime.getTime() / 1000
   let diff = Date.now() / 1000 - unixTime
   return formatDiff(diff)
@@ -47,9 +47,8 @@ const REPLACE_REGEX = /(Y|M|D|H|I|S|T)/ig
  * 格式化时间点
  * @param {number} unixTime  unix时间戳
  * @param {string} [format='Y-M-D H:i:s'] 格式化格式
- * @returns {string} 符合条件的时间点
  */
-export function unixFormat(unixTime: number, format = 'Y-M-D H:i:s') {
+export function unixFormat (unixTime: number, format = 'Y-M-D H:i:s'): string {
   var time = new Date(unixTime * 1000)
   var conf: any = {
     Y: time.getFullYear(),

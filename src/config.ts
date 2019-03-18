@@ -1,9 +1,9 @@
 import { AnalysisOption } from "./plugins/analysis";
 
-// 加载全局设置的配置
+/** 加载全局设置的配置 `window._SDK` */
+const GlobalSdkConfig: DefaultConfig = window['_SDK'] || {}
 
-const global: any = window['_SDK'] || {}
-
+/** 配置文件格式 */
 export type DefaultConfig = {
   /** 分析插件配置 */
   analysis?: AnalysisOption
@@ -13,28 +13,27 @@ export type DefaultConfig = {
   cdn: string
 }
 
-const config: DefaultConfig = {
+/** 默认配置 */
+export const config: DefaultConfig = Object.assign({
   // analysis,
   service: 'http://127.0.0.1:3000',
   cdn: 'https://5.5u55.cn'
-}
+} as DefaultConfig, GlobalSdkConfig)
 
-// 合并配置文件后导出
-export default Object.assign(config, global) as DefaultConfig
+/** 默认配置 */
+export default config
 
 /**
  * 获取service的uri
  * @param {string} name
- * @returns {string}
  */
 export function getServiceUri (name: string): string {
   return `${config.service}/${name}`
 }
 
 /**
- * 获取cdn文件
+ * 获取cdn文件名称
  * @param filename 文件名
- * @returns {string}
  */
 export function getCdnRes (filename: string): string {
   return `${config.cdn}/${filename}`

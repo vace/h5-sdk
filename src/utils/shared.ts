@@ -7,34 +7,62 @@ import { location } from './global';
 
 // 默认的z-index
 let GLOBAL_ZINDEX = 1e5
-export function nextZIndex() {
+
+/**
+ * 获取下一个zindex，从10000开始
+ * @ignore
+ * @returns {number}
+ */
+export function nextZIndex(): number {
   return GLOBAL_ZINDEX++
 }
 
-export function classPrefix (className: string | any[]) {
+/**
+ * 补全class前缀
+ * @ignore
+ * @param {(string | any[])} className
+ * @returns {string}
+ */
+export function classPrefix (className: string | any[]): string {
   if (Array.isArray(className)) {
     return className.filter(cn => !!cn).map(cn => `_sdk-${cn}`).join(' ')
   }
   return `_sdk-${className}`
 }
 
-export function createSdkIcon (name) {
+/**
+ * 创建内置图标
+ * @ignore
+ * @param {string} name
+ * @returns {string}
+ */
+export function createSdkIcon (name: string): string {
   return `<i class="_sdkfont _sf-${name}"></i>`
 }
 
-// helper function
-export const createClsElement = (
+/**
+ * 创建内置的zepto元素实例
+ * @ignore
+ * @param {string} className
+ * @param {(string | ZeptoCollection)} [content]
+ * @param {string} [tagName='div']
+ * @returns {ZeptoCollection}
+ */
+export function createClsElement (
   className: string,
   content?: string | ZeptoCollection,
   tagName: string = 'div'
-): ZeptoCollection => $(`<${tagName}>`).addClass(classPrefix(className)).append(content)
+): ZeptoCollection{
+  return $(`<${tagName}>`).addClass(classPrefix(className)).append(content)
+}
 
 /**
  * 监听动画完成事件
- * @param $element 
+ * @ignore
+ * @param $element
  * @param callback 
  */
-export function onceAnimationEnd($element: ZeptoCollection, callback: any) {
+export function onceAnimationEnd($element: ZeptoCollection, callback: any): any {
   const { off } = $.fx
   // 不支持动画时直接返回执行结果
   if (off) {
@@ -49,7 +77,7 @@ export function onceAnimationEnd($element: ZeptoCollection, callback: any) {
 /**
  * 读取获取元素的配置属性
  * ! 布尔值，+ 数字，? 如果有可能，转换为数字
- * @export
+ * @ignore
  * @param {HTMLElement} element 元素
  * @param {string[]} attrs 属性表
  */
@@ -80,8 +108,13 @@ export function getElementAttrs (element: HTMLElement | ZeptoCollection, attrs: 
   return options
 }
 
-// 通用错误处理
-export function commonResponseReslove (response: CommonResponseData) {
+/**
+ * 通用http错误处理
+ * @ignore
+ * @param {CommonResponseData} response
+ * @returns {Promise<Error> | Promise<any>}
+ */
+export function commonResponseReslove (response: CommonResponseData): Promise<Error> | Promise<any> {
   if (!response) {
     return Promise.reject(new Error('response data empty'))
   }
@@ -95,12 +128,24 @@ export function commonResponseReslove (response: CommonResponseData) {
   return Promise.resolve(data)
 }
 
+/**
+ * Object.assign别名
+ * @ignore
+ */
 export const assign = Object.assign
 
+/**
+ * 获取当前路径
+ * @ignore
+ */
 export function getCurrentHref (): string {
   return <string>location.href.split('#').shift()
 }
 
+/**
+ * 获取当前目录下文件
+ * @ignore
+ */
 export function getCurrentPathFile(filename: string = ''): string {
   return dirname(<string>location.href.split('?').shift()) + '/' + filename
 }

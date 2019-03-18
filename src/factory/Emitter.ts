@@ -32,7 +32,6 @@ export default class Emitter {
 		 *
 		 * @param  {String} type	Type of event to listen for, or `"*"` for all events
 		 * @param  {Function} handler Function to call in response to given event
-		 * @memberOf mitt
 		 */
   on(type: string, handler: EventHandler) {
     this.$getEmitter(type).push(handler)
@@ -44,7 +43,6 @@ export default class Emitter {
    *
    * @param  {String} type	Type of event to unregister `handler` from, or `"*"`
    * @param  {Function} handler Handler function to remove
-   * @memberOf mitt
    */
   off(type: string, handler: EventHandler) {
     const list = this.$getEmitter(type)
@@ -60,7 +58,6 @@ export default class Emitter {
    *
    * @param {String} type  The event type to invoke
    * @param {Any} [evt]  Any value (object is recommended and powerful), passed to each handler
-   * @memberOf mitt
    */
   emit(type: string, a?: any, b?: any) {
     const _this = this

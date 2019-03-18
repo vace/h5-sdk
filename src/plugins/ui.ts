@@ -1,12 +1,13 @@
-import { UiModalOption, UiModalInputType, UiModal } from '../factory/UiModal'
+import { UiModalOption, UiModal } from '../factory/UiModal'
 import { UiToastOption, UiToast } from '../factory/UiToast';
 import { isObject, isNumber, isFunction, isString, isBoolean } from '../functions/is';
 import { UiView } from '../factory/index';
 import { UiViewOption } from '../factory/UiView';
 import { each } from '../functions/underscore';
 import { UiMusicOption, UiMusic } from '../factory/UiMusic';
+import { UiInputType } from '../factory/UiBase';
 
-const closeHelper = modal => modal.close()
+const closeHelper = (modal: UiModal) => modal.close()
 
 /**
  * 打开一个Modal
@@ -17,10 +18,14 @@ export function modal (option: UiModalOption): UiModal {
   return new UiModal(option).open()
 }
 
+/** UiAlert 配置 */
 interface UiAlertOption extends UiModalOption {
+  /** 点击链接可选 */
   href?: string
-  okText?: string // 按钮名称
-  ok?: Function // 按钮点击回调事件
+  /** 按钮名称 */
+  okText?: string
+  /** 按钮点击回调事件 */
+  ok?: Function
 }
 
 /**
@@ -40,8 +45,11 @@ export function alert(option: UiAlertOption | string): UiModal {
   return new UiModal(option).open()
 }
 
+/** UiConfirm配置 */
 interface UiConfirmOption extends UiAlertOption {
+  /** 关闭按钮文字 */
   noText?: string
+  /** 关闭按钮回调 */
   no?: Function
 }
 
@@ -59,9 +67,12 @@ export function confirm (option: UiConfirmOption): UiModal {
   return new UiModal(option).open()
 }
 
+/** UiPrompt 配置 */
 interface UiPromptOption extends UiConfirmOption {
-  type?: UiModalInputType // 种类
-  defaultValue?: string // 默认值
+  /** 输入种类 */
+  type?: UiInputType
+  /** 输入默认值 */
+  defaultValue?: string
 }
 
 /**
@@ -80,7 +91,8 @@ export function prompt (option: UiPromptOption | string): UiModal {
   return confirm(option)
 }
 
-type UserProfileType = 'username' | 'mobile' | 'password' | 'address'
+type UserProfileType = 'username' | 'mobile' | 'password' | 'address' | 'hidden'
+/** UserBox类型 */
 interface UiUserboxOption extends UiConfirmOption {
   title: string
   profile: UserProfileType[]
@@ -124,7 +136,7 @@ export function userbox (option: UiUserboxOption): UiModal {
   return confirm(option)
 }
 
-function toastWrapper(icon?: 'success' | 'info' | 'sorry' | 'err' | 'loading'): Function {
+function toastWrapper(icon?: 'success' | 'info' | 'sorry' | 'err' | 'loading'): (message: any, duration?: any, onClose?: any) => UiToast {
   return (message: any, duration: any, onClose: any): UiToast => {
     const option: UiToastOption = isObject(message) ? message : { message }
     if (icon) {
@@ -146,13 +158,19 @@ function toastWrapper(icon?: 'success' | 'info' | 'sorry' | 'err' | 'loading'): 
   }
 }
 
-
+/** 显示toast */
 export const toast = toastWrapper()
+/** 显示toast-tips */
 export const tips = toastWrapper()
+/** 显示toast-success */
 export const success = toastWrapper('success')
+/** 显示toast-info */
 export const info = toastWrapper('info')
+/** 显示toast-warn */
 export const warn = toastWrapper('sorry')
+/** 显示toast-error */
 export const error = toastWrapper('err')
+/** 显示toast-loading */
 export const loading = toastWrapper('loading')
 
 /**

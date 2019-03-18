@@ -2,16 +2,20 @@ import { isString, isObject, isHttp, isFormData } from "../functions/is";
 import { stringify } from "../functions/qs";
 import { isAbsolute } from "../functions/path";
 
-// import { fetch } from "../utils/global"
-
+/** 服务端约定返回格式 */
 export type CommonResponseData = {
+  /** 错误码，无错误返回0 */
   code: number
+  /** 返回数据 */
   data: any
+  /** 返回消息文本 */
   message: string
-  msg: string // 兼容老版本API
+  /** 兼容老版本API */
+  msg?: string
 }
 
-interface HttpRequestBase {
+/** Http请求参数 */
+export interface HttpRequestBase {
   // 附带参数
   method?: 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH'
   headers?: HeadersInit
@@ -25,26 +29,36 @@ interface HttpRequestBase {
   referrer?: ' no-referrer' | 'client'
 }
 
+/** Http配置 */
 export interface HttpOption extends HttpRequestBase{
+  /** 根路径 */
   baseURL?: string
+  /** 超时时间 */
   timeout?: number
+  /** 对请求对象进行转换 */
   transformRequest?: (arg: TransformRequestOption) => any
+  /** 对响应对象进行转换 */
   transformResponse?: (res: Response) => any
+  /** 返回数据格式 */
   responseType?: 'arrayBuffer' | 'blob' | 'formData' | 'json' | 'text'
+  /** 验证数据有效性，默认`status>=200` and `status<300` */
   validateStatus?: (status: number) => boolean
 }
 
+/** 转换请求参数 */
 export interface TransformRequestOption extends RequestInit {
   /** 接口请求链接 */
   url: string
 }
 
-interface HttpRequestOption extends HttpRequestBase {
+/** 默认请求格式 */
+export interface HttpRequestOption extends HttpRequestBase {
   url: string
   params?: any
   data?: any
 }
 
+/** 可用方法签名 */
 enum Method {
   GET = 'GET',
   DELETE = 'DELETE',
@@ -55,12 +69,22 @@ enum Method {
   PATCH = 'PATCH'
 }
 
+/** 可用ContentType */
 enum ContentType {
   UrlEncode = 'application/x-www-form-urlencoded;charset=utf-8',
   JSON = 'application/json;charset=utf-8'
 }
 
+/**
+ * 处理网络请求
+ * @class Http
+ */
 export class Http {
+  /**
+   * 全局配置
+   * @static
+   * @type {HttpOption}
+   */
   public static option: HttpOption = {
     baseURL: '',
     timeout: 0,
@@ -77,39 +101,53 @@ export class Http {
       return status >= 200 && status < 300
     }
   }
-  public static _instance: Http
+
+  private static _instance: Http
+  /** 获取实例 */
   public static get instance (): Http {
     if (!this._instance) {
       this._instance = new Http()
     }
     return this._instance
   }
-
+  /** 实例配置 */
   public option: HttpOption
+  /**
+   * 创建指定格式实例
+   * @param {HttpOption} [_option] 配置
+   */
   public constructor (_option?: HttpOption) {
     this.option = Object.assign({}, Http.option, _option)
   }
+  /** GET 请求 */
   public get (url: string, params?: any): Promise<any> {
     return this.request({url, method: Method.GET, params })
   }
+  /** DELETE 请求 */
   public delete (url: string, params?: any): Promise<any> {
     return this.request({ url, method: Method.DELETE, params })
   }
+  /** HEAD 请求 */
   public head (url: string, params?: any): Promise<any> {
     return this.request({ url, method: Method.HEAD, params })
   }
+  /** OPTIONS 请求 */
   public options (url: string, params?: any): Promise<any> {
     return this.request({ url, method: Method.OPTIONS, params })    
   }
+  /** POST 请求 */
   public post (url: string, data?: any): Promise<any> {
     return this.request({ url, method: Method.POST, data })
   }
+  /** PUT 请求 */
   public put(url: string, data?: any): Promise<any> {
     return this.request({ url, method: Method.PUT, data })
   }
+  /** PATCH 请求 */
   public patch(url: string, data?: any): Promise<any> {
     return this.request({ url,  method: Method.PATCH, data })
   }
+  /** 发送request */
   public request(option: HttpRequestOption): Promise<any> {
     const config = Object.assign({}, option, this.option)
     const {

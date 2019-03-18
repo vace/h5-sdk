@@ -4,57 +4,114 @@ import { nextZIndex, onceAnimationEnd, classPrefix, createClsElement } from '../
 import $ from '../venders/zepto'
 import { isNullOrUndefined } from '../functions/is'
 
+/** UI支持的颜色 */
 export type TypeColor = 'dark' | 'main' | 'primary' | 'warn' | 'info'
 
+/** UI支出的主题 */
 export type UiTheme = 'android' | 'ios'
 
+/** 通用默认配置 */
 export type UiBaseOption = {
+  /** 指定根元素ID */
   id?: string
+  /** 渲染主题 */
   theme?: UiTheme
+  /** 是否添加遮罩层 */
   isAddMask?: boolean
+  /** 类名 */
   className?: string
+  /** 延迟自动关闭时间 */
   duration?: boolean | number
+  /** 挂载根元素 */
   target?: string | HTMLElement
+  /** 关闭回调 */
   onClose?: Function
   [key: string]: any
 }
 
+/** UI支出的事件参数 */
 export type UiBaseEvent = 'open' | 'opened' | 'close' | 'closed'
 
+
+/** UI按钮配置 */
+export type UiButtonOption = {
+  /** 触发的click事件的key */
+  key?: string
+  /** 按钮名称 */
+  label: string
+  /** `button`转换为`a`用于拨号，邮箱 */
+  href?: string
+  /** 点击回调 */
+  onClick?: Function // 回调事件
+  /** 文字加粗 */
+  bold?: boolean // 是否加粗
+  /** 文字颜色 */
+  color?: TypeColor
+  /** 自定义类名 */
+  className?: string // 自定义className
+}
+
+/** UI输入框种类 */
+export type UiInputType = 'hidden' | 'text' | 'tel' | 'password' | 'textarea' | 'number' | 'custom'
+
+/** UI输入框配置 */
+export type UiInputOption = {
+  /** input 的name */
+  name: string
+  /** 标签名称 */
+  type?: UiInputType
+  /** 输入标签名称 */
+  label?: string
+  /** 输入提示 */
+  tips?: string
+  /** 默认输入内容 */
+  placeholder?: string
+  /** 默认值 */
+  value?: string
+  /** 是否禁用 */
+  disabled?: boolean
+  /** 自定义内容，type = custom有效 */
+  innerHTML?: string
+  [key: string]: any
+}
+
+/**
+ * UiBase基础构造类
+ * @class UiBase
+ * @extends {Emitter}
+ */
 export class UiBase extends Emitter {
-  // 默认参数
+  /** 默认配置 */
   public static option: any = {
     isAddMask: false,
     target: 'body',
     duration: 2500
   }
 
+  /** 时间触发器 */
   public emitter: any = null
-  /**
-   * 传入配置
-   * @type {UiBaseOption}
-   * @memberof UiBase
-   */
+  
+  /** 实例配置 */
   public option: UiBaseOption
 
   // jquery element cache
+  /** 挂载元素 */
   public $target?: ZeptoCollection
+  /** 根元素 */
   public $root: ZeptoCollection
+  /** 遮罩 */
   public $mask: ZeptoCollection
-
+  /** 动画入场className */
   public inClassName: string = classPrefix('fade-in')
+  /** 动画出场className */
   public outClassName: string = classPrefix('fade-out')
-
-  /**
-   * 组件ID
-   * @type {string}
-   * @memberof UiBase
-   */
+  /** 组件ID */
   public id: string
+  /** 弹窗是否打开 */
   public isOpened: boolean = false
   // close
   private _closeTid?: number | null
-
+  /** 构造UI */
   constructor(option: UiBaseOption = {}) {
     super()
     // 合并全局变量
@@ -84,10 +141,7 @@ export class UiBase extends Emitter {
     this._closeTid = null
   }
 
-  /**
-   * 打开弹层
-   * @memberof UiBase
-   */
+  /** 打开弹窗 */
   public open() {
     const { isOpened, option: { target, duration } } = this
     this.$target = $(target)
@@ -120,10 +174,8 @@ export class UiBase extends Emitter {
     $root.removeClass(inClassName)
     this.emit('opened')
   }
-  /**
-   * 关闭弹层
-   * @memberof UiBase
-   */
+  
+  /** 关闭弹窗 */
   public close() {
     const { isOpened } = this
     if (isOpened) {
@@ -147,7 +199,7 @@ export class UiBase extends Emitter {
     $root.removeClass(outClassName).remove()
     this.emit('closed')
   }
-
+  /** 延迟关闭 */
   public wait(duration: number): Promise<UiBase> {
     var promise: any = wait(duration, this)
     promise.close = () => promise.then(() => this.close())

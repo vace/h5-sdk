@@ -5,7 +5,6 @@ import { addEventListener, removeEventListener } from "../utils/global";
 /**
  * 摇一摇
  * @param {Function} callback
- * @returns
  */
 export function onShake (callback: Function) {
   if (!('ondevicemotion' in window)) {
@@ -59,7 +58,6 @@ export function onShake (callback: Function) {
 /**
  * 读取文件的base64
  * @param {File} inputer
- * @returns {Promise<string>}
  */
 export function readAsDataURL (inputer: File): Promise<string> {
   let fr = new FileReader()
@@ -73,8 +71,6 @@ let $inputHanlde: ZeptoCollection
 
 /**
  * 选择某个种类的文件
- * @param {string} [accept='*']
- * @returns {Promise<File>}
  */
 export function chooseFile (accept: string = '*'): Promise<File> {
   return new Promise((resolve, reject) => {

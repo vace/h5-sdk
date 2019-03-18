@@ -8,7 +8,7 @@ const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=
 
 class InvalidCharacterError extends Error{}
 
-// base64 to assic
+/** base64 to assic */
 export function btoa (input: string) {
   var str = String(input);
   for (
@@ -30,7 +30,7 @@ export function btoa (input: string) {
   return output;
 }
 
-// decoder
+/** ascii to base64 */
 export function atob (input: string) {
   var str = String(input).replace(/[=]+$/, ''); // #31: ExtendScript bad parse of /=
   if (str.length % 4 == 1) {
@@ -54,10 +54,11 @@ export function atob (input: string) {
 }
 
 
-// 第三方函数库
-export const md5 = _md5
+/** md5 */
+export const md5: (str: string, key?: string) => string = _md5
 
-export function signature (object: Record<string, any>, action: string = '') {
+/** 对数据签名 */
+export function signature (object: Record<string, any>, action: string = ''): string {
   // 字典排序
   const str = Object.keys(object).sort().map(key => {
     const value = object[key]
@@ -69,11 +70,9 @@ export function signature (object: Record<string, any>, action: string = '') {
 
 /**
  * jwt解码，形式如 header.body.signature
- * @export
  * @param {string} token
- * @returns
  */
-export function jwtDecode (token: string) {
+export function jwtDecode (token: string): any {
   try {
     return _autoJwtDecode(token)
   } catch (error) {

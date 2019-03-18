@@ -51,14 +51,13 @@ export class App {
   /** 是否已经登陆 */
   public isLogin: boolean = false
 
-  /** Service */
+  /** 已经注入用户认证信息的`Http`实例 */
   public $http: Http
 
   /**
-   * ------------------
-   * ---- 全局配置 -----
-   * ------------------
+   * 全局配置
    */
+
   /** 应用的AccessKey缓存名称 */
   public accessCacheKey: string = 'AppAccessToken'
   /** 应用APPID */
@@ -73,10 +72,10 @@ export class App {
   public plantform: AppPlatform = 'wechat'
 
   /**
-   * ------------------
-   * ---- 用户信息 -----
-   * ------------------
+   * 用户信息
    */
+
+  /** 用户信息结构，未登录时`user.id`=0 */
   public user: AppUserStruct = {
     id: 0,
     // openid: '',
@@ -84,11 +83,13 @@ export class App {
     // avatar: ''
   }
 
+  /** jwt登陆的相关信息 */
   public jwt: JwtBody = {}
 
   /**
    * Getters And Setters
    */
+
   /** 本地存储的accessskey */
   private _accessKey: string = ''
   /** 设置accesskey */
@@ -138,6 +139,7 @@ export class App {
     each(userinfo, (val: any, key: string) => this.user[key] = val)
     store.set(this.accessCacheKey, key)
   }
+
   /** 读取本地的accesskey */
   public get accessKey (): string {
     return this._accessKey
@@ -195,18 +197,18 @@ export class App {
   /**
    * 启动应用（只可调用一次）
    */
-  public async run () {
+  public async run (): Promise<AppUserStruct> {
     // 应用已经启动
     if (this.isRunning) {
       console.log('App has been launched.')
-      return
+      return await this.login()
     }
     // 读取本地缓存的accessKey
     this.accessKey = store.get(this.accessCacheKey) || ''
     // 未登录，但设置了scope
     return await this.login()
   }
-
+  /** 登录任务 */
   private $_tasking?: Promise<any>
   /** 登陆用户 */
   public async login (): Promise<AppUserStruct> {
@@ -232,7 +234,7 @@ export class App {
 /**
  * 注册微信授权解析
  * @param {App} app
- * @returns
+ * @returns {Promise<AppAuthResponse>}
  */
 async function wechatOauthScope (app: App): Promise<AppAuthResponse> {
   let url = getCurrentHref()
@@ -288,6 +290,7 @@ const wechatHandle: RegisterScopeHandle = {
 App.registerScope('snsapi_base', wechatHandle)
 App.registerScope('snsapi_userinfo', wechatHandle)
 
+/** 注册scope授权处理方法 */
 export type RegisterScopeHandle = {
   /** 处理auth */
   auth: (app: App) => Promise<AppAuthResponse>
@@ -295,6 +298,7 @@ export type RegisterScopeHandle = {
   validate: (user: AppAuthResponse) => boolean
 }
 
+/** 用户结构 */
 export type AppUserStruct = {
   /** 用户ID */
   id: number
@@ -308,6 +312,7 @@ export type AppUserStruct = {
   [key: string]: any
 }
 
+/** 应用配置 */
 export type AppOption = {
   /** 当前应用appid */
   appid?: string
@@ -321,6 +326,7 @@ export type AppOption = {
   plantform?: AppPlatform
 }
 
+/** 授权配置 */
 export type AppAuthResponse = {
   platform: AppPlatform
   platformId: string

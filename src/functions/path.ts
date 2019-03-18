@@ -1,42 +1,11 @@
-/* eslint-disable */
-/**
- * @module sdk
- */
-
-// Copyright Joyent, Inc. and other Node contributors.
-//
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and associated documentation files (the
-// "Software"), to deal in the Software without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Software, and to permit
-// persons to whom the Software is furnished to do so, subject to the
-// following conditions:
-//
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
-// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
-// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
-// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
-// USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-// Split a filename into [root, dir, basename, ext], unix version
-// 'root' is just a slash, or nothing.
 var splitPathRe =
-  /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/;
+  /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/
+
 var splitPath = function (filename: string): string[] {
-  return (splitPathRe.exec(filename) as string[]).slice(1);
+  return (splitPathRe.exec(filename) as string[]).slice(1)
 };
 
-/**
- * 是否为绝对路径
- * @param {string} path 路径名称
- * @returns {boolean}
- */
+/** 是否为绝对路径 */
 export function isAbsolute(path: string): boolean {
   return path.charAt(0) === '/';
 }
@@ -45,9 +14,8 @@ export function isAbsolute(path: string): boolean {
  * 把一个路径或路径片段的序列解析为一个绝对路径
  * @param {string} to 初始路径
  * @param {string} from 相对路径
- * @returns {string}
  */
-export function resolvePath(...args: string[]) {
+export function resolvePath(...args: string[]): string {
   let resolvedPath = '',
       resolvedAbsolute = false;
   for (var i = args.length - 1; i >= -1 && !resolvedAbsolute; i--) {
@@ -73,9 +41,8 @@ export function resolvePath(...args: string[]) {
  * @example
  * sdk.dirname('/foo/bar/baz/asdf/quux'); // 返回 /foo/bar/baz/asdf
  * @param {string} path
- * @returns {string}
  */
-export function dirname(path: string) {
+export function dirname(path: string): string {
   var result = splitPath(path),
     root = result[0],
     dir = result[1];
@@ -99,9 +66,8 @@ export function dirname(path: string) {
  * sdk.basename('/foo/bar/quux.html'); // 返回 'quux.html'
  * @param {string} path 文件路径
  * @param {string} ext 可选的文件扩展名
- * @returns {string}
  */
-export function basename(path: string, ext?: string) {
+export function basename(path: string, ext?: string): string {
   var f = splitPath(path)[2];
   // make this comparison case-insensitive on windows?
   if (ext && f.substr(-1 * ext.length) === ext) {
@@ -115,7 +81,6 @@ export function basename(path: string, ext?: string) {
  * @example
  * sdk.extname('index.html'); // 返回 .html
  * @param {string} path 
- * @returns {string}
  */
 export function extname(path: string): string {
   return splitPath(path)[3];

@@ -3,54 +3,36 @@ import { noop } from '../functions/common'
 import { classPrefix, createClsElement, createSdkIcon } from '../utils/shared'
 import $ from '../venders/zepto'
 import { parse } from '../functions/qs';
-import { UiBase, UiBaseOption } from './UiBase';
+import { UiBase, UiBaseOption, UiButtonOption, UiInputOption } from './UiBase';
 
-type TypeColor = 'dark' | 'main' | 'primary' | 'warn' | 'info'
-
-export type UiModalButton = {
-  key?: string // 触发dialog的click事件的key
-  label: string // 按钮名称
-  href?: string // 用于拨号，邮箱
-  onClick?: Function // 回调事件
-  bold?: boolean // 是否加粗
-  color?: TypeColor
-  className?: string // 自定义className
-}
-
-export type UiModalInputType = 'hidden' | 'text' | 'tel' | 'password' | 'textarea' | 'number' | 'custom'
-
-export type UiModalInput =  {
-  name: string
-  type?: UiModalInputType // 标签名称
-  label?: string // 输入项名称
-  tips?: string // 输入提示
-  placeholder?: string
-  value?: string
-  disabled?: boolean
-  innerHTML?: string // 自定义内容，type = custom有效
-  [key: string]: any
-}
-
-type UiTheme = 'android' | 'ios'
-
+/** UIModal配置 */
 export interface UiModalOption extends UiBaseOption {
-  title?: string // 标题
-  header?: string // 子标题
-  content?: string // 内容
-  footer?: string // 底部追加内容
-  buttons?: UiModalButton[] // 操作按钮列表
-  inputs?:  UiModalInput[]
+  /** 标题 */
+  title?: string
+  /** 子标题 */
+  header?: string
+  /** 内容 */
+  content?: string
+  /** 底部追加内容 */
+  footer?: string
+  /** 操作按钮列表 */
+  buttons?: UiButtonOption[]
+  /** 输入项列表 */
+  inputs?:  UiInputOption[]
+  /** 点击mask是否可关闭 */
   maskClose?: boolean
+  /** 背景透明 */
   transparent?: boolean
+  /** 挂载元素 */
   target?: string | HTMLElement
+  /** 按钮点击回调 */
   onClick?: (key?: string) => void // 按钮点击回调
+  /** 弹层关闭回调 */
   onClose?: Function
 }
 
-export type UiModalEvent = 'open' | 'opened' | 'close' | 'closed'
-
 export class UiModal extends UiBase{
-  // 全局配置
+  /** 全局配置 */
   public static option: UiModalOption = {
     isAddMask: true,
     theme: 'ios',
@@ -58,25 +40,22 @@ export class UiModal extends UiBase{
     onClick: noop
   }
 
-  /**
-   * 传入配置
-   * @type {UiModalOption}
-   * @memberof UiModal
-   */
-  // public option: UiModalOption
-
-  // jquery element cache
+  /** 弹层实例 */
   public $modal: ZeptoCollection
+  /** 表单实例 */
   public $form?: ZeptoCollection
+  /** 按钮列表实例 */
   public $buttons?: ZeptoCollection
+  /** 加载中实例 */
   public $spinning?: ZeptoCollection
 
-  // 获取数据
+  /** 获取form的数据 */
   public get data (): {[key: string]: string} {
     const $form = this.$form
     return $form ? parse($form.serialize()) : {}
   }
-  // prompt 获取数据
+
+  /** prompt 弹窗的数据 */
   public get value (): string {
     return this.data.value
   }
@@ -85,7 +64,6 @@ export class UiModal extends UiBase{
     super(Object.assign({}, UiModal.option, _option))
     // 挂载
     this.$modal = createClsElement('modal')
-    
     // bind event
     const _this = this
     this.$root.append(this.$mask).on('click', '.' + classPrefix('modal-button'), function (this: any, evt) {
@@ -95,11 +73,10 @@ export class UiModal extends UiBase{
       globalOnClick.call(_this, key) // 回调全局事件
       _this.emit('click', key) // 触发事件
     })
-
     this.on('open', this._openHook.bind(this))
     this.on('closed', this._closedHook.bind(this))
   }
-  // 显示操作loading
+  /** 显示操作loading */
   public showSpinning (message: string) {
     if (this.$spinning) {
       this.$spinning.remove()
@@ -112,7 +89,7 @@ export class UiModal extends UiBase{
     this.$spinning = $spinning
     return this
   }
-  // 隐藏交互loading
+  /** 隐藏交互loading */
   public hideSpinning () {
     const $spinning: any = this.$spinning
     if ($spinning) {

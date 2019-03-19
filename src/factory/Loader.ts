@@ -24,9 +24,8 @@ export default class Loader extends Emitter {
  * 注册一个 资源解析器，返回promise 的处理结果，错误时抛出错误对象
  * @param {string} type 资源类型名称，默认支持image,json,text,blob,arrayBuffer,object类型
  * @param {Promise<ResourceItem>} adapter 
- * @returns {Promise<ResourceItem>}
  */
-function registerLoader(type: string, adapter: any) {
+function registerLoader(type: string, adapter: any): Promise<any> {
   if (!loaders.has(type) && isFunction(adapter)) {
     loaders.set(type, adapter)
     return adapter

@@ -13,38 +13,40 @@ type EventHandlerMap = {
 };
 
 export default class Emitter {
+  /** 单例缓存 */
+  protected static _instance: Emitter
+
+  /** 获取单例模式下的emitter */
+  public static get instance () {
+    if (!this._instance) {
+      this._instance = new Emitter()
+    }
+    return this._instance
+  }
+
   private $emitters: EventHandlerMap = Object.create(null)
   // 读取默认的emiiter
   get $emitter (): WildCardEventHandlerList {
     return this.$emitters['*'] || []
   }
-  private $getEmitter(type: string): any[] {
-    const map = this.$emitters
-    let target = map[type]
-    if (!target) {
-      target = map[type] = []
-    }
-    return target
-  }
-
   /**
-		 * Register an event handler for the given type.
-		 *
-		 * @param  {String} type	Type of event to listen for, or `"*"` for all events
-		 * @param  {Function} handler Function to call in response to given event
-		 */
-  on(type: string, handler: EventHandler) {
+   * 注册指定事件，返回解绑事件句柄
+   *
+   * @param  {String} type	Type of event to listen for, or `"*"` for all events
+   * @param  {Function} handler Function to call in response to given event
+   */
+  public on(type: string, handler: EventHandler) {
     this.$getEmitter(type).push(handler)
-    return this
+    return () => this.off(type, handler)
   }
 
   /**
-   * Remove an event handler for the given type.
+   * 解绑监听事件句柄
    *
    * @param  {String} type	Type of event to unregister `handler` from, or `"*"`
    * @param  {Function} handler Handler function to remove
    */
-  off(type: string, handler: EventHandler) {
+  public off(type: string, handler: EventHandler) {
     const list = this.$getEmitter(type)
     if (list.length) {
       list.splice(list.indexOf(handler) >>> 0, 1)
@@ -68,5 +70,14 @@ export default class Emitter {
       }
     }
     return this
+  }
+
+  private $getEmitter(type: string): any[] {
+    const map = this.$emitters
+    let target = map[type]
+    if (!target) {
+      target = map[type] = []
+    }
+    return target
   }
 }

@@ -15,6 +15,10 @@ import { isWechat } from '../functions/index';
 export class App {
   /** 实例 */
   private static _instance: App
+  /** 获取应用实例，`getInstance()`别名 */
+  public static get instance () {
+    return this.getInstance()
+  }
   /** 获取应用实例 */
   public static getInstance () {
     if (!this._instance) {

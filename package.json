@@ -1,13 +1,14 @@
 {
   "name": "h5-sdk",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "sdk.js 用于Web H5的sdk",
   "main": "dist/sdk.js",
   "author": "Vace(ocdo@qq.com)",
   "scripts": {
     "dev": "rollup --config build/rollup.config.js --watch --environment BUILD:Web.Devlopment",
     "devlopment": "rollup --config build/rollup.config.js --environment BUILD:Web.Devlopment",
-    "production": "rollup --config build/rollup.config.js --environment BUILD:Web.Production"
+    "production": "rollup --config build/rollup.config.js --environment BUILD:Web.Production",
+    "docs": "typedoc --out docs --mode file --exclude \"**/*+(index.ts|.spec.ts|.e2e.ts|.js)\" --excludeNotExported src/web-entry.ts"
   },
   "files": [
     "dist/sdk-devlopment.js",

@@ -61,8 +61,11 @@ enum UiMusicEvent {
 
 const createCdnImage = (type: string, idx: number) => `<img src="${config.cdn}/_res/music/${type}_${idx}.svg" alt="${type}">`
 
+/**
+ * 音乐播放器
+ */
 export class UiMusic extends Emitter {
-  private static _instance: UiMusic
+  protected static _instance: UiMusic
   /** 获取默认实例 */
   public static get instance () {
     return this.getInstance({})

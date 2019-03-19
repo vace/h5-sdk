@@ -4,6 +4,7 @@ import { regexNumber } from '../functions/regex';
 import { CommonResponseData } from '../factory/Http';
 import { dirname, resolvePath } from '../functions/path';
 import { location } from './global';
+import { parse, stringify } from '../functions/qs';
 
 // 默认的z-index
 let GLOBAL_ZINDEX = 1e5
@@ -134,12 +135,24 @@ export function commonResponseReslove (response: CommonResponseData): Promise<Er
  */
 export const assign = Object.assign
 
+/** 受保护的字段列表 */
+const PrivacyFileds = ['code', 'state', 'nonce', 'token', 'key', 'secret', 'signatue']
 /**
  * 获取当前路径
+ * @param {boolean} isPrivacy 是否过滤收保护的字段，比如token之类的字段
  * @ignore
  */
-export function getCurrentHref (): string {
-  return <string>location.href.split('#').shift()
+export function getCurrentHref (isPrivacy?: boolean): string {
+  let url = <string>location.href.split('#').shift() || ''
+  if (isPrivacy) {
+    const [host, query] = url.split('?')
+    if (query) {
+      const object: any = parse(query)
+      PrivacyFileds.forEach(field => delete object[field])
+      url = host + '?' + stringify(object)
+    }
+  }
+  return url
 }
 
 /**

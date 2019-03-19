@@ -90,10 +90,11 @@ async function send (event: ANA_EVENTS, data: string = '', value: number = 0): P
       userId = user.id
     }
   }
+  // 提交的数据选项
   const option: any = {
     [ANA.APPID]: app.appid,
     [ANA.USER_AGENT]: navigator.userAgent,
-    [ANA.PAGE_URL]: getCurrentHref(),
+    [ANA.PAGE_URL]: getCurrentHref(true),
     [ANA.USER_ID]: userId,
     [ANA.SDK_VERSION]: '__VERSION__',
     [ANA.EVENT_NAME]: event,

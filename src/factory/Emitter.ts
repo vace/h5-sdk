@@ -1,7 +1,7 @@
 // @flow
 // An event handler can take an optional event argument
 // and should not return a value
-type EventHandler = (event?: any) => void;
+type EventHandler = (event?: any, ext?: any) => void;
 type WildCardEventHandler = (type: string, event?: any) => void
 
 // An array of all currently registered event handlers for a type
@@ -38,6 +38,19 @@ export default class Emitter {
   public on(type: string, handler: EventHandler) {
     this.$getEmitter(type).push(handler)
     return () => this.off(type, handler)
+  }
+
+  /**
+   * 监听一次后销毁
+   * @param {string} type
+   * @param {EventHandler} handler
+   */
+  public once (type: string, handler: EventHandler) {
+    const unbind = this.on(type, (a: any, b: any) => {
+      handler.call(this, a, b)
+      unbind()
+    })
+    return unbind
   }
 
   /**

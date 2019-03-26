@@ -1,12 +1,13 @@
+import App from '../factory/App';
+import Http from "../factory/Http";
+import Emitter from '../factory/Emitter';
+
 import { getServiceUri } from '../config'
 import { isWechat } from "../functions/environment";
-import { Http } from "../factory/Http";
 import { commonResponseReslove, getCurrentHref, getCurrentPathFile } from '../utils/shared';
 import { wx, WeixinJSBridge } from '../utils/global';
 import { wait } from '../functions/common';
 import { isHttp, isBase64 } from '../functions/is';
-import Emitter from '../factory/Emitter';
-import { App } from '../factory/App';
 import { event } from './analysis';
 import { each } from '../functions/underscore';
 

@@ -1,10 +1,10 @@
-import { UiModalOption, UiModal } from '../factory/UiModal'
-import { UiToastOption, UiToast } from '../factory/UiToast';
-import { isObject, isNumber, isFunction, isString, isBoolean } from '../functions/is';
-import { UiView } from '../factory/index';
-import { UiViewOption } from '../factory/UiView';
+import UiModal, { UiModalOption } from '../factory/UiModal'
+import UiToast, { UiToastOption } from '../factory/UiToast';
+import UiMusic, { UiMusicOption } from '../factory/UiMusic';
+import UiView, { UiViewOption } from '../factory/UiView';
+
+import { isObject, isNumber, isFunction } from '../functions/is';
 import { each } from '../functions/underscore';
-import { UiMusicOption, UiMusic } from '../factory/UiMusic';
 import { UiInputType } from '../factory/UiBase';
 
 const closeHelper = (modal: UiModal) => modal.close()

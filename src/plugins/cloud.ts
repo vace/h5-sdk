@@ -1,6 +1,7 @@
-import { App } from "../factory/App";
+import App from "../factory/App";
+import Http from "../factory/Http";
+
 import { getServiceUri } from "../config";
-import { Http } from "../factory/Http";
 import { commonResponseReslove } from "../utils/shared";
 
 /**

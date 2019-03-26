@@ -2,7 +2,7 @@ import '../assets/ui-toast.less'
 
 import { noop } from "../functions/common";
 import { classPrefix, createClsElement, createSdkIcon } from "../utils/shared";
-import { UiBase, UiBaseOption } from "./UiBase";
+import UiBase, { UiBaseOption } from "./UiBase";
 
 /** 设置选项 */
 export type UiToastOption = UiBaseOption & {
@@ -19,7 +19,7 @@ export type UiToastOption = UiBaseOption & {
 /**
  * Toast提示类
  */
-export class UiToast extends UiBase{
+export default class UiToast extends UiBase{
   /** 全局配置 */
   public static option: UiToastOption = {
     target: 'body',

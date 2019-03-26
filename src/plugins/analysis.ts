@@ -1,5 +1,6 @@
+import App from "../factory/App";
+
 import { addEventListener, location } from "../utils/global";
-import { App } from "../factory/App";
 import { getCurrentHref } from "../utils/shared";
 import { randomstr  } from "../functions/common";
 import { now } from "../functions/underscore";

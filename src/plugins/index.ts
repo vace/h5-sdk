@@ -1,5 +1,6 @@
-import { Http } from '../factory/Http'
-import { App } from '../factory/App';
+import Http from '../factory/Http'
+import App from '../factory/App';
+import Res from '../factory/Res';
 
 import * as _jssdk from './jssdk'
 import * as _ui from './ui'
@@ -17,5 +18,6 @@ export const analysis = _analysis
 export const ui = _ui
 export const safety = _safety
 export const tool = _tool
-export const app = App.getInstance()
+export const app = App.instance
+export const res = Res.instance
 export const wechat = _wechat

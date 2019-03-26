@@ -1,5 +1,6 @@
+import UiMusic from "../factory/UiMusic";
+
 import $ from "../venders/zepto";
-import { UiMusic } from "../factory/UiMusic";
 import { getElementAttrs } from "../utils/shared";
 
 /**

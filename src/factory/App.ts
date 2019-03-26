@@ -2,7 +2,7 @@ import { store } from '../plugins/store'
 import { getCurrentHref, commonResponseReslove } from "../utils/shared";
 import { parse, stringify } from "../functions/qs";
 import { wait, randomstr } from "../functions/common";
-import { Http } from "./Http";
+import Http from "./Http";
 import { getServiceUri } from "../config";
 import { jwtDecode } from '../plugins/safety';
 import { each, now } from '../functions/underscore';
@@ -12,7 +12,7 @@ import { isWechat } from '../functions/index';
  * 一个页面一般只有一个应用（可通过`sdk.app`直接获取）
  * @class App
  */
-export class App {
+export default class App {
   /** 实例 */
   private static _instance: App
   /** 获取应用实例，`getInstance()`别名 */

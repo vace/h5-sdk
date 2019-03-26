@@ -79,7 +79,7 @@ enum ContentType {
  * 处理网络请求
  * @class Http
  */
-export class Http {
+export default class Http {
   /**
    * 全局配置
    * @static

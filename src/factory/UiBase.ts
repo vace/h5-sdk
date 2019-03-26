@@ -80,7 +80,7 @@ export type UiInputOption = {
  * @class UiBase
  * @extends {Emitter}
  */
-export class UiBase extends Emitter {
+export default class UiBase extends Emitter {
   /** 默认配置 */
   public static option: any = {
     isAddMask: false,

@@ -3,7 +3,7 @@ import { noop } from '../functions/common'
 import { classPrefix, createClsElement, createSdkIcon } from '../utils/shared'
 import $ from '../venders/zepto'
 import { parse } from '../functions/qs';
-import { UiBase, UiBaseOption, UiButtonOption, UiInputOption } from './UiBase';
+import UiBase, { UiBaseOption, UiButtonOption, UiInputOption } from './UiBase';
 
 /** UIModal配置 */
 export interface UiModalOption extends UiBaseOption {
@@ -31,7 +31,7 @@ export interface UiModalOption extends UiBaseOption {
   onClose?: Function
 }
 
-export class UiModal extends UiBase{
+export default class UiModal extends UiBase{
   /** 全局配置 */
   public static option: UiModalOption = {
     isAddMask: true,

@@ -1,4 +1,4 @@
-import { App } from "../factory/App";
+import App from "../factory/App";
 import { getCurrentHref } from "../utils/shared";
 import { randomstr, stringify, parse, each } from "../functions/index";
 import { location } from "../utils/global";

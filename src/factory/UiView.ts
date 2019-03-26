@@ -1,7 +1,7 @@
 import '../assets/ui-view.less'
 import starLoadingSvg from '../assets/star-loading'
 
-import { UiBase, UiBaseOption } from "./UiBase";
+import UiBase, { UiBaseOption } from "./UiBase";
 import { createClsElement, createSdkIcon, classPrefix } from "../utils/shared";
 
 export interface UiViewOption extends UiBaseOption {
@@ -23,7 +23,7 @@ export interface UiViewOption extends UiBaseOption {
   onClick?: (this: UiView, instance: UiView) => void
 }
 
-export class UiView extends UiBase {
+export default class UiView extends UiBase {
   /** 全局配置 */
   public static option = {
     isAddMask: true,

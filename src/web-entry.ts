@@ -1,3 +1,9 @@
+import App from './factory/App';
+import Http from './factory/Http';
+import Res from './factory/Res';
+import UiMusic from './factory/UiMusic';
+import Emitter from './factory/Emitter';
+
 /**
  * 补丁：
  * Array.prototype.find
@@ -26,4 +32,17 @@ export * from './functions/index'
 export * from './venders/index'
 export * from './plugins/index'
 export * from './factory/index'
+
+// 导出getter 模块
+
+const exportGetter = (key: string, get: any) => {
+  Object.defineProperty(exports, key, { get })
+}
+exportGetter('app', () => App.instance)
+exportGetter('http', () => Http.instance)
+exportGetter('res', () => Res.instance)
+//! 这里只读_instance，部分情况可能会使用 if (sdk.music) 判断music是否存在
+exportGetter('music', () => UiMusic._instance)
+exportGetter('emitter', () => Emitter.instance)
+
 import './scheduler/index'

@@ -156,7 +156,7 @@ export function each(obj: any, iteratee: Function, context?: any) {
   if (context) {
     iteratee = iteratee.bind(context)
   }
-  let i, length
+  let i: any, length: number
   if (isArray(obj)) {
     for (i = 0, length = obj.length; i < length; i++) {
       iteratee(obj[i], i, obj)

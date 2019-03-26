@@ -1,7 +1,5 @@
 !function(e, n) {
-  "function" == typeof define && (define.amd || define.cmd) ? define(function() {
-    return n(e)
-  }) : n(e, !0)
+  n(e, !0)
 } (this,
 function(o, e) {
   if (!o.jWeixin) {

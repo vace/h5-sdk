@@ -65,7 +65,7 @@ const createCdnImage = (type: string, idx: number) => `<img src="${config.cdn}/_
  * 音乐播放器
  */
 export default class UiMusic extends Emitter {
-  protected static _instance: UiMusic
+  public static _instance: UiMusic
   /** 获取默认实例 */
   public static get instance () {
     return this.getInstance({})

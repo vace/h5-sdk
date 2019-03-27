@@ -77,8 +77,9 @@ export default class Emitter {
   emit(type: string, a?: any, b?: any) {
     const _this = this
     const list = _this.$emitters[type]
-    if (list) {
-      for (const handler of list) {
+    if (list && list.length) {
+      const copy = list.slice()
+      for (const handler of copy) {
         handler.call(_this, a, b)
       }
     }

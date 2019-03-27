@@ -1,8 +1,9 @@
 {
   "name": "h5-sdk",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "sdk.js 用于Web H5的sdk",
   "main": "dist/sdk.js",
+  "types": "index.d.ts",
   "author": "Vace(ocdo@qq.com)",
   "scripts": {
     "dev": "rollup --config build/rollup.config.js --watch --environment BUILD:Web.Devlopment",
@@ -11,15 +12,13 @@
     "docs": "typedoc --out docs --mode file --exclude \"**/*+(index.ts|.spec.ts|.e2e.ts|.js)\" --excludeNotExported src/web-entry.ts"
   },
   "files": [
+    "index.d.ts",
     "dist/sdk-devlopment.js",
     "dist/sdk.js",
     "dist/sdk.css"
   ],
   "license": "MIT",
   "devDependencies": {
-    "@types/blueimp-md5": "^2.7.0",
-    "@types/store": "^2.0.1",
-    "@types/zepto": "^1.0.30",
     "autoprefixer": "^9.4.9",
     "cssnano": "^4.1.10",
     "dts-generator": "^3.0.0",
@@ -36,6 +35,9 @@
     "typescript": "^3.3.3333"
   },
   "dependencies": {
+    "@types/blueimp-md5": "^2.7.0",
+    "@types/store": "^2.0.1",
+    "@types/zepto": "^1.0.30",
     "blueimp-md5": "^2.10.0",
     "es6-object-assign": "^1.1.0",
     "es6-promise": "^4.2.6",

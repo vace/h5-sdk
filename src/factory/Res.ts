@@ -101,6 +101,7 @@ export class ResProgress {
     ResProgress.pending -= 1
     this.current += 1
     this.loaded += 1
+    this.$notify('progress')
     this.$notify('success')
     if (this.isComplete) {
       this.$notify('complete')
@@ -112,6 +113,7 @@ export class ResProgress {
     ResProgress.pending -= 1
     this.current += 1
     this.failed += 1
+    this.$notify('progress')
     this.$notify('fail')
     if (this.isComplete) {
       this.$notify('complete')
@@ -215,6 +217,11 @@ export default class Res extends Emitter{
   public start() {
     if (!this.isStart) {
       this.isStart = true
+      this.progress.$notify('start')
+      // 队列中没有任务，直接通知完成
+      if (this.isComplete) {
+        this.progress.$notify('complete')
+      }
     }
     // 未工作，任务未完成
     if (!this.isWorking && !this.isComplete) {
@@ -225,7 +232,10 @@ export default class Res extends Emitter{
   }
   /** 暂停加载 */
   public pause() {
-    this.isStart = false
+    if (this.isStart) {
+      this.isStart = false      
+      this.progress.$notify('paused')
+    }
     return this
   }
   /** 读取资源 */
@@ -431,4 +441,4 @@ interface ResourceTask extends Promise<ResouceStruct> {
 }
 
 /** 事件通知 */
-export type ResEvent = 'push' | 'pending' | 'success' | 'complete' | 'fail' | 'clear'
+export type ResEvent = 'push' | 'pending' | 'success' | 'complete' | 'fail' | 'clear' | 'progress' | 'start' | 'paused'

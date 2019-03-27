@@ -9,6 +9,7 @@
     "dev": "rollup --config build/rollup.config.js --watch --environment BUILD:Web.Devlopment",
     "devlopment": "rollup --config build/rollup.config.js --environment BUILD:Web.Devlopment",
     "production": "rollup --config build/rollup.config.js --environment BUILD:Web.Production",
+    "prepublish": "yarn devlopment && yarn production && node build/dts-generator.js",
     "docs": "typedoc --out docs --mode file --exclude \"**/*+(index.ts|.spec.ts|.e2e.ts|.js)\" --excludeNotExported src/web-entry.ts"
   },
   "files": [

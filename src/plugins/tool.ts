@@ -103,8 +103,5 @@ export function chooseImageAsDataURL (): Promise<string> {
  * @returns {Promise<string>}
  */
 export function autoGetImageBase64(): Promise<string> {
-  if (isWechat) {
-    return chooseImageBase64()
-  }
-  return chooseImageAsDataURL().then((b: any) => b.base64)
+  return isWechat ? chooseImageBase64() : chooseImageAsDataURL()
 }

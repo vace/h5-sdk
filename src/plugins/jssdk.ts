@@ -50,7 +50,8 @@ export const defaultJsApiList = [
   // 分享
   'updateAppMessageShareData', 'updateTimelineShareData',
   // 常用功能
-  'previewImage', 'getNetworkType', 'closeWindow', 'openLocation'
+  'previewImage', 'getNetworkType', 'closeWindow', 'openLocation',
+  'chooseImage', 'uploadImage', 'getLocalImgData'
 ]
 
 /** 事件分发器 */

@@ -20,9 +20,11 @@ import { version } from '../package.json'
 //1. Web.Devlopment 用于网页应用debug模式
 //2. Web.Production 用于网页应用生产模式
 
-const [Plantform, BuildEnv] = (process.env.BUILD || '').toLowerCase().split()
+const [Plantform, BuildEnv] = (process.env.BUILD || '').toLowerCase().split('.')
 const isDevlopment = BuildEnv === 'devlopment'
 const isProduction = BuildEnv === 'production'
+
+console.log(`Make Build Plantform: ${Plantform}，Env：${BuildEnv}`)
 
 export default {
   input: './src/web-entry.ts',

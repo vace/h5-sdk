@@ -176,6 +176,8 @@ export default class Http {
         if (contentType === ContentType.UrlEncode) {
           body = stringify(body)
         } else {
+          // 对象默认进行json编码
+          contentType = ContentType.JSON
           body = JSON.stringify(body)
         }
       }

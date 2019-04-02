@@ -67,8 +67,8 @@ export function readAsDataURL (inputer: File): Promise<string> {
     fr.readAsDataURL(inputer)
   })
 }
-let $inputHanlde: ZeptoCollection
 
+let $inputHanlde: ZeptoCollection
 /**
  * 选择某个种类的文件
  */
@@ -94,7 +94,7 @@ export function chooseFile (accept: string = '*'): Promise<File> {
  * @returns {Promise<string>}
  */
 export function chooseImageAsDataURL (): Promise<string> {
-  return chooseFile('image/*').then((file) => readAsDataURL(file))
+  return chooseFile('image/*').then(readAsDataURL)
 }
 
 /**

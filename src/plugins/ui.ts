@@ -72,7 +72,9 @@ interface UiPromptOption extends UiConfirmOption {
   /** 输入种类 */
   type?: UiInputType
   /** 输入默认值 */
-  defaultValue?: string
+  defaultValue?: string,
+  /** 默认输入内容 */
+  placeholder?: string
 }
 
 /**
@@ -86,7 +88,7 @@ export function prompt (option: UiPromptOption | string): UiModal {
   }
   const { defaultValue, type } = option
   option.inputs = [
-    { name: 'value', type, value: defaultValue }
+    { name: 'value', type, value: defaultValue, placeholder: option.placeholder }
   ]
   return confirm(option)
 }

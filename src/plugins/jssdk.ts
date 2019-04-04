@@ -138,7 +138,7 @@ const updateShareData = (shareType: ShareType, option: ShareOption) => {
   let {
     title = document.title,
     desc = ' ',
-    link = getCurrentHref(),
+    link = getCurrentHref(true), // 过滤当前隐私字段信息
     imgUrl = '',
     imgurl = '',
     img = '',

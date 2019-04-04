@@ -5,6 +5,7 @@ import { CommonResponseData } from '../factory/Http';
 import { dirname, resolvePath } from '../functions/path';
 import { location } from './global';
 import { parse, stringify } from '../functions/qs';
+import { isArray } from '../functions/is';
 
 // 默认的z-index
 let GLOBAL_ZINDEX = 1e5
@@ -25,7 +26,7 @@ export function nextZIndex(): number {
  * @returns {string}
  */
 export function classPrefix (className: string | any[]): string {
-  if (Array.isArray(className)) {
+  if (isArray(className)) {
     return className.filter(cn => !!cn).map(cn => `_sdk-${cn}`).join(' ')
   }
   return `_sdk-${className}`
@@ -136,19 +137,22 @@ export function commonResponseReslove (response: CommonResponseData): Promise<Er
 export const assign = Object.assign
 
 /** 受保护的字段列表 */
-const PrivacyFileds = ['code', 'state', 'nonce', 'token', 'key', 'secret', 'signatue']
+const DefaultPrivacyFileds = ['code', 'state', 'nonce', 'token', 'key', 'secret', 'signatue']
 /**
  * 获取当前路径
- * @param {boolean} isPrivacy 是否过滤收保护的字段，比如token之类的字段
+ * @param {boolean|string[]} isPrivacy 是否过滤收保护的字段，比如token之类的字段，可自定义过滤字段
  * @ignore
  */
-export function getCurrentHref (isPrivacy?: boolean): string {
+export function getCurrentHref (isPrivacy?: boolean | string[]): string {
   let url = <string>location.href.split('#').shift() || ''
   if (isPrivacy) {
     const [host, query] = url.split('?')
     if (query) {
       const object: any = parse(query)
-      PrivacyFileds.forEach(field => delete object[field])
+      const PrivacyFileds = isArray(isPrivacy) ? isPrivacy : DefaultPrivacyFileds
+      for (const privacy of PrivacyFileds) {
+        delete object[privacy]
+      }
       url = host + '?' + stringify(object)
     }
   }

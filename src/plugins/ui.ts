@@ -86,9 +86,9 @@ export function prompt (option: UiPromptOption | string): UiModal {
   if (typeof option === 'string') {
     option = { title: option }
   }
-  const { defaultValue, type } = option
+  const { defaultValue, type, placeholder } = option
   option.inputs = [
-    { name: 'value', type, value: defaultValue, placeholder: option.placeholder }
+    { name: 'value', type, value: defaultValue, placeholder }
   ]
   return confirm(option)
 }

@@ -96,17 +96,16 @@ export function config (option?: WxConfigOption): Promise<ConfigResponse> {
       signature.jsApiList = jsApiList || defaultJsApiList
       signature.debug = !!debug
       emit('config', signature)
-      return new Promise((reslove, reject) => {
-        wx.config(signature)
-        wx.ready(() => {
-          emit('ready')
-          reslove()
-        })
-        wx.error((err: any) => {
-          emit('error', err)
-          reject(err)
-        })
+      wx.ready(() => {
+        emit('ready')
+        reslove()
       })
+      wx.error((err: any) => {
+        emit('error', err)
+        reject(err)
+      })
+      wx.config(signature)
+      return signature
     })
   }))
 }

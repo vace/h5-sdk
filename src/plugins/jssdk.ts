@@ -5,11 +5,14 @@ import Emitter from '../factory/Emitter';
 import { getServiceUri } from '../config'
 import { isWechat } from "../functions/environment";
 import { commonResponseReslove, getCurrentHref, getCurrentPathFile } from '../utils/shared';
-import { wx, WeixinJSBridge } from '../utils/global';
+import { getwx, WeixinJSBridge } from '../utils/global';
 import { wait } from '../functions/common';
 import { isHttp, isBase64 } from '../functions/is';
 import { event } from './analysis';
 import { each } from '../functions/underscore';
+
+
+/** 微信对象，有可能未初始化导致未读取到值 */
 
 /** 配置结构 */
 type WxConfigOption = {
@@ -85,6 +88,7 @@ export function config (option?: WxConfigOption): Promise<ConfigResponse> {
     }
     emit('beforeConfig', option)
     const { url, debug, appid, jsApiList } = option
+    const wx = getwx()
     return Http.instance.get(url || getServiceUri('wechat/signature'), {
       appid,
       url: getCurrentHref()
@@ -129,6 +133,7 @@ type ShareType = 'wxapp' | 'timeline'
 let _shareMap: Map<string, ShareOption> = new Map()
 
 const updateShareData = (shareType: ShareType, option: ShareOption) => {
+  const wx = getwx()
   const shareApi = SHARE_API[shareType]
   let {
     title = document.title,
@@ -221,7 +226,7 @@ export function preview (url: string | string[], index: number = 0) {
   url = url.map(u => {
     return isHttp(u) ? u : getCurrentPathFile(u)
   })
-  wx.previewImage({
+  getwx().previewImage({
     current: url[index],
     urls: url
   })
@@ -235,6 +240,7 @@ export function preview (url: string | string[], index: number = 0) {
  */
 export function api (apiName: string, option: any = {}): Promise<any> {
   return new Promise((resolve, reject) => {
+    const wx = getwx()
     if (typeof wx[apiName] === 'function') {
       option.success = resolve
       option.fail = reject
@@ -266,6 +272,7 @@ if (process.env.NODE_ENV === 'development' && !isWechat) {
     openAddress: { userName: '收货人姓名', postalCode: '510630', provinceName: '广东省', cityName: '广州市',countryName: '天河区', detailInfo: '详细收货地址信息', nationalCode: '86', telNumber: '18888887777'}
   }
   // console.table(Object.keys(rewriteMap))
+  const wx = getwx()
   // 重写
   each(rewriteMap, (val: any, key: string) => {
     wx[key] = (args: any) => {

@@ -8,7 +8,7 @@ export const location = global.location
 export const document = global.document
 
 /** @ignore Wx */
-export const wx = (global as any).wx
+export const getwx = () => (global as any).wx
 
 /** @ignore fetch */
 export const fetch = global.fetch

@@ -81,6 +81,18 @@ export type UiInputOption = {
  * @extends {Emitter}
  */
 export default class UiBase extends Emitter {
+  /** 所有打开的dialog集合，用于批量关闭 */
+  public static openInstances: UiBase[] = []
+
+  /** 关闭所有已经打开的弹窗 */
+  public static closeAll () {
+    const instances = [...UiBase.openInstances]
+    for (const instance of instances) {
+      instance.close()
+    }
+    // issu clear
+    UiBase.openInstances = []
+  }
   /** 默认配置 */
   public static option: any = {
     isAddMask: false,
@@ -170,6 +182,8 @@ export default class UiBase extends Emitter {
   }
   // 打开成功
   private _onOpened() {
+    // push open instance
+    UiBase.openInstances.push(this)
     const { $root, inClassName } = this
     $root.removeClass(inClassName)
     this.emit('opened')
@@ -195,6 +209,13 @@ export default class UiBase extends Emitter {
     }
   }
   private _onClosed() {
+    // 移除打开的实例列表
+    const openInstances = UiBase.openInstances
+    const openInstanceIndex = openInstances.indexOf(this)
+    if (openInstanceIndex !== -1) {
+      openInstances.splice(openInstanceIndex, 1)
+    }
+
     const { $root, outClassName } = this
     $root.removeClass(outClassName).remove()
     this.emit('closed')

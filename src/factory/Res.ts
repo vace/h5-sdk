@@ -178,8 +178,8 @@ export default class Res extends Emitter{
     return loader
   }
 
-  /** 根据文件的key读取资源项目 */
-  public static get (key: string): ResouceStruct {
+  /** 根据文件的key或者任务ID读取资源项目 */
+  public static get (key: string | number): ResouceStruct {
     return this.cache[key]
   }
 
@@ -239,7 +239,7 @@ export default class Res extends Emitter{
     return this
   }
   /** 读取资源 */
-  public get (key: string): ResouceStruct {
+  public get (key: string | number): ResouceStruct {
     return Res.get(key)
   }
   /** 追加资源 */
@@ -251,6 +251,9 @@ export default class Res extends Emitter{
     }
     // 完整的url
     key = key || url
+    if (typeof key !== 'string') {
+      throw new TypeError(`Res Key Must Be String，Current Is： ${key}`);
+    }
     /** 资源缓存KEY */
     let item: ResouceStruct = Res.cache[key]
     // 命中缓存
@@ -261,12 +264,14 @@ export default class Res extends Emitter{
       }
     } else {
       let _resolve: Function, _reject: any
-      const task = new Promise((resolve, reject) => {
+      const promise = new Promise((resolve, reject) => {
         _resolve = resolve
         _reject = reject
       })
       // 任务调度处理
-      ;(task as ResourceTask).exec = () => {
+      const task = promise as ResourceTask
+      task.id = ++Res.id
+      task.exec = () => {
         const loader = Res.getLoader(item.type)
         item.status = STATUS.LOADING
         return loader(item.url, item.option).then(data => {
@@ -281,7 +286,7 @@ export default class Res extends Emitter{
       }
       // 新建任务
       item = {
-        id: ++Res.id, key, url, type: type as string, status: STATUS.ADDED, data: null, task: task as ResourceTask, option,
+        id: task.id, key, url, type: type as string, status: STATUS.ADDED, data: null, task, option,
         get isLoading () {
           return this.status === STATUS.LOADING
         },
@@ -293,11 +298,13 @@ export default class Res extends Emitter{
         }
       }
       Res.cache[key] = item
+      // 根据任务缓存
+      Res.cache[task.id] = item
     }
     // 加入到当前队列中
     const { isStart, cache } = this
-    if (!cache[item.key]) {
-      cache[item.key] = item
+    if (!cache[key]) {
+      cache[key] = item
       this.queue.push(item)
       this.progress.$added()
     }
@@ -437,6 +444,7 @@ type ResouceStruct = {
 }
 
 interface ResourceTask extends Promise<ResouceStruct> {
+  id: number,
   exec: (a?: ResouceStruct) => void
 }
 

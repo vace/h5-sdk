@@ -371,7 +371,7 @@ declare module 'h5-sdk/src/factory/Res' {
 	    static loaders: Map<string, LoaderHandle>;
 	    static registerLoader(this: any, type: string, handle: LoaderHandle): typeof Res;
 	    static getLoader(type: string): LoaderHandle;
-	    static get(key: string): ResouceStruct;
+	    static get(key: string | number): ResouceStruct;
 	    config: ResConfig;
 	    isStart: boolean;
 	    isWorking: boolean;
@@ -382,7 +382,7 @@ declare module 'h5-sdk/src/factory/Res' {
 	    constructor(option?: ResConfig);
 	    start(): this;
 	    pause(): this;
-	    get(key: string): ResouceStruct;
+	    get(key: string | number): ResouceStruct;
 	    add(res: PushResStruct, option?: any): ResourceTask;
 	    private $working;
 	} type ResConfig = {
@@ -409,6 +409,7 @@ declare module 'h5-sdk/src/factory/Res' {
 	    error?: any;
 	};
 	interface ResourceTask extends Promise<ResouceStruct> {
+	    id: number;
 	    exec: (a?: ResouceStruct) => void;
 	}
 	export type ResEvent = 'push' | 'pending' | 'success' | 'complete' | 'fail' | 'clear' | 'progress' | 'start' | 'paused';

@@ -12,7 +12,8 @@ import { version } from '../package.json'
 
  const banner = `/*!
  * h5-sdk v${version} ${(new Date).toLocaleString()}
- * (c) 2018-2019 Vace(ocdo@qq.com)
+ * Copyright (c) 2019-present, MaQu, Inc. (https://ahmq.net)
+ * Authors: Vace<i@ahmq.net>
  * Released under the MIT License.
  */\n`
 

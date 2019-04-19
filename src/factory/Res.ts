@@ -246,7 +246,7 @@ export default class Res extends Emitter{
   public add(res: PushResStruct, option?: any) {
     const { config: { root, defaultType } } = this
     let { key, url, type = defaultType } = res
-    if (root && !(isHttp(url) && isBase64(url))) {
+    if (root && !(isHttp(url) || isBase64(url))) {
       url = root + url
     }
     // 完整的url

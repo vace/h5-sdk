@@ -15,9 +15,10 @@ export type DefaultConfig = {
 
 /** 默认配置 */
 export const config: DefaultConfig = Object.assign({
-  // analysis,
-  service: 'http://127.0.0.1:3000',
-  cdn: 'https://5.5u55.cn'
+  // 域名服务名称
+  service: 'https://h5-service.ahmq.net',
+  // CDN 的名称
+  cdn: 'https://h5.ahmq.net'
 } as DefaultConfig, GlobalSdkConfig)
 
 /** 默认配置 */

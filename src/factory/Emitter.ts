@@ -1,15 +1,12 @@
 // @flow
 // An event handler can take an optional event argument
 // and should not return a value
-type EventHandler = (event?: any, ext?: any) => void;
-type WildCardEventHandler = (type: string, event?: any) => void
-
-// An array of all currently registered event handlers for a type
-type EventHandlerList = EventHandler[];
-type WildCardEventHandlerList = WildCardEventHandler[];
+type EventHandler = (event?: any, a1?: any, a2?: any) => void;
+type WildCardEventHandler = (type: string, event?: any, a1?: any, a2?: any) => void
+type AllowEventHandler = EventHandler | WildCardEventHandler
 // A map of event types and their corresponding event handlers.
 type EventHandlerMap = {
-  [key: string]: EventHandlerList | WildCardEventHandlerList,
+  [key: string]: AllowEventHandler[],
 };
 
 export default class Emitter {
@@ -26,7 +23,7 @@ export default class Emitter {
 
   private $emitters: EventHandlerMap = Object.create(null)
   // 读取默认的emiiter
-  get $emitter (): WildCardEventHandlerList {
+  get $emitter (): AllowEventHandler[] {
     return this.$emitters['*'] || []
   }
   /**
@@ -78,9 +75,16 @@ export default class Emitter {
     const _this = this
     const list = _this.$emitters[type]
     if (list && list.length) {
-      const copy = list.slice()
+      const copy = [...list]
       for (const handler of copy) {
         handler.call(_this, a, b)
+      }
+    }
+    const all = _this.$emitter
+    if (all && all.length) {
+      const copy = [...all]
+      for (const handler of copy) {
+        handler.call(this, type, a, b)
       }
     }
     return this

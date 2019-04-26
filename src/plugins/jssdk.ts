@@ -1,3 +1,5 @@
+import '../polyfill/jweixin-1.5.0'
+
 import App from '../factory/App';
 import Http from "../factory/Http";
 import Emitter from '../factory/Emitter';
@@ -91,7 +93,7 @@ export function config (option?: WxConfigOption): Promise<ConfigResponse> {
     const wx = getwx()
     return Http.instance.get(url || getServiceUri('wechat/signature'), {
       appid,
-      url: getCurrentHref()
+      url: getCurrentHref(true)
     }).then(commonResponseReslove).then((signature: ConfigResponse) => {
       signature.jsApiList = jsApiList || defaultJsApiList
       signature.debug = !!debug
@@ -137,13 +139,18 @@ const updateShareData = (shareType: ShareType, option: ShareOption) => {
   let {
     title = document.title,
     desc = ' ',
-    link = getCurrentHref(true), // 过滤当前隐私字段信息
+    link, // 过滤当前隐私字段信息
     imgUrl = '',
     imgurl = '',
     img = '',
     success
   } = option
   if (typeof wx[shareApi] === 'function') {
+    // 取默认值
+    if (!link) {
+      link = getCurrentHref(true)
+    }
+    // 相对路径
     if (!isHttp(link)) {
       link = getCurrentPathFile(link)
     }

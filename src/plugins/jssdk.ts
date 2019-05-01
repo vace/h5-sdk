@@ -163,9 +163,11 @@ const updateShareData = (shareType: ShareType, option: ShareOption) => {
   if (shareType === 'mini') {
     // 推送分享消息到小程序，完成自定义分享
     wx.miniProgram.postMessage({
-      title,
-      link,
-      imageUrl: banner || imgUrl
+      data: {
+        title,
+        link,
+        imageUrl: banner || imgUrl
+      }
     })
   } else if (typeof wx[shareApi] === 'function') {
     const shareSuccessHandle = () => {

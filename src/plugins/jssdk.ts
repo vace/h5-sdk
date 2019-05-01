@@ -24,6 +24,22 @@ type WxConfigOption = {
   jsApiList: []
 }
 
+type H5PostMessageStruct = {
+  /** 应用ID */
+  appid: string
+  /** 分享标题 */
+  title: string
+  /** 分享描述 */
+  desc: string
+  /** 分享链接 */
+  link: string
+  /** 分享图标 */
+  imgUrl: string
+  /** 自定义小程序分享图标 */
+  imageUrl: string
+}
+
+
 /** 返回结构 */
 interface ConfigResponse extends WxConfigOption {
   timestamp: string
@@ -164,10 +180,13 @@ const updateShareData = (shareType: ShareType, option: ShareOption) => {
     // 推送分享消息到小程序，完成自定义分享
     wx.miniProgram.postMessage({
       data: {
+        appid: App.getInstance().appid,
         title,
+        desc,
         link,
-        imageUrl: banner || imgUrl
-      }
+        imgUrl,
+        imageUrl: banner && isHttp(banner) ? banner : getCurrentPathFile(banner)
+      } as H5PostMessageStruct
     })
   } else if (typeof wx[shareApi] === 'function') {
     const shareSuccessHandle = () => {

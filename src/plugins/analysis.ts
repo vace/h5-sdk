@@ -152,7 +152,7 @@ let _errorReportHistory: string[] = []
  */
 export function error (error: Error) {
   // 已经达到最大上报次数
-  if (_errorReportHistory.length >= config.maxReportError) {
+  if (!error || _errorReportHistory.length >= config.maxReportError) {
     return false
   }
   if (!(error instanceof Error)) {

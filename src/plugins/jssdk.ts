@@ -7,7 +7,7 @@ import Emitter from '../factory/Emitter';
 import { getServiceUri } from '../config'
 import { isWechat } from "../functions/environment";
 import { commonResponseReslove, getCurrentHref, getCurrentPathFile } from '../utils/shared';
-import { getwx, WeixinJSBridge } from '../utils/global';
+import { getwx, WeixinJSBridge, isWxMini } from '../utils/global';
 import { wait } from '../functions/common';
 import { isHttp, isBase64 } from '../functions/is';
 import { event } from './analysis';
@@ -33,13 +33,15 @@ interface ConfigResponse extends WxConfigOption {
 
 /** 设置分享 */
 interface ShareOption {
-  /* 分享方式 *全部包含, timeline 朋友圈，app 个人|群组|QQ */
-  type?: '*' | 'timeline' | 'wxapp'
+  /* 分享方式 *全部包含, timeline 朋友圈，app 个人|群组|QQ，mini 小程序 */
+  type?: '*' | 'timeline' | 'wxapp' | 'mini'
   title?: string
   desc?: string
   link?: string
   // alias imgurl
   img?: string
+  /** 小程序使用的5:4图标 */
+  banner?: string
   imgurl?: string
   imgUrl?: string
   success?: Function
@@ -129,7 +131,7 @@ enum SHARE_API {
   wxapp = 'updateAppMessageShareData',
   timeline = 'updateTimelineShareData'
 }
-type ShareType = 'wxapp' | 'timeline'
+type ShareType = 'wxapp' | 'timeline' | 'mini'
 
 let _shareMap: Map<string, ShareOption> = new Map()
 
@@ -143,21 +145,29 @@ const updateShareData = (shareType: ShareType, option: ShareOption) => {
     imgUrl = '',
     imgurl = '',
     img = '',
-    success
+    success,
+    banner
   } = option
-  if (typeof wx[shareApi] === 'function') {
-    // 取默认值
-    if (!link) {
-      link = getCurrentHref(true)
-    }
-    // 相对路径
-    if (!isHttp(link)) {
-      link = getCurrentPathFile(link)
-    }
-    imgUrl = imgUrl || imgurl || img
-    if (!isHttp(imgUrl)) {
-      imgUrl = getCurrentPathFile(imgUrl || 'share.jpg')
-    }
+  // 取默认值
+  if (!link) {
+    link = getCurrentHref(true)
+  }
+  // 相对路径
+  if (!isHttp(link)) {
+    link = getCurrentPathFile(link)
+  }
+  imgUrl = imgUrl || imgurl || img
+  if (!isHttp(imgUrl)) {
+    imgUrl = getCurrentPathFile(imgUrl || 'share.jpg')
+  }
+  if (shareType === 'mini') {
+    // 推送分享消息到小程序，完成自定义分享
+    wx.miniProgram.postMessage({
+      title,
+      link,
+      imageUrl: banner || imgUrl
+    })
+  } else if (typeof wx[shareApi] === 'function') {
     const shareSuccessHandle = () => {
       event('SHARE', shareType) // 触发分享
       emit('share', shareType, option)
@@ -182,9 +192,6 @@ export function share (option?: ShareOption): any {
   if (!option) {
     return _shareMap
   }
-  if (!_configPromise) {
-    throw new TypeError('Please jssdk.config first before sharing');
-  }
   const { type = '*' } = option
   const globalOption = _shareMap.get('*')
   const oldOption = _shareMap.get(type) || {}
@@ -192,6 +199,16 @@ export function share (option?: ShareOption): any {
   // 全局配置
   if (type === '*') {
     _shareMap.set(type, newOption)
+  }
+  // for debug
+  window['__wxjs_environment'] = 'miniprogram'
+  // 在小程序中需要进一步设置小程序的分享
+  if ((type === '*' || type === 'mini') && isWxMini()) {
+    updateShareData('mini', newOption)
+    if (!_configPromise) return // 防止报错
+  }
+  if (!_configPromise) {
+    throw new TypeError('Please jssdk.config first before sharing');
   }
   return config().then(() => {
     emit('updateShare', newOption)

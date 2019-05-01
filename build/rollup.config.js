@@ -4,6 +4,8 @@ import commonjs from 'rollup-plugin-commonjs'
 import replace from 'rollup-plugin-replace'
 import json from 'rollup-plugin-json'
 import postcss from 'rollup-plugin-postcss'
+import serve from 'rollup-plugin-serve'
+
 import { uglify } from 'rollup-plugin-uglify'
 // import cssnext from 'postcss-cssnext'
 import autoprefixer from 'autoprefixer'
@@ -47,6 +49,10 @@ export default {
       'process.env.NODE_ENV': JSON.stringify(isDevlopment ? 'development' : 'production'),
       // 编译平台
       '__PLANTFORM__': Plantform
+    }),
+    isDevlopment && serve({
+      port: 1235,
+      contentBase: ['dist', 'demo']
     }),
     isProduction && uglify({
       output: {

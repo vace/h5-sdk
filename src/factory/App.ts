@@ -7,6 +7,7 @@ import { getServiceUri } from "../config";
 import { jwtDecode } from '../plugins/safety';
 import { each, now } from '../functions/underscore';
 import { isWechat } from '../functions/index';
+import UiModal from './UiModal';
 
 /**
  * 一个页面一般只有一个应用（可通过`sdk.app`直接获取）
@@ -64,6 +65,8 @@ export default class App {
 
   /** 应用的AccessKey缓存名称 */
   public accessCacheKey: string = 'AppAccessToken'
+  /** 应用的配置缓存，从服务端读取的 */
+  public configCacheKey: string = 'AppConfigCache'
   /** 应用APPID */
   public appid: string = ''
   /** 应用授权scope */
@@ -74,6 +77,8 @@ export default class App {
   public jsappid: string = ''
   /** 应用平台ID，用作独立授权作用域 */
   public plantform: AppPlatform = 'wechat'
+  /** 当前应用版本号，用于拉取更新API */
+  public version: string = '1.0.0'
 
   /**
    * 用户信息
@@ -86,6 +91,8 @@ export default class App {
     // nickname: '',
     // avatar: ''
   }
+
+  public server!: AppServerConfig
 
   /** jwt登陆的相关信息 */
   public jwt: JwtBody = {}
@@ -174,7 +181,26 @@ export default class App {
         if (authorize) {
           _this.accessKey = authorize
         }
-        return response.json().then(commonResponseReslove)
+        return response.json().then((response) => {
+          // -100 ~ -90为登陆错误
+          if (response.code <= -90 && response.code > -100 ) {
+            new UiModal({
+              title: '用户信息已过期',
+              content: '您的用户授权信息已经过期，请重新点击登陆',
+              okText: '重新登陆',
+              buttons: [
+                {
+                  label: '重新登陆',
+                  onClick () {
+                    App.instance.logout()
+                    App.instance.login()
+                  }
+                }
+              ]
+            }).open()
+          }
+          return commonResponseReslove(response)
+        })
       }
     })
   }
@@ -185,12 +211,13 @@ export default class App {
    * @returns {App}
    */
   public config (option: AppOption = {}): App {
-    const { appid, scope, wxappid, jsappid } = option
+    const { appid, scope, wxappid, jsappid, version } = option
     // 设置参数
     if (appid) this.appid = appid
     if (scope) this.scope = scope
     if (wxappid) this.wxappid = wxappid
     if (jsappid) this.jsappid = jsappid
+    if (version) this.version = version
     // jsappid 默认读取wxappid
     if (!this.jsappid && wxappid) {
       this.jsappid = wxappid
@@ -232,6 +259,48 @@ export default class App {
   public logout () {
     this.$_tasking = void 0 // 清空任务
     this.accessKey = ''
+  }
+
+  /** 读取服务端接口配置 */
+  public initServer () {
+    // const 
+    const appConfig: AppServerConfig = this.server || store.get(this.configCacheKey)
+    if (!appConfig || appConfig.config.appid !== this.appid || appConfig.version !== this.version) {
+      return this.get('init', { version: this.version }).then((server: AppServerConfig) => {
+        // TODO 参数校检
+        store.set(this.configCacheKey, server)
+        this.server = server
+        return server
+      })
+    }
+    return Promise.resolve(appConfig)
+  }
+
+  // http train
+  /** 发送应用请求POST */
+  public post (action: string, data?: any) {
+    return this.action(action, data, 'post')
+  }
+  /** 发送应用请求PUT */
+  public put (action: string, data?: any) {
+    return this.action(action, data, 'put')
+  }
+  /** 发送应用请求GET */
+  public get (action: string, query?: any) {
+    return this.action(action, query, 'get')
+  }
+  /** 发送应用请求DELETE */
+  public delete (action: string, query?: any) {
+    return this.action(action, query, 'delete')
+  }
+  /** 发送应用请求ACTION */
+  public action (action: string, param?: any, method: string = 'get') {
+    // 使用ID主键操作
+    if (typeof param === 'number') {
+      param = { id: param }
+    }
+    const api = `/app/${this.appid}/${action}`
+    return this.$http[method](api, param)
   }
 }
 
@@ -277,6 +346,12 @@ async function wechatOauthScope (app: App): Promise<AppAuthResponse> {
   const redirect = `https://open.weixin.qq.com/connect/oauth2/authorize?${stringify(params)}#wechat_redirect`
   if (!isWechat) {
     // TODO 不是微信浏览器处理
+    new UiModal({
+      title: '请在微信中打开',
+      content: '抱歉，此页面不支持在此设备上访问，请打开微信，扫一扫下方二维码进入页面',
+      // TODO 二维码服务
+      footer: `<img style="width:100%" src="http://qr.topscan.com/api.php?text=${encodeURIComponent(getCurrentHref())}" >`
+    }).open()
     return Promise.reject(new Error('请在微信中访问。'))
   } else {
     location.replace(redirect)
@@ -316,6 +391,16 @@ export type AppUserStruct = {
   [key: string]: any
 }
 
+/** 服务端返回的配置数据 */
+export type AppServerConfig = {
+  api: { [module: string]: string[] },
+  config: {
+    id: number, name:string, appid: string, endtime: number, starttime: number, status: string, plantform_id: string, 
+  },
+  setting: Record<string, any>,
+  version: string
+}
+
 /** 应用配置 */
 export type AppOption = {
   /** 当前应用appid */
@@ -326,6 +411,8 @@ export type AppOption = {
   wxappid?: string
   /** 微信jssdk签名id */
   jsappid?: string
+  /** API版本号 */
+  version?: string
   /** 平台种类 */
   plantform?: AppPlatform
 }

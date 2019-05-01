@@ -39,7 +39,8 @@ export default function initializeJssdk () {
     }
   }
   const $shares = $('meta[name="sdk:share"]')
-  const propsShare = ['type', 'title', 'desc', 'link', 'img', 'imgUrl']
+  // banner为小程序所用的分享图标
+  const propsShare = ['type', 'title', 'desc', 'link', 'img', 'imgUrl', 'banner']
   
   $shares.each((index, element) => {
     const options = getElementAttrs($(element), propsShare)

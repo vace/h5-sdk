@@ -7,6 +7,7 @@ require('dts-generator').default({
   prefix: 'h5-sdk',
   project,
   out: 'index.d.ts',
+  types: ['zepto', 'store', 'blueimp-md5'],
   // resolveModuleId({ currentModuleId }) {
   //   if (currentModuleId.indexOf('initialize') !== -1) {
   //     return null

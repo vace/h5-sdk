@@ -357,16 +357,19 @@ export default class Res extends Emitter{
 // register document element handle
 [TYPE.CSS, TYPE.JS, TYPE.IMG, TYPE.AUDIO, TYPE.VIDEO].forEach(type => {
   Res.registerLoader(type, (url, option) => new Promise((resolve, reject) => {
-    const element = document.createElement(type)
     let eventResolve: 'onload' | 'oncanplaythrough' | 'oncanplay' = 'onload'
     /** 是否插入文档 */
     let isInsertDocument: boolean = false
+    /** 标签别名 */
+    let tagName: string = type
     let _option
     if (type === TYPE.CSS) {
+      tagName = 'link'
       isInsertDocument = true
       _option = { rel: 'stylesheet', href: url }
     }
     else if (type === TYPE.JS) {
+      tagName = 'script'
       isInsertDocument = true
       _option = { src: url, async: true }
     }
@@ -381,6 +384,7 @@ export default class Res extends Emitter{
       eventResolve = 'oncanplay'
       _option = { src: url }
     }
+    const element = document.createElement(tagName)
     // 绑定事件
     element[eventResolve] = () => resolve(element)
     element.onerror = reject

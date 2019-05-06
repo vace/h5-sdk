@@ -26,6 +26,7 @@ import { version } from '../package.json'
 const [Plantform, BuildEnv] = (process.env.BUILD || '').toLowerCase().split('.')
 const isDevlopment = BuildEnv === 'devlopment'
 const isProduction = BuildEnv === 'production'
+const isWatchMode = process.env.ROLLUP_WATCH === 'true'
 
 console.log(`Make Build Plantform: ${Plantform}，Env：${BuildEnv}`)
 
@@ -50,7 +51,7 @@ export default {
       // 编译平台
       '__PLANTFORM__': Plantform
     }),
-    isDevlopment && serve({
+    isWatchMode && isDevlopment && serve({
       port: 1235,
       contentBase: ['dist', 'demo']
     }),

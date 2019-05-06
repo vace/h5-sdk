@@ -34,9 +34,9 @@ type H5PostMessageStruct = {
   /** 分享链接 */
   link: string
   /** 分享图标 */
-  imgUrl: string
+  icon: string
   /** 自定义小程序分享图标 */
-  imageUrl: string
+  banner: string
 }
 
 
@@ -60,6 +60,8 @@ interface ShareOption {
   banner?: string
   imgurl?: string
   imgUrl?: string
+  /** 自定义其他配置 */
+  config?: string
   success?: Function
 }
 
@@ -162,7 +164,8 @@ const updateShareData = (shareType: ShareType, option: ShareOption) => {
     imgurl = '',
     img = '',
     success,
-    banner
+    banner,
+    config
   } = option
   // 取默认值
   if (!link) {
@@ -177,6 +180,8 @@ const updateShareData = (shareType: ShareType, option: ShareOption) => {
     imgUrl = getCurrentPathFile(imgUrl || 'share.jpg')
   }
   if (shareType === 'mini') {
+    const _icon = imgUrl
+    const _banner = banner && isHttp(banner) ? banner : getCurrentPathFile(banner)
     // 推送分享消息到小程序，完成自定义分享
     wx.miniProgram.postMessage({
       data: {
@@ -184,8 +189,9 @@ const updateShareData = (shareType: ShareType, option: ShareOption) => {
         title,
         desc,
         link,
-        imgUrl,
-        imageUrl: banner && isHttp(banner) ? banner : getCurrentPathFile(banner)
+        icon: _icon,
+        banner: _banner,
+        config
       } as H5PostMessageStruct
     })
   } else if (typeof wx[shareApi] === 'function') {
@@ -221,8 +227,6 @@ export function share (option?: ShareOption): any {
   if (type === '*') {
     _shareMap.set(type, newOption)
   }
-  // for debug
-  window['__wxjs_environment'] = 'miniprogram'
   // 在小程序中需要进一步设置小程序的分享
   if ((type === '*' || type === 'mini') && isWxMini()) {
     updateShareData('mini', newOption)

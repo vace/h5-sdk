@@ -1,4 +1,3 @@
-import App from "../factory/App";
 import { getCurrentHref } from "../utils/shared";
 import { randomstr, stringify, parse, each } from "../functions/index";
 import { location } from "../utils/global";
@@ -25,16 +24,15 @@ type WechatSubscribeMsg = {
 }
 
 /** 微信一次性订阅消息 */
-export function subscribeMsg(template_id: string, scene: number = 1): WechatSubscribeMsg | undefined {
+export function subscribeMsg(appid: string, template_id: string, scene: number = 1): WechatSubscribeMsg | undefined {
   if (!template_id) {
     throw new Error('template_id cannot be empty');
   }
-  const app = App.getInstance()
   const [host, queryStr] = getCurrentHref().split('?')
   const _query: any = parse(queryStr)
   const newquery = {
     action: 'get_confirm',
-    appid: app.wxappid,
+    appid,
     scene,
     template_id,
     redirect_url: getCurrentHref(),
@@ -52,10 +50,9 @@ export function subscribeMsg(template_id: string, scene: number = 1): WechatSubs
 }
 
 /** 获取短连接 */
-export function shorturl (url: string): Promise<string> {
-  const app = App.getInstance()
+export function shorturl (appid: string, url: string): Promise<string> {
   return service('wechat/shorturl', {
-    wxappid: app.wxappid,
+    wxappid: appid,
     url: url || location.href
   })
 }

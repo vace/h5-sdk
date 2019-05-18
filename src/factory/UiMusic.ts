@@ -134,8 +134,6 @@ export default class UiMusic extends Emitter {
   /** 是否暂停播放 */
   private _isPaused: boolean = false
 
-  /** 是否能自动播放 */
-  public isSupportAutoPlay: boolean = false
   // 根节点
   public $root: ZeptoCollection = createClsElement('music')
   public $view: ZeptoCollection = createClsElement('music-view')
@@ -257,17 +255,17 @@ export default class UiMusic extends Emitter {
     return this
   }
   /** 播放 */
-  public play () {
+  public play = () => {
     this.isUserPaused = false
     this.audio.play()
     return this
   }
   /** 暂停 */
-  public pause () {
+  public pause = () => {
     this.audio.pause()
   }
   /** 重新播放，如果用户手动暂停，则不会重播 */
-  public replay () {
+  public replay = () => {
     if (!this.isUserPaused) {
       this.play()
     }
@@ -326,9 +324,11 @@ export default class UiMusic extends Emitter {
     if (eventId === UiMusicEvent.canplay) {
       // fixed 自动播放未播放，浏览器限制
       if (autoplay && audio.paused) {
-        const trigger = this.play.bind(this)
-        if (isWechat) fire(trigger)
-        else $(document).one('click', trigger)
+        if (isWechat) fire(this.play)
+        else {
+          setTimeout(this.play, 0)
+          $(document).one('click', this.play)
+        }
       }
     }
     this.emit(eventName, event)

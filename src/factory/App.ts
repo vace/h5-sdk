@@ -33,13 +33,16 @@ export default class App {
     return User.instance.isLogin
   }
 
+  /** 是否初始化 */
+  public isInited: boolean = false
+
   /** 已经注入用户认证信息的`Http`实例 */
   public http: Http
   /** Oauth信息 */
   public oauth: Oauth = Oauth.instance
   /** 用户信息 */
   public user: User = User.instance
-
+  /** 任务进度 */
   private tasker: Tasker = new Tasker
 
   /** 应用APPID */
@@ -133,6 +136,7 @@ export default class App {
   /** 读取服务端接口配置 */
   public async init (option: AppOption = {}) {
     this.setOption(option)
+    this.isInited = true
     const version = this.version
     // const 
     let cache: AppServerInit | null = store.get(App.cacheKey)

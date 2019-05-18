@@ -13,6 +13,7 @@ import { isHttp, isBase64 } from '../functions/is';
 import { event } from './analysis';
 import { each } from '../functions/underscore';
 
+let wechatJssdkAppid: string
 
 /** 微信对象，有可能未初始化导致未读取到值 */
 
@@ -104,13 +105,10 @@ export function config (option?: WxConfigOption): Promise<ConfigResponse> {
     if (!isWechat) {
       return wait(100).then(reslove)
     }
-    // 不存在appid 时从应用配置中读取
-    if (!option.appid) {
-      option.appid = App.getInstance().jsappid
-    }
     emit('beforeConfig', option)
     const { url, debug, appid, jsApiList } = option
     const wx = getwx()
+    wechatJssdkAppid = appid as string
     return Http.instance.get(url || getServiceUri('wechat/signature'), {
       appid,
       url: getCurrentHref(true)
@@ -144,6 +142,10 @@ export function fire (resolve: Function) {
   }
 }
 
+/** 获取当前应用的appid */
+export function getAppid (): string {
+  return wechatJssdkAppid
+}
 
 enum SHARE_API {
   wxapp = 'updateAppMessageShareData',

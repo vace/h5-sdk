@@ -3,6 +3,7 @@
  * 每个应用会从此处开始进行自动处理
  */
 
+import initializeOauth from './initialize-oauth'
 import initializeApp from './initialize-app'
 import initializeJssdk from './initialize-jssdk'
 import initializeScript from './initialize-script'
@@ -10,6 +11,7 @@ import initializeMusic from './initialize-music'
 import { domready } from '../functions/index';
 import { pv } from '../plugins/analysis';
 
+initializeOauth()
 initializeApp()
 initializeScript()
 initializeJssdk()

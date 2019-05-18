@@ -85,8 +85,8 @@ async function send (event: ANA_EVENTS, data: string = '', value: number = 0): P
   }
   let userId = 0
   // 如果应用已经启动，需要通过login接口获取uid
-  if (app.isRunning) {
-    const user = await app.login()
+  if (app.isInited) {
+    const user = await app.ready()
     if (user) {
       userId = user.id
     }

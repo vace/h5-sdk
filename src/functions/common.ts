@@ -11,6 +11,11 @@ export function camelize (str: string): string {
 /** 空函数 */
 export function noop () {}
 
+/** 原样返回 */
+export function alway (val: any) {
+  return val
+}
+
 /**
  * 将驼峰字符串转换为 dasherize格式
  * sdk.dasherize('paddingLeft') // padding-left

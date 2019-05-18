@@ -54,9 +54,19 @@ interface UiMusicTheme {
   loading?: string | Function
 }
 
+/** 雪碧音支持 */
+interface UiMusicTimeline {
+  /** 开始播放时间点 */
+  begin: number
+  /** 结束播放时间点 */
+  end: number
+  /** 是否循环播放 */
+  loop?: boolean
+}
+
 /** 事件处理 */
 enum UiMusicEvent {
-  pause, playing, canplay, ended, loading
+  pause, playing, canplay, ended, loading, timeupdate
 }
 
 const createCdnImage = (type: string, idx: number) => `<img src="${config.cdn}/_res/music/${type}_${idx}.svg" alt="${type}">`
@@ -108,11 +118,14 @@ export default class UiMusic extends Emitter {
     }
     return this.themes.set(themeName, _adapter)
   }
-
+  /** 雪碧音支持 */
+  public timelines: Record<string, UiMusicTimeline> = Object.create(null)
   /** 实例配置 */
   public option: UiMusicOption
   /** 是否挂载 */
   public isMounted: boolean = false
+  /** 用户暂停应用 */
+  public isUserPaused: boolean = false
   
   /** 是否正在加载 */
   private _isLoading: boolean = false
@@ -173,7 +186,11 @@ export default class UiMusic extends Emitter {
     this.$root.on('click', () => {
       const { isPaused, isPlaying, option: { onClick } } = this
       if (isPaused) this.play()
-      else if (isPlaying) this.pause()
+      else if (isPlaying) {
+        // 暂停由用户触发，部分场景下希望暂停背景音乐
+        this.isUserPaused = true
+        this.pause()
+      }
       if (typeof onClick === 'function') {
         onClick.call(this, this)
       }
@@ -241,6 +258,7 @@ export default class UiMusic extends Emitter {
   }
   /** 播放 */
   public play () {
+    this.isUserPaused = false
     this.audio.play()
     return this
   }
@@ -248,6 +266,13 @@ export default class UiMusic extends Emitter {
   public pause () {
     this.audio.pause()
   }
+  /** 重新播放，如果用户手动暂停，则不会重播 */
+  public replay () {
+    if (!this.isUserPaused) {
+      this.play()
+    }
+  }
+
   /** 销毁 */
   public destory () {
     this.pause()
@@ -294,6 +319,8 @@ export default class UiMusic extends Emitter {
     } else if (eventId === UiMusicEvent.pause || eventId === UiMusicEvent.canplay) {
       this.isLoading = this.isPlaying = false
       this.isPaused = true
+    } else if (eventId === UiMusicEvent.timeupdate) {
+
     }
     // 准备就绪
     if (eventId === UiMusicEvent.canplay) {
@@ -307,6 +334,42 @@ export default class UiMusic extends Emitter {
     this.emit(eventName, event)
   }
 
+
+  /**
+   * timeline 支持
+   */
+  /** 添加雪碧音 */
+  public addTimeline (name: string, timeline: UiMusicTimeline) {
+    this.timelines[name] = timeline
+  }
+  private _unbindTimeupdate!: Function
+  /** 播放指定片段雪碧音 */
+  public gotoAndPlay (name: string, callback?: Function) {
+    const timeline = this.timelines[name]
+    if (!timeline) {
+      throw new TypeError(`timeline ${name} not existed`);
+    }
+    if (typeof this._unbindTimeupdate === 'function') {
+      this._unbindTimeupdate()
+    }
+    const audio = this.audio
+    const { begin, end, loop } = timeline
+    audio.currentTime = begin
+    this._unbindTimeupdate = addListener(this.audio, 'timeupdate', () => {
+      if (audio.currentTime < end) return
+      if (loop) {
+        audio.currentTime = begin
+      } else {
+        this.pause()
+        this._unbindTimeupdate()
+        this.emit('timelineend', name)
+        if (typeof callback === 'function') {
+          callback(timeline)
+        }
+      }
+    })
+    this.play()
+  }
 }
 
 // system theme

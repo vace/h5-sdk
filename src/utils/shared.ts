@@ -153,7 +153,12 @@ export function getCurrentHref (isPrivacy?: boolean | string[]): string {
       for (const privacy of PrivacyFileds) {
         delete object[privacy]
       }
-      url = host + Object.keys(object).length ? ('?' + stringify(object)) : ''
+      const newquery = stringify(object)
+      if (newquery) {
+        url = host + '?' + newquery
+      } else {
+        url = host
+      }
     }
   }
   return url

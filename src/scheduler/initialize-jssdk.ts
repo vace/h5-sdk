@@ -21,7 +21,7 @@ export default function initializeJssdk () {
   if (!element.length) {
     return
   }
-  const props = ['url', 'api', '!debug']
+  const props = ['appid', 'url', 'api', '!debug']
   const options: any = getElementAttrs(element, props)
   if (options.api) {
     const apiList = options.api.split(',')

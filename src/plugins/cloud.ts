@@ -3,6 +3,7 @@ import Http from "../factory/Http";
 
 import { getServiceUri } from "../config";
 import { commonResponseReslove } from "../utils/shared";
+import { getAppid } from "./jssdk";
 
 /**
  * 访问服务端的service
@@ -59,7 +60,8 @@ export function syncimage (url: string): Promise<CloudResponse>  {
  * @returns {Promise<CloudResponse>}
  */
 export function wxmedia (media_id: string): Promise<CloudResponse>  {
-  return service('cloud/wxmedia', { jsappid: App.getInstance().jsappid, media_id })
+
+  return service('cloud/wxmedia', { jsappid: getAppid(), media_id })
 }
 
 /**

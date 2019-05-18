@@ -7,7 +7,7 @@ import { each, pick } from "../functions/underscore";
 import { isNullOrUndefined } from "../functions/is";
 import config from '../config';
 import $ from '../venders/zepto';
-import { isWechat } from '../functions/environment';
+import { isWechat, isMobile } from '../functions/environment';
 import { fire } from '../plugins/jssdk';
 
 /** 配置项 */
@@ -326,7 +326,7 @@ export default class UiMusic extends Emitter {
       if (autoplay && audio.paused) {
         if (isWechat) fire(this.play)
         else {
-          setTimeout(this.play, 0)
+          if (!isMobile) setTimeout(this.play, 0)
           $(document).one('click', this.play)
         }
       }

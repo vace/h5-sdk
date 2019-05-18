@@ -1,3 +1,6 @@
+/// <reference types="zepto" />
+/// <reference types="store" />
+/// <reference types="blueimp-md5" />
 declare module 'h5-sdk/src/plugins/store' {
 	export const store: StoreAPI;
 	interface StoreAPI {
@@ -57,6 +60,7 @@ declare module 'h5-sdk/src/functions/is' {
 declare module 'h5-sdk/src/functions/common' {
 	export function camelize(str: string): string;
 	export function noop(): void;
+	export function alway(val: any): any;
 	export function dasherize(str: string): string;
 	export function wait<T>(ms: number, arg?: T): Promise<T>;
 	export function uid(prefix?: string): string;
@@ -142,6 +146,7 @@ declare module 'h5-sdk/src/utils/global' {
 	export const location: Location;
 	export const document: Document;
 	export const getwx: () => any;
+	export const isWxMini: () => boolean;
 	export const fetch: (input: RequestInfo, init?: RequestInit | undefined) => Promise<Response>;
 	export const WeixinJSBridge: any;
 	export const addEventListener: {
@@ -177,6 +182,148 @@ declare module 'h5-sdk/src/utils/shared' {
 	export function getCurrentPathFile(filename?: string): string;
 
 }
+declare module 'h5-sdk/src/factory/Emitter' {
+	 type EventHandler = (event?: any, a1?: any, a2?: any) => void; type WildCardEventHandler = (type: string, event?: any, a1?: any, a2?: any) => void; type AllowEventHandler = EventHandler | WildCardEventHandler;
+	export default class Emitter {
+	    protected static _instance: Emitter;
+	    static readonly instance: Emitter;
+	    private $emitters;
+	    readonly $emitter: AllowEventHandler[];
+	    on(type: string, handler: EventHandler): () => this;
+	    once(type: string, handler: EventHandler): () => this;
+	    off(type: string, handler: EventHandler): this;
+	    emit(type: string, a?: any, b?: any): this;
+	    private $getEmitter;
+	}
+	export {};
+
+}
+declare module 'h5-sdk/src/factory/UiBase' {
+	/// <reference types="zepto" />
+	import Emitter from 'h5-sdk/src/factory/Emitter';
+	export type TypeColor = 'dark' | 'main' | 'primary' | 'warn' | 'info';
+	export type UiTheme = 'android' | 'ios';
+	export type UiBaseOption = {
+	    id?: string;
+	    theme?: UiTheme;
+	    isAddMask?: boolean;
+	    className?: string;
+	    duration?: boolean | number;
+	    target?: string | HTMLElement;
+	    onClose?: Function;
+	    [key: string]: any;
+	};
+	export type UiBaseEvent = 'open' | 'opened' | 'close' | 'closed';
+	export type UiButtonOption = {
+	    key?: string;
+	    label: string;
+	    href?: string;
+	    onClick?: Function;
+	    bold?: boolean;
+	    color?: TypeColor;
+	    className?: string;
+	};
+	export type UiInputType = 'hidden' | 'text' | 'tel' | 'password' | 'textarea' | 'number' | 'custom';
+	export type UiInputOption = {
+	    name: string;
+	    type?: UiInputType;
+	    label?: string;
+	    tips?: string;
+	    placeholder?: string;
+	    value?: string;
+	    disabled?: boolean;
+	    innerHTML?: string;
+	    [key: string]: any;
+	};
+	export default class UiBase extends Emitter {
+	    static openInstances: UiBase[];
+	    static closeAll(): void;
+	    static option: any;
+	    emitter: any;
+	    option: UiBaseOption;
+	    $target?: ZeptoCollection;
+	    $root: ZeptoCollection;
+	    $mask: ZeptoCollection;
+	    inClassName: string;
+	    outClassName: string;
+	    id: string;
+	    isOpened: boolean;
+	    private _closeTid?;
+	    constructor(option?: UiBaseOption);
+	    private _releaseCloseTid;
+	    open(): this;
+	    private _onOpen;
+	    private _onOpened;
+	    close(): void;
+	    private _onClose;
+	    private _onClosed;
+	    wait(duration: number): Promise<UiBase>;
+	}
+
+}
+declare module 'h5-sdk/src/factory/UiModal' {
+	/// <reference types="zepto" />
+	import 'h5-sdk/src/assets/ui-modal.less';
+	import UiBase, { UiBaseOption, UiButtonOption, UiInputOption } from 'h5-sdk/src/factory/UiBase';
+	export interface UiModalOption extends UiBaseOption {
+	    title?: string;
+	    header?: string;
+	    content?: string;
+	    footer?: string;
+	    buttons?: UiButtonOption[];
+	    inputs?: UiInputOption[];
+	    maskClose?: boolean;
+	    transparent?: boolean;
+	    target?: string | HTMLElement;
+	    onClick?: (key?: string) => void;
+	    onClose?: Function;
+	}
+	export default class UiModal extends UiBase {
+	    static option: UiModalOption;
+	    $modal: ZeptoCollection;
+	    $form?: ZeptoCollection;
+	    $buttons?: ZeptoCollection;
+	    $spinning?: ZeptoCollection;
+	    readonly data: {
+	        [key: string]: string;
+	    };
+	    readonly value: string;
+	    constructor(_option?: UiModalOption);
+	    showSpinning(message: string): this;
+	    hideSpinning(): this;
+	    private _openHook;
+	    private _closedHook;
+	}
+
+}
+declare module 'h5-sdk/src/factory/User' {
+	export type UserState = 'unknow' | 'normal' | 'black' | 'admin' | 'super' | 'developer';
+	export type UserPlatform = 'unknow' | 'wechat' | 'qq' | 'taobao' | 'weibo' | 'douyin' | 'github' | 'google' | 'linkedin' | 'facebook' | 'open' | 'mini';
+	export type UserType = 'none' | 'base' | 'user';
+	export default class User {
+	    private static cacheKey;
+	    private static _instance;
+	    static readonly instance: User;
+	    isLogin: boolean;
+	    id: number;
+	    platform: UserPlatform;
+	    appid: string;
+	    nickname: string;
+	    avatar: string;
+	    openid: string;
+	    state: UserState;
+	    gender: number;
+	    email: string;
+	    username: string;
+	    userType: UserType;
+	    location: string;
+	    unionid: string;
+	    constructor(user?: any);
+	    login(user: any): this;
+	    logout(): void;
+	}
+
+}
 declare module 'h5-sdk/src/plugins/safety' {
 	export function btoa(input: string): string;
 	export function atob(input: string): string;
@@ -185,100 +332,116 @@ declare module 'h5-sdk/src/plugins/safety' {
 	export function jwtDecode(token: string): any;
 
 }
-declare module 'h5-sdk/src/functions/environment' {
-	export const isMobile: boolean;
-	export const isIos: boolean;
-	export const isAndroid: boolean;
-	export const isWechat: boolean;
-	export function checkSupportWebp(): Promise<boolean>;
+declare module 'h5-sdk/src/factory/Tasker' {
+	export default class Tasker {
+	    isDone: boolean;
+	    task: Promise<any>;
+	    private _nativeResolve;
+	    private _nativeReject;
+	    constructor();
+	    resolve(val: any): Promise<any>;
+	    reject(err: any): Promise<any>;
+	    then(onfulfilled: any, onrejected: any): Promise<any>;
+	}
+
+}
+declare module 'h5-sdk/src/factory/Oauth' {
+	import User, { UserState, UserPlatform, UserType } from 'h5-sdk/src/factory/User';
+	import Tasker from 'h5-sdk/src/factory/Tasker';
+	interface OauthOption {
+	    platform: UserPlatform;
+	    appid: string;
+	    type?: UserType;
+	    url?: string;
+	    scope?: string;
+	    env?: string;
+	}
+	export default class Oauth {
+	    static option: OauthOption;
+	    static cacheKey: string;
+	    private static _instance;
+	    static readonly instance: Oauth;
+	    static getInstance(): Oauth;
+	    tasker: Tasker;
+	    id: number;
+	    user: User;
+	    state: UserState;
+	    type: UserType;
+	    option: OauthOption;
+	    platform: UserPlatform;
+	    appid: string;
+	    scope: string;
+	    env: string;
+	    url: string;
+	    private _accessToken;
+	    isAccessTokenValid: boolean;
+	    accessToken: string | null;
+	    saveToken(token: string): void;
+	    setOption(option: OauthOption): this;
+	    init(option: OauthOption): Promise<User | any>;
+	    redirect(_url?: string): void;
+	    refreshUser(): Promise<User | null>;
+	    login(): Promise<boolean | User>;
+	}
+	export {};
+
+}
+declare module 'h5-sdk/src/factory/App' {
+	import Http from 'h5-sdk/src/factory/Http';
+	import Oauth from 'h5-sdk/src/factory/Oauth';
+	import User from 'h5-sdk/src/factory/User';
+	export default class App {
+	    private static cacheKey;
+	    private static _instance;
+	    static readonly instance: App;
+	    static getInstance(): App;
+	    readonly isLogin: boolean;
+	    isInited: boolean;
+	    http: Http;
+	    oauth: Oauth;
+	    user: User;
+	    private tasker;
+	    appid: string;
+	    version: string;
+	    config: AppServerConfig;
+	    setting: AppServerSetting;
+	    constructor();
+	    setOption(option?: AppOption): App;
+	    ready(fn?: any): Promise<any>;
+	    init(option?: AppOption): Promise<any>;
+	    private setServer;
+	    post(action: string, data?: any): any;
+	    put(action: string, data?: any): any;
+	    get(action: string, query?: any): any;
+	    delete(action: string, query?: any): any;
+	    action(action: string, param?: any, method?: string): any;
+	} type AppServerConfig = {
+	    id: number;
+	    name: string;
+	    oauth: string;
+	    appid: string;
+	    endtime: number;
+	    starttime: number;
+	    status: string;
+	}; type AppServerSetting = Record<string, any>;
+	export type AppServerInit = {
+	    api: {
+	        [module: string]: string[];
+	    };
+	    config: AppServerConfig;
+	    setting: AppServerSetting;
+	    version: string;
+	};
+	export type AppOption = {
+	    appid?: string;
+	    version?: string;
+	};
+	export {};
 
 }
 declare module 'h5-sdk/src/functions/helper' {
 	export function addListener(element: HTMLElement | Document, event: string, callback: EventListener): Function;
 	export const domready: Promise<boolean>;
-
-}
-declare module 'h5-sdk/src/functions/timeago' {
-	export function timeago(unixTime: Date | number): string;
-	export function unixFormat(unixTime: number, format?: string): string;
-
-}
-declare module 'h5-sdk/src/functions/index' {
-	export * from 'h5-sdk/src/functions/common';
-	export * from 'h5-sdk/src/functions/environment';
-	export * from 'h5-sdk/src/functions/helper';
-	export * from 'h5-sdk/src/functions/is';
-	export * from 'h5-sdk/src/functions/path';
-	export * from 'h5-sdk/src/functions/qs';
-	export * from 'h5-sdk/src/functions/regex';
-	export * from 'h5-sdk/src/functions/timeago';
-	export * from 'h5-sdk/src/functions/underscore';
-
-}
-declare module 'h5-sdk/src/factory/App' {
-	import Http from 'h5-sdk/src/factory/Http';
-	export default class App {
-	    private static _instance;
-	    static readonly instance: App;
-	    static getInstance(): App;
-	    private static scopes;
-	    static registerScope(scope: string, handle: RegisterScopeHandle): void;
-	    static parseScope(scope: string): RegisterScopeHandle;
-	    isRunning: boolean;
-	    isLogin: boolean;
-	    $http: Http;
-	    accessCacheKey: string;
-	    appid: string;
-	    scope: string;
-	    wxappid: string;
-	    jsappid: string;
-	    plantform: AppPlatform;
-	    user: AppUserStruct;
-	    jwt: JwtBody;
-	    private _accessKey;
-	    accessKey: string;
-	    constructor();
-	    config(option?: AppOption): App;
-	    run(): Promise<AppUserStruct>;
-	    private $_tasking?;
-	    login(): Promise<AppUserStruct>;
-	    logout(): void;
-	}
-	export type RegisterScopeHandle = {
-	    auth: (app: App) => Promise<AppAuthResponse>;
-	    validate: (user: AppAuthResponse) => boolean;
-	};
-	export type AppUserStruct = {
-	    id: number;
-	    openid?: string;
-	    nickname?: string;
-	    avatar?: string;
-	    [key: string]: any;
-	};
-	export type AppOption = {
-	    appid?: string;
-	    scope?: string;
-	    wxappid?: string;
-	    jsappid?: string;
-	    plantform?: AppPlatform;
-	};
-	export type AppAuthResponse = {
-	    platform: AppPlatform;
-	    platformId: string;
-	    appid: string;
-	    scope: string;
-	    [key: string]: any;
-	};
-	export type AppPlatform = 'wechat'; type JwtBody = {
-	    aud?: string;
-	    exp?: number;
-	    iat?: number;
-	    nbf?: number;
-	    iss?: string;
-	    jti?: string;
-	    sub?: string;
-	};
-	export {};
 
 }
 declare module 'h5-sdk/src/plugins/analysis' {
@@ -297,6 +460,7 @@ declare module 'h5-sdk/src/plugins/analysis' {
 declare module 'h5-sdk/src/config' {
 	import { AnalysisOption } from 'h5-sdk/src/plugins/analysis';
 	export type DefaultConfig = {
+	    api: string;
 	    analysis?: AnalysisOption;
 	    service: string;
 	    cdn: string;
@@ -304,23 +468,8 @@ declare module 'h5-sdk/src/config' {
 	export const config: DefaultConfig;
 	export default config;
 	export function getServiceUri(name: string): string;
+	export function getApiUri(name: string): string;
 	export function getCdnRes(filename: string): string;
-
-}
-declare module 'h5-sdk/src/factory/Emitter' {
-	 type EventHandler = (event?: any, a1?: any, a2?: any) => void; type WildCardEventHandler = (type: string, event?: any, a1?: any, a2?: any) => void; type AllowEventHandler = EventHandler | WildCardEventHandler;
-	export default class Emitter {
-	    protected static _instance: Emitter;
-	    static readonly instance: Emitter;
-	    private $emitters;
-	    readonly $emitter: AllowEventHandler[];
-	    on(type: string, handler: EventHandler): () => this;
-	    once(type: string, handler: EventHandler): () => this;
-	    off(type: string, handler: EventHandler): this;
-	    emit(type: string, a?: any, b?: any): this;
-	    private $getEmitter;
-	}
-	export {};
 
 }
 declare module 'h5-sdk/src/factory/Res' {
@@ -421,7 +570,16 @@ declare module 'h5-sdk/src/assets/star-loading' {
 	export default _default;
 
 }
+declare module 'h5-sdk/src/functions/environment' {
+	export const isMobile: boolean;
+	export const isIos: boolean;
+	export const isAndroid: boolean;
+	export const isWechat: boolean;
+	export function checkSupportWebp(): Promise<boolean>;
+
+}
 declare module 'h5-sdk/src/plugins/jssdk' {
+	import 'h5-sdk/src/polyfill/jweixin-1.5.0';
 	import Emitter from 'h5-sdk/src/factory/Emitter'; type WxConfigOption = {
 	    url: string;
 	    debug?: boolean;
@@ -434,13 +592,15 @@ declare module 'h5-sdk/src/plugins/jssdk' {
 	    signature: string;
 	}
 	interface ShareOption {
-	    type?: '*' | 'timeline' | 'wxapp';
+	    type?: '*' | 'timeline' | 'wxapp' | 'mini';
 	    title?: string;
 	    desc?: string;
 	    link?: string;
 	    img?: string;
+	    banner?: string;
 	    imgurl?: string;
 	    imgUrl?: string;
+	    config?: string;
 	    success?: Function;
 	} type WxEventType = 'beforeConfig' | 'config' | 'share' | 'updateShare' | 'error' | 'ready';
 	export const defaultJsApiList: string[];
@@ -448,6 +608,7 @@ declare module 'h5-sdk/src/plugins/jssdk' {
 	export const on: (type: WxEventType, callback: EventHandlerNonNull) => () => Emitter;
 	export function config(option?: WxConfigOption): Promise<ConfigResponse>;
 	export function fire(resolve: Function): void;
+	export function getAppid(): string;
 	export function share(option?: ShareOption): any;
 	export function chooseImageBase64(): Promise<string>;
 	export function preview(url: string | string[], index?: number): void;
@@ -515,108 +676,27 @@ declare module 'h5-sdk/src/factory/UiMusic' {
 	export {};
 
 }
+declare module 'h5-sdk/src/functions/timeago' {
+	export function timeago(unixTime: Date | number): string;
+	export function unixFormat(unixTime: number, format?: string): string;
+
+}
+declare module 'h5-sdk/src/functions/index' {
+	export * from 'h5-sdk/src/functions/common';
+	export * from 'h5-sdk/src/functions/environment';
+	export * from 'h5-sdk/src/functions/helper';
+	export * from 'h5-sdk/src/functions/is';
+	export * from 'h5-sdk/src/functions/path';
+	export * from 'h5-sdk/src/functions/qs';
+	export * from 'h5-sdk/src/functions/regex';
+	export * from 'h5-sdk/src/functions/timeago';
+	export * from 'h5-sdk/src/functions/underscore';
+
+}
 declare module 'h5-sdk/src/venders/index' {
 	/// <reference types="zepto" />
 	export const $: ZeptoStatic;
 	export const Zepto: ZeptoStatic;
-
-}
-declare module 'h5-sdk/src/factory/UiBase' {
-	/// <reference types="zepto" />
-	import Emitter from 'h5-sdk/src/factory/Emitter';
-	export type TypeColor = 'dark' | 'main' | 'primary' | 'warn' | 'info';
-	export type UiTheme = 'android' | 'ios';
-	export type UiBaseOption = {
-	    id?: string;
-	    theme?: UiTheme;
-	    isAddMask?: boolean;
-	    className?: string;
-	    duration?: boolean | number;
-	    target?: string | HTMLElement;
-	    onClose?: Function;
-	    [key: string]: any;
-	};
-	export type UiBaseEvent = 'open' | 'opened' | 'close' | 'closed';
-	export type UiButtonOption = {
-	    key?: string;
-	    label: string;
-	    href?: string;
-	    onClick?: Function;
-	    bold?: boolean;
-	    color?: TypeColor;
-	    className?: string;
-	};
-	export type UiInputType = 'hidden' | 'text' | 'tel' | 'password' | 'textarea' | 'number' | 'custom';
-	export type UiInputOption = {
-	    name: string;
-	    type?: UiInputType;
-	    label?: string;
-	    tips?: string;
-	    placeholder?: string;
-	    value?: string;
-	    disabled?: boolean;
-	    innerHTML?: string;
-	    [key: string]: any;
-	};
-	export default class UiBase extends Emitter {
-	    static openInstances: UiBase[];
-	    static closeAll(): void;
-	    static option: any;
-	    emitter: any;
-	    option: UiBaseOption;
-	    $target?: ZeptoCollection;
-	    $root: ZeptoCollection;
-	    $mask: ZeptoCollection;
-	    inClassName: string;
-	    outClassName: string;
-	    id: string;
-	    isOpened: boolean;
-	    private _closeTid?;
-	    constructor(option?: UiBaseOption);
-	    private _releaseCloseTid;
-	    open(): this;
-	    private _onOpen;
-	    private _onOpened;
-	    close(): void;
-	    private _onClose;
-	    private _onClosed;
-	    wait(duration: number): Promise<UiBase>;
-	}
-
-}
-declare module 'h5-sdk/src/factory/UiModal' {
-	/// <reference types="zepto" />
-	import 'h5-sdk/src/assets/ui-modal.less';
-	import UiBase, { UiBaseOption, UiButtonOption, UiInputOption } from 'h5-sdk/src/factory/UiBase';
-	export interface UiModalOption extends UiBaseOption {
-	    title?: string;
-	    header?: string;
-	    content?: string;
-	    footer?: string;
-	    buttons?: UiButtonOption[];
-	    inputs?: UiInputOption[];
-	    maskClose?: boolean;
-	    transparent?: boolean;
-	    target?: string | HTMLElement;
-	    onClick?: (key?: string) => void;
-	    onClose?: Function;
-	}
-	export default class UiModal extends UiBase {
-	    static option: UiModalOption;
-	    $modal: ZeptoCollection;
-	    $form?: ZeptoCollection;
-	    $buttons?: ZeptoCollection;
-	    $spinning?: ZeptoCollection;
-	    readonly data: {
-	        [key: string]: string;
-	    };
-	    readonly value: string;
-	    constructor(_option?: UiModalOption);
-	    showSpinning(message: string): this;
-	    hideSpinning(): this;
-	    private _openHook;
-	    private _closedHook;
-	}
 
 }
 declare module 'h5-sdk/src/factory/UiToast' {
@@ -753,8 +833,8 @@ declare module 'h5-sdk/src/plugins/wechat' {
 	    scene: number;
 	    reserved: string;
 	};
-	export function subscribeMsg(template_id: string, scene?: number): WechatSubscribeMsg | undefined;
-	export function shorturl(url: string): Promise<string>;
+	export function subscribeMsg(appid: string, template_id: string, scene?: number): WechatSubscribeMsg | undefined;
+	export function shorturl(appid: string, url: string): Promise<string>;
 	export {};
 
 }

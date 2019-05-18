@@ -71,8 +71,8 @@ enum Method {
 
 /** 可用ContentType */
 enum ContentType {
-  UrlEncode = 'application/x-www-form-urlencoded;charset=utf-8',
-  JSON = 'application/json;charset=utf-8'
+  UrlEncode = 'application/x-www-form-urlencoded; charset=utf-8',
+  JSON = 'application/json; charset=utf-8'
 }
 
 /**
@@ -156,17 +156,20 @@ export default class Http {
     } = config
     let headers = new Headers(config.headers)
     let { url, params, data, body } = config
+    const StrContentType = 'Content-Type'
+    // 根据 content type 处理body
+    let contentType = headers.get(StrContentType)
     // get
     if (method === Method.GET || method === Method.HEAD || method === Method.DELETE || method === Method.OPTIONS) {
       body = void 0 // clear body
       if (params) { // 参数组合
         url += (url.indexOf('?') === -1 ? '?' : '&') + (isString(params) ? params : stringify(params))
       }
+      if (!contentType) {
+        headers.set(StrContentType, ContentType.JSON)
+      }
     } else {
-      const StrContentType = 'content-type'
       body = data || body
-      // 根据 content type 处理body
-      let contentType = headers.get(StrContentType)
       // 上传文件
       if (isFormData(body)) {
         headers.delete(StrContentType)
@@ -184,7 +187,7 @@ export default class Http {
       if (contentType) headers.set(StrContentType, contentType)
     }
     // 设置了根路径
-    if (baseURL && !isAbsolute(url) && !isHttp(url)) {
+    if (baseURL && !isHttp(url)) {
       url = `${baseURL}${url}`
     }
     const _option: TransformRequestOption = {

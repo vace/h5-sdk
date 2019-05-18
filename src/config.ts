@@ -5,6 +5,8 @@ const GlobalSdkConfig: DefaultConfig = window['_SDK'] || {}
 
 /** 配置文件格式 */
 export type DefaultConfig = {
+  /** api 服务 */
+  api: string
   /** 分析插件配置 */
   analysis?: AnalysisOption
   /** 服务目录 */
@@ -15,6 +17,8 @@ export type DefaultConfig = {
 
 /** 默认配置 */
 export const config: DefaultConfig = Object.assign({
+  /** 接口服务 */
+  api: 'https://api.ahmq.net',
   // 域名服务名称
   service: 'https://h5-service.ahmq.net',
   // CDN 的名称
@@ -31,6 +35,15 @@ export default config
 export function getServiceUri (name: string): string {
   return `${config.service}/${name}`
 }
+
+/**
+ * 获取service的uri
+ * @param {string} name
+ */
+export function getApiUri(name: string): string {
+  return `${config.api}/${name}`
+}
+
 
 /**
  * 获取cdn文件名称

@@ -9,7 +9,7 @@ export default function initializeApp () {
   if (!element.length) {
     return
   }
-  const props = ['appid', 'scope', 'wxappid', 'jsappid', 'version']
+  const props = ['appid', 'version']
   const options: any = getElementAttrs(element, props)
-  App.getInstance().config(options).run()
+  return App.getInstance().init(options)
 }

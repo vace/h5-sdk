@@ -224,7 +224,7 @@ export default class Res extends Emitter{
       }
     }
     // 未工作，任务未完成
-    if (!this.isWorking && !this.isComplete) {
+    if (!this.isComplete) {
       // do task
       this.$working()
     }

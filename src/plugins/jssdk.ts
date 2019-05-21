@@ -101,17 +101,18 @@ export function config (option?: WxConfigOption): Promise<ConfigResponse> {
     if (!option) {
       throw new TypeError('Parameters must be present')      
     }
+    const { url, debug, appid, jsApiList } = option
+    wechatJssdkAppid = appid as string
     // 非微信浏览器，模拟签名
     if (!isWechat) {
       return wait(100).then(reslove)
     }
     emit('beforeConfig', option)
-    const { url, debug, appid, jsApiList } = option
     const wx = getwx()
-    wechatJssdkAppid = appid as string
     return Http.instance.get(url || getServiceUri('wechat/signature'), {
       appid,
-      url: getCurrentHref(true)
+      // 注意这里的URL必须是去除锚点包含完整参数的URL，签名校验非常严格
+      url: getCurrentHref()
     }).then(commonResponseReslove).then((signature: ConfigResponse) => {
       signature.jsApiList = jsApiList || defaultJsApiList
       signature.debug = !!debug

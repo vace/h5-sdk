@@ -21,10 +21,18 @@ export default class App {
   public static get instance () {
     return this.getInstance()
   }
+
+  /** 全局的错误处理器 */
+  public static errorHandler: errorHandler
+
   /** 获取应用实例 */
-  public static getInstance () {
+  public static getInstance (option?: AppOption) {
     if (!this._instance) {
-      this._instance = new App()
+      // 必须存在
+      if (!option) {
+        throw new Error('App.getInstance(option) 参数必须存在！')
+      }
+      this._instance = new App(option)
     }
     return this._instance
   }
@@ -55,21 +63,25 @@ export default class App {
   /** 服务端设置项 */
   public setting!: AppServerSetting
 
-  public constructor () {
-    const _this = this
-    const oauth = this.oauth
+  public constructor (app: AppOption) {
+    const { appid, version } = app
+    this.appid = appid
+    this.version = version
     this.http = new Http({
       // 默认api路径
       baseURL: config.api,
       /** 请求时带上appid和authorization */
-      transformRequest (option) {
+      transformRequest: option => {
+        const { appid, oauth } = this
         const [host, queryString = ''] = option.url.split('?')
-        const query = parse(queryString)
-        const { appid } = _this
         const headers = <Headers> option.headers
-        if (!query.appid) {
-          query.appid = appid
-          option.url = `${host}?${stringify(query)}`
+        // 支持 {appid}/action 的格式
+        if (host.indexOf(appid) === -1) {
+          const query = parse(queryString)
+          if (!query.appid) {
+            query.appid = appid
+            option.url = `${host}?${stringify(query)}`
+          }
         }
         if (oauth.isAccessTokenValid && !headers.has('authorization')) {
           headers.set('authorization', <string> oauth.accessToken)
@@ -103,19 +115,8 @@ export default class App {
         })
       }
     })
-  }
-
-  /**
-   * 设置应用配置
-   * @param {AppOption} [option={}]
-   * @returns {App}
-   */
-  public setOption (option: AppOption = {}): App {
-    const { appid, version } = option
-    // 设置参数
-    if (appid) this.appid = appid
-    if (version) this.version = version
-    return this
+    // 执行初始化
+    this.setup()
   }
 
   /**
@@ -133,12 +134,10 @@ export default class App {
     return task
   }
 
-  /** 读取服务端接口配置 */
-  public async init (option: AppOption = {}) {
-    this.setOption(option)
+  /** 准备工作，获取应用配置以及用户信息 */
+  private async setup () {
     this.isInited = true
     const version = this.version
-    // const 
     let cache: AppServerInit | null = store.get(App.cacheKey)
     if (cache) {
       const config = cache.config
@@ -160,6 +159,7 @@ export default class App {
     return this.tasker.resolve(cache)
   }
 
+  /** 设置应用配置和管理员设置 */
   private setServer (server: AppServerInit) {
     this.config = server.config
     this.setting = server.setting
@@ -189,10 +189,16 @@ export default class App {
       param = { id: param }
     }
     const api = `/app/${this.appid}/${action}`
-    return this.http[method](api, param)
+    const response = this.http[method](api, param)
+    // 全局的错误捕获器
+    if (typeof App.errorHandler === 'function') {
+      return response.catch((err: Error) => App.errorHandler(err, {action, param, method}, this))
+    }
+    return response
   }
 }
 
+/** 应用配置 */
 type AppServerConfig = {
   id: number
   name: string
@@ -203,6 +209,7 @@ type AppServerConfig = {
   status: string
 }
 
+/** 管理员配置 */
 type AppServerSetting = Record<string, any>
 
 /** 服务端返回的配置数据 */
@@ -220,7 +227,16 @@ export type AppServerInit = {
 /** 应用配置 */
 export type AppOption = {
   /** 当前应用appid */
-  appid?: string
+  appid: string
   /** API版本号 */
-  version?: string
+  version: string
 }
+
+/** 参数配置 */
+type TypeAction = {
+  method: string
+  action: string
+  param: any
+}
+/** 应用接口错误消息捕获 */
+type errorHandler = (err: Error, action: TypeAction, vm: App) => void

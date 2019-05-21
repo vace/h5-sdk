@@ -15,6 +15,9 @@ import { each } from '../functions/underscore';
 
 let wechatJssdkAppid: string
 
+/** 页面是否已经签名 */
+// let pageIsSignured: boolean
+
 /** 微信对象，有可能未初始化导致未读取到值 */
 
 /** 配置结构 */
@@ -88,6 +91,14 @@ const emit = (evt: WxEventType, arg?: any, arg2?: any) => emitter.emit(evt, arg,
 /** 监听事件 */
 export const on = (type: WxEventType, callback: EventHandlerNonNull) => emitter.on(type, callback)
 
+/** wx.ready触发，不在微信浏览器则直接触发 */
+export function ready (fn: Function) {
+  if (isWechat) {
+    getwx().ready(fn)
+  } else {
+    setTimeout(fn, 0)
+  }
+}
 
 let _configPromise: Promise<any>
 

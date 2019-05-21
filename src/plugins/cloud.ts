@@ -60,12 +60,11 @@ export function syncimage (url: string): Promise<CloudResponse>  {
  * @returns {Promise<CloudResponse>}
  */
 export function wxmedia (media_id: string): Promise<CloudResponse>  {
-
   return service('cloud/wxmedia', { jsappid: getAppid(), media_id })
 }
 
 /**
- * 同步微信资源文件
+ * 获取文件信息
  * @param {string} key 应用文件存储的key，注意去除前缀
  * @returns {Promise<CloudResponse>}
  */
@@ -74,7 +73,7 @@ export function headfile (key: string): Promise<CloudResponse>  {
 }
 
 /**
- * 代理转发请求，解决跨域问题
+ * 代理转发请求，解决各种跨域问题
  * @param {ProxyOption} option
  * @returns {Promise<any>}
  */
@@ -82,7 +81,13 @@ export function proxy (option: ProxyOption): Promise<any> {
   return service('cloud/proxy', option, 'post')
 }
 
-export function amr2mp3 (input: string, kbs?: number) {
+/**
+ * 将微信的amr格式转换为Mp3格式
+ * @param input 资源key（CloudResponse.key）
+ * @param kbs 码率
+ * @returns {Promise<CloudResponse>}
+ */
+export function amr2mp3 (input: string, kbs?: number): Promise<CloudResponse> {
   return service('cloud/amr2mp3', {input, kbs}, 'get')  
 }
 

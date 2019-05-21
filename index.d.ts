@@ -642,6 +642,11 @@ declare module 'h5-sdk/src/factory/UiMusic' {
 	    paused: string | Function;
 	    loading?: string | Function;
 	}
+	interface UiMusicTimeline {
+	    begin: number;
+	    end: number;
+	    loop?: boolean;
+	}
 	export default class UiMusic extends Emitter {
 	    static _instance: UiMusic;
 	    static readonly instance: UiMusic;
@@ -649,12 +654,13 @@ declare module 'h5-sdk/src/factory/UiMusic' {
 	    static option: UiMusicOption;
 	    static themes: Map<any, any>;
 	    static registerTheme(themeName: any, adapter: UiMusicTheme | number[]): Map<string, UiMusicTheme>;
+	    timelines: Record<string, UiMusicTimeline>;
 	    option: UiMusicOption;
 	    isMounted: boolean;
+	    isUserPaused: boolean;
 	    private _isLoading;
 	    private _isPlaying;
 	    private _isPaused;
-	    isSupportAutoPlay: boolean;
 	    $root: ZeptoCollection;
 	    $view: ZeptoCollection;
 	    $loading: ZeptoCollection;
@@ -668,10 +674,14 @@ declare module 'h5-sdk/src/factory/UiMusic' {
 	    isPaused: boolean;
 	    isPlaying: boolean;
 	    load(src?: string): this;
-	    play(): this;
-	    pause(): void;
+	    play: () => this;
+	    pause: () => void;
+	    replay: () => void;
 	    destory(): void;
 	    private _handleEvent;
+	    addTimeline(name: string, timeline: UiMusicTimeline): void;
+	    private _unbindTimeupdate;
+	    gotoAndPlay(name: string, callback?: Function): void;
 	}
 	export {};
 
@@ -854,12 +864,15 @@ declare module 'h5-sdk/src/factory/index' {
 	export { default as App } from 'h5-sdk/src/factory/App';
 	export { default as Emitter } from 'h5-sdk/src/factory/Emitter';
 	export { default as Http } from 'h5-sdk/src/factory/Http';
+	export { default as Oauth } from 'h5-sdk/src/factory/Oauth';
 	export { default as Res } from 'h5-sdk/src/factory/Res';
+	export { default as Tasker } from 'h5-sdk/src/factory/Tasker';
 	export { default as UiBase } from 'h5-sdk/src/factory/UiBase';
 	export { default as UiMusic } from 'h5-sdk/src/factory/UiMusic';
 	export { default as UiModal } from 'h5-sdk/src/factory/UiModal';
 	export { default as UiToast } from 'h5-sdk/src/factory/UiToast';
 	export { default as UiView } from 'h5-sdk/src/factory/UiView';
+	export { default as User } from 'h5-sdk/src/factory/User';
 
 }
 declare module 'h5-sdk/src/web-entry' {

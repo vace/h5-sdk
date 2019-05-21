@@ -394,7 +394,8 @@ declare module 'h5-sdk/src/factory/App' {
 	    private static cacheKey;
 	    private static _instance;
 	    static readonly instance: App;
-	    static getInstance(): App;
+	    static errorHandler: errorHandler;
+	    static getInstance(option?: AppOption): App;
 	    readonly isLogin: boolean;
 	    isInited: boolean;
 	    http: Http;
@@ -405,10 +406,9 @@ declare module 'h5-sdk/src/factory/App' {
 	    version: string;
 	    config: AppServerConfig;
 	    setting: AppServerSetting;
-	    constructor();
-	    setOption(option?: AppOption): App;
+	    constructor(app: AppOption);
 	    ready(fn?: any): Promise<any>;
-	    init(option?: AppOption): Promise<any>;
+	    private setup;
 	    private setServer;
 	    post(action: string, data?: any): any;
 	    put(action: string, data?: any): any;
@@ -433,9 +433,13 @@ declare module 'h5-sdk/src/factory/App' {
 	    version: string;
 	};
 	export type AppOption = {
-	    appid?: string;
-	    version?: string;
-	};
+	    appid: string;
+	    version: string;
+	}; type TypeAction = {
+	    method: string;
+	    action: string;
+	    param: any;
+	}; type errorHandler = (err: Error, action: TypeAction, vm: App) => void;
 	export {};
 
 }
@@ -606,6 +610,7 @@ declare module 'h5-sdk/src/plugins/jssdk' {
 	export const defaultJsApiList: string[];
 	export const emitter: Emitter;
 	export const on: (type: WxEventType, callback: EventHandlerNonNull) => () => Emitter;
+	export function ready(fn: Function): void;
 	export function config(option?: WxConfigOption): Promise<ConfigResponse>;
 	export function fire(resolve: Function): void;
 	export function getAppid(): string;
@@ -821,7 +826,7 @@ declare module 'h5-sdk/src/plugins/cloud' {
 	export function wxmedia(media_id: string): Promise<CloudResponse>;
 	export function headfile(key: string): Promise<CloudResponse>;
 	export function proxy(option: ProxyOption): Promise<any>;
-	export function amr2mp3(input: string, kbs?: number): Promise<any>; type CloudResponse = {
+	export function amr2mp3(input: string, kbs?: number): Promise<CloudResponse>; type CloudResponse = {
 	    name: string;
 	    url: string;
 	    status: number;
@@ -836,16 +841,8 @@ declare module 'h5-sdk/src/plugins/cloud' {
 
 }
 declare module 'h5-sdk/src/plugins/wechat' {
-	export function getQrcode(username: string): string; type WechatSubscribeMsg = {
-	    openid: string;
-	    template_id: string;
-	    action: 'confirm' | 'cancel';
-	    scene: number;
-	    reserved: string;
-	};
-	export function subscribeMsg(appid: string, template_id: string, scene?: number): WechatSubscribeMsg | undefined;
-	export function shorturl(appid: string, url: string): Promise<string>;
-	export {};
+	export function getQrcode(username: string): string;
+	export function shorturl(url: string, appid?: string): Promise<string>;
 
 }
 declare module 'h5-sdk/src/plugins/index' {

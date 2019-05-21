@@ -8,7 +8,7 @@ import { isNullOrUndefined } from "../functions/is";
 import config from '../config';
 import $ from '../venders/zepto';
 import { isWechat, isMobile } from '../functions/environment';
-import { fire } from '../plugins/jssdk';
+import { fire, ready } from '../plugins/jssdk';
 
 /** 配置项 */
 export interface UiMusicOption {
@@ -175,10 +175,11 @@ export default class UiMusic extends Emitter {
     for (const eventId of [UiMusicEvent.pause, UiMusicEvent.playing, UiMusicEvent.canplay, UiMusicEvent.ended]) {
       addListener(audio, UiMusicEvent[eventId], (event: any) => this._handleEvent(eventId, event))
     }
-
+    this.load()
     // 自动播放处理
     if (autoplay) {
-      this.load()
+      // 移动端不允许直接播放audio
+      ready(this.play.bind(this))
     }
     // root click toggle
     this.$root.on('click', () => {
@@ -321,16 +322,16 @@ export default class UiMusic extends Emitter {
 
     }
     // 准备就绪
-    if (eventId === UiMusicEvent.canplay) {
-      // fixed 自动播放未播放，浏览器限制
-      if (autoplay && audio.paused) {
-        if (isWechat) fire(this.play)
-        else {
-          if (!isMobile) setTimeout(this.play, 0)
-          $(document).one('click', this.play)
-        }
-      }
-    }
+    // if (eventId === UiMusicEvent.canplay) {
+    //   // fixed 自动播放未播放，浏览器限制
+    //   if (autoplay && audio.paused) {
+    //     if (isWechat) fire(this.play)
+    //     else {
+    //       if (!isMobile) setTimeout(this.play, 0)
+    //       $(document).one('click', this.play)
+    //     }
+    //   }
+    // }
     this.emit(eventName, event)
   }
 

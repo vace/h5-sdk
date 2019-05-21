@@ -11,5 +11,5 @@ export default function initializeApp () {
   }
   const props = ['appid', 'version']
   const options: any = getElementAttrs(element, props)
-  return App.getInstance().init(options)
+  return App.getInstance(options)
 }

@@ -9,9 +9,12 @@ import config from '../config';
 import $ from '../venders/zepto';
 import { isWechat, isMobile } from '../functions/environment';
 import { fire, ready } from '../plugins/jssdk';
+import { document } from '../utils/global';
 
 /** 配置项 */
 export interface UiMusicOption {
+  /** 是否在后台播放 */
+  background?: boolean
   /** 挂载元素 */
   target?: string
   /** 音乐路径 */
@@ -100,7 +103,8 @@ export default class UiMusic extends Emitter {
     volume: 1,
     offsetX: 16,
     offsetY: 16,
-    size: 36
+    size: 36,
+    background: false
   }
   /** 主题列表 */
   public static themes = new Map
@@ -194,6 +198,13 @@ export default class UiMusic extends Emitter {
         onClick.call(this, this)
       }
     })
+    // 禁止背景播放处理
+    if (!option.background) {
+      addListener(document, 'visibilitychange', () => {
+        // 页面隐藏时暂停，恢复时检测是否需要重新播放
+        document.hidden ? this.pause() : this.replay()
+      })
+    }
   }
   /** 设置播放进度 */
   public set currentTime (val: number) {

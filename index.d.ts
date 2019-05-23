@@ -361,7 +361,7 @@ declare module 'h5-sdk/src/factory/Oauth' {
 	    static cacheKey: string;
 	    private static _instance;
 	    static readonly instance: Oauth;
-	    static getInstance(): Oauth;
+	    static getInstance(options?: OauthOption): Oauth;
 	    tasker: Tasker;
 	    id: number;
 	    user: User;
@@ -375,10 +375,11 @@ declare module 'h5-sdk/src/factory/Oauth' {
 	    url: string;
 	    private _accessToken;
 	    isAccessTokenValid: boolean;
+	    constructor(options?: OauthOption);
 	    accessToken: string | null;
 	    saveToken(token: string): void;
 	    setOption(option: OauthOption): this;
-	    init(option: OauthOption): Promise<User | any>;
+	    setup(): Promise<User | any>;
 	    redirect(_url?: string): void;
 	    refreshUser(): Promise<User | null>;
 	    login(): Promise<boolean | User>;
@@ -395,6 +396,7 @@ declare module 'h5-sdk/src/factory/App' {
 	    private static _instance;
 	    static readonly instance: App;
 	    static errorHandler: errorHandler;
+	    static readonly hasInstance: boolean;
 	    static getInstance(option?: AppOption): App;
 	    readonly isLogin: boolean;
 	    isInited: boolean;
@@ -507,6 +509,7 @@ declare module 'h5-sdk/src/factory/Res' {
 	    failed: number;
 	    $bus: Res;
 	    readonly isComplete: boolean;
+	    readonly percent: number;
 	    clear(): void;
 	    $notify(event: ResEvent): void;
 	    $added(): void;
@@ -626,6 +629,7 @@ declare module 'h5-sdk/src/factory/UiMusic' {
 	import 'h5-sdk/src/assets/ui-music.less';
 	import Emitter from 'h5-sdk/src/factory/Emitter';
 	export interface UiMusicOption {
+	    background?: boolean;
 	    target?: string;
 	    src?: string;
 	    className?: string;

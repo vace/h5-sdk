@@ -73,6 +73,10 @@ export class ResProgress {
   public get isComplete () {
     return this.total === this.current
   }
+  /** 可获取0-100之间的百分比数字 */
+  public get percent (): number {
+    return (this.current / this.total) * 100
+  }
   /** 清空计数器，一般用于二次加载的需求 */
   public clear () {
     this.total = this.current = this.pending = this.loaded = this.failed = 0

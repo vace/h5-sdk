@@ -55,9 +55,9 @@ export default class Oauth {
     return this.getInstance()
   }
   /** 获取应用实例 */
-  public static getInstance() {
+  public static getInstance(options?: OauthOption) {
     if (!this._instance) {
-      this._instance = new Oauth()
+      this._instance = new Oauth(options)
     }
     return this._instance
   }
@@ -88,6 +88,13 @@ export default class Oauth {
   private _accessToken!: string | null
   /** accessToken 是否有效 */
   public isAccessTokenValid: boolean = false
+
+  public constructor (options?: OauthOption) {
+    if (options) {
+      this.setOption(options)
+      this.setup()
+    }
+  }
 
   /** 设置accessToken */
   public set accessToken(token: string | null) {
@@ -142,8 +149,7 @@ export default class Oauth {
   }
 
   /** 运行oauth，获取用户信息 */
-  public async init (option: OauthOption): Promise<User | any> {
-    this.setOption(option)
+  public async setup (): Promise<User | any> {
     if (this.accessToken == null) {
       this.accessToken = store.get(Oauth.cacheKey, '')
     }

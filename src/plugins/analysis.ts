@@ -78,6 +78,10 @@ enum ANA {
  * @param {number} [value=0] 事件数值
  */
 async function send (event: ANA_EVENTS, data: string = '', value: number = 0): Promise<void> {
+  // 如果没有查询到应用，则不统计数据
+  if (!App.hasInstance) {
+    return
+  }
   const app = App.getInstance()
   // 无应用，不发送数据
   if (!app.appid || config.disabled) {

@@ -13,7 +13,7 @@ export default function initializeMusic () {
     return
   }
   const props = [
-    'target', 'src', 'className', 'theme', 'position', '!autoplay', '!loop', '!muted', '+volume', 'preload', '?size', '?offsetX', '?offsetY'
+    'target', 'src', 'className', 'theme', 'position', '!autoplay', '!background', '!loop', '!muted', '+volume', 'preload', '?size', '?offsetX', '?offsetY'
   ]
   const options = getElementAttrs(element, props)
   return UiMusic.getInstance(options)

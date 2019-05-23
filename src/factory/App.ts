@@ -25,6 +25,11 @@ export default class App {
   /** 全局的错误处理器 */
   public static errorHandler: errorHandler
 
+  /** 是否有实例，直接getInstance回报错 */
+  public static get hasInstance (): boolean {
+    return !!this._instance
+  }
+
   /** 获取应用实例 */
   public static getInstance (option?: AppOption) {
     if (!this._instance) {

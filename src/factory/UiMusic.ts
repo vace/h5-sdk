@@ -1,3 +1,5 @@
+import { assign } from 'es6-object-assign'
+
 import '../assets/ui-music.less'
 import starLoadingSvg from '../assets/star-loading'
 import Emitter from "./Emitter";
@@ -148,7 +150,7 @@ export default class UiMusic extends Emitter {
   public audio:HTMLAudioElement = document.createElement('audio')
   constructor (_option: UiMusicOption) {
     super()
-    this.option = Object.assign({}, UiMusic.option, _option)
+    this.option = assign({}, UiMusic.option, _option)
     const { $root, $view, audio, option } = this
     const { className, position = '', style = {}, autoplay, size, offsetX, offsetY } = option
     const $loading = this.$loading = createClsElement('music-loading')
@@ -170,7 +172,7 @@ export default class UiMusic extends Emitter {
       }
     })
     $view.append($loading).append($playing).append($paused)
-    $root.css(Object.assign(styleExtends, style))
+    $root.css(assign(styleExtends, style))
       .addClass(classPrefix(`pos-${position}`))
       .addClass(className || '')
       .append($view)

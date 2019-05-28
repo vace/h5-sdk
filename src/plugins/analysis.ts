@@ -1,3 +1,5 @@
+import { assign } from 'es6-object-assign'
+
 import App from "../factory/App";
 
 import { addEventListener, location } from "../utils/global";
@@ -23,7 +25,7 @@ export type AnalysisOption = {
 }
 
 /** 默认配置 */
-export const config: AnalysisOption = Object.assign({
+export const config: AnalysisOption = assign({
   disabled: false,
   maxReportError: 3,
   beforeLoadTime: new Date().getTime(),

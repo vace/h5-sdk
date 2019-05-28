@@ -1,3 +1,5 @@
+import { assign } from 'es6-object-assign'
+
 import { getCurrentHref } from "../utils/shared";
 import { getApiUri } from "../config";
 import { stringify, parse } from "../functions/qs";
@@ -138,7 +140,7 @@ export default class Oauth {
 
   /** 设置配置 */
   public setOption (option: OauthOption) {
-    const { platform, appid, scope, env, url, type } = Object.assign({}, Oauth.option, option)
+    const { platform, appid, scope, env, url, type } = assign({}, Oauth.option, option)
     this.platform = platform
     this.appid = appid
     this.type = type || 'none'

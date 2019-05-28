@@ -1,3 +1,5 @@
+import { assign } from 'es6-object-assign'
+
 import UiModal, { UiModalOption } from '../factory/UiModal'
 import UiToast, { UiToastOption } from '../factory/UiToast';
 import UiMusic, { UiMusicOption } from '../factory/UiMusic';
@@ -123,9 +125,9 @@ export function userbox (option: UiUserboxOption): UiModal {
   const inputs = option.inputs || []
   each(profile, (data, index) => {
     if (typeof index === 'string') {
-      const input = Object.assign({}, _$cacheMapProfile[index])
+      const input = assign({}, _$cacheMapProfile[index])
       if (isObject(data)) {
-        Object.assign(input, data)
+        assign(input, data)
       } else {
         input.value = data
       }

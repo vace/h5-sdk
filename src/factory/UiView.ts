@@ -1,3 +1,5 @@
+import { assign } from 'es6-object-assign'
+
 import '../assets/ui-view.less'
 import starLoadingSvg from '../assets/star-loading'
 
@@ -40,7 +42,7 @@ export default class UiView extends UiBase {
   public $content?: ZeptoCollection
 
   constructor (_option: UiViewOption) {
-    super(Object.assign({}, UiView.option, _option))
+    super(assign({}, UiView.option, _option))
     this.$view = createClsElement('view')
     // icon click event
     this.$root.append(this.$view).on('click', '.' + classPrefix('view-icon'), () => {

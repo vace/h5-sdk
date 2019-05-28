@@ -1,3 +1,4 @@
+import { assign } from 'es6-object-assign'
 import { AnalysisOption } from "./plugins/analysis";
 
 /** 加载全局设置的配置 `window._SDK` */
@@ -16,7 +17,7 @@ export type DefaultConfig = {
 }
 
 /** 默认配置 */
-export const config: DefaultConfig = Object.assign({
+export const config: DefaultConfig = assign({
   /** 接口服务 */
   api: 'https://api.ahmq.net',
   // 域名服务名称

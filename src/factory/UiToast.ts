@@ -1,3 +1,5 @@
+import { assign } from 'es6-object-assign'
+
 import '../assets/ui-toast.less'
 
 import { noop } from "../functions/common";
@@ -40,7 +42,7 @@ export default class UiToast extends UiBase{
   // public outClassName: string = classPrefix('fade-out')
 
   constructor (_option: UiToastOption) {
-    super(Object.assign({}, UiToast.option, _option))
+    super(assign({}, UiToast.option, _option))
     this.$message = createClsElement('toast-message', '')
     this.$root.addClass(classPrefix('toast')).on('click', () => {
       const { onClick, clickClosed } = this.option

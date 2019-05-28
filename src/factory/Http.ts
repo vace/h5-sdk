@@ -1,6 +1,6 @@
 import { isString, isObject, isHttp, isFormData } from "../functions/is";
 import { stringify } from "../functions/qs";
-import { isAbsolute } from "../functions/path";
+import { assign } from 'es6-object-assign'
 
 /** 服务端约定返回格式 */
 export type CommonResponseData = {
@@ -117,7 +117,7 @@ export default class Http {
    * @param {HttpOption} [_option] 配置
    */
   public constructor (_option?: HttpOption) {
-    this.option = Object.assign({}, Http.option, _option)
+    this.option = assign({}, Http.option, _option)
   }
   /** GET 请求 */
   public get (url: string, params?: any): Promise<any> {
@@ -149,7 +149,7 @@ export default class Http {
   }
   /** 发送request */
   public request(option: HttpRequestOption): Promise<any> {
-    const config = Object.assign({}, option, this.option)
+    const config = assign({}, option, this.option)
     const {
       method, mode, cache, credentials, redirect, referrer,
       baseURL, timeout, transformRequest, transformResponse, responseType, validateStatus

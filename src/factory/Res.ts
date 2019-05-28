@@ -1,3 +1,5 @@
+import { assign } from 'es6-object-assign'
+
 import { each } from '../functions/underscore';
 import { document } from '../utils/global';
 import { isHttp, isBase64 } from '../functions/is';
@@ -210,7 +212,7 @@ export default class Res extends Emitter{
   /** 初始化 */
   public constructor(option?: ResConfig) {
     super()
-    this.config = Object.assign({}, Res.config, option)
+    this.config = assign({}, Res.config, option)
     // 绑定进度实例
     this.progress.$bus = this
     if (this.config.autoStart) {
@@ -392,7 +394,7 @@ export default class Res extends Emitter{
     // 绑定事件
     element[eventResolve] = () => resolve(element)
     element.onerror = reject
-    each(Object.assign(_option, option), (val: string, key: string) => element.setAttribute(key, val))
+    each(assign(_option, option), (val: string, key: string) => element.setAttribute(key, val))
     if (isInsertDocument) {
       const inserted = document.head || document.documentElement
       inserted.insertAdjacentElement('beforeend', element)

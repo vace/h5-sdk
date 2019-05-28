@@ -1,3 +1,5 @@
+import { assign } from 'es6-object-assign'
+
 import '../assets/ui-modal.less'
 import { noop } from '../functions/common'
 import { classPrefix, createClsElement, createSdkIcon } from '../utils/shared'
@@ -61,7 +63,7 @@ export default class UiModal extends UiBase{
   }
 
   constructor (_option: UiModalOption = {}) {
-    super(Object.assign({}, UiModal.option, _option))
+    super(assign({}, UiModal.option, _option))
     // 挂载
     this.$modal = createClsElement('modal')
     // bind event

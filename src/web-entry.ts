@@ -1,10 +1,3 @@
-import Oauth from './factory/Oauth';
-import User from './factory/User';
-import App from './factory/App';
-import Http from './factory/Http';
-import Res from './factory/Res';
-import UiMusic from './factory/UiMusic';
-import Emitter from './factory/Emitter';
 
 /**
  * 补丁：
@@ -20,6 +13,14 @@ import Emitter from './factory/Emitter';
 import './assets/common.less'
 import './assets/icon.less'
 import './polyfill/index'
+
+import Oauth from './factory/Oauth';
+import User from './factory/User';
+import App from './factory/App';
+import Http from './factory/Http';
+import Res from './factory/Res';
+import UiMusic from './factory/UiMusic';
+import Emitter from './factory/Emitter';
 
 /**
  * 版本号

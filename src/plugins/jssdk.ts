@@ -1,5 +1,7 @@
 import '../polyfill/jweixin-1.5.0'
 
+import { assign } from 'es6-object-assign'
+
 import App from '../factory/App';
 import Http from "../factory/Http";
 import Emitter from '../factory/Emitter';
@@ -216,7 +218,7 @@ const updateShareData = (shareType: ShareType, option: ShareOption) => {
         success(option)
       }
     }
-    option = Object.assign({}, option, { title, desc, link, imgUrl, success: shareSuccessHandle })
+    option = assign({}, option, { title, desc, link, imgUrl, success: shareSuccessHandle })
     _shareMap.set(shareType, option)
     wx[shareApi](option)
   } else {
@@ -236,7 +238,7 @@ export function share (option?: ShareOption): any {
   const { type = '*' } = option
   const globalOption = _shareMap.get('*')
   const oldOption = _shareMap.get(type) || {}
-  const newOption = Object.assign({}, globalOption, oldOption, option)
+  const newOption = assign({}, globalOption, oldOption, option)
   // 全局配置
   if (type === '*') {
     _shareMap.set(type, newOption)

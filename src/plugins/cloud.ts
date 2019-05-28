@@ -28,12 +28,22 @@ export function upbase64 (base64: string): Promise<CloudResponse> {
 /**
  * 上传一个文件
  * @param {File} file
+ * @param {boolean} isTempFile 是否为临时文件
  * @returns {Promise<CloudResponse>}
  */
-export function upfile(file: File): Promise<CloudResponse> {
+export function upfile(file: File, isTempFile?: boolean): Promise<CloudResponse> {
   const form = new FormData()
   form.append('file', file, file.name)
-  return service('cloud/upfile', form, 'post')
+  return service('cloud/' + (isTempFile ? 'uptemp': 'upfile'), form, 'post')
+}
+
+/**
+ * 上传临时文件
+ * @param {File} file
+ * @returns {Promise<CloudResponse>}
+ */
+export function uptemp (file: File): Promise<CloudResponse> {
+  return upfile(file, true)
 }
 
 /**

@@ -49,7 +49,7 @@ export default class Oauth {
   public static option: OauthOption = {
     platform: 'wechat',
     appid: 'wxf4a60c4e95c3db80',
-    version: ''
+    version: ''// '0.0.0'
   }
   public static cacheKey: string = 'SdkToken'
 
@@ -161,10 +161,11 @@ export default class Oauth {
   public async setup (): Promise<User | any> {
     if (this.accessToken == null) {
       let [accessToken, tokenVersion = ''] = (store.get(Oauth.cacheKey, '') as string).split('@')
-      this.accessToken = accessToken
       // 用户设置了版本，则需要检测版本是否正确
       if (this.version && this.version !== tokenVersion) {
         this.isAccessTokenValid = false
+      } else {
+        this.accessToken = accessToken
       }
     }
     // token 无效，重新获取token

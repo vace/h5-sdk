@@ -324,7 +324,6 @@ function(o, e) {
         },
         e))
       },
-      getLocation: function(e) {},
       previewImage: function(e) {
         M(c.previewImage, {
           current: e.current,

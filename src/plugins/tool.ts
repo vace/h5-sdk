@@ -1,6 +1,7 @@
 import { uid, isWechat, now } from "../functions/index";
 import { chooseImageBase64 } from "./jssdk";
 import { addEventListener, removeEventListener } from "../utils/global";
+import { atob } from "./safety";
 
 /**
  * 摇一摇
@@ -104,4 +105,24 @@ export function chooseImageAsDataURL (): Promise<string> {
  */
 export function autoGetImageBase64(): Promise<string> {
   return isWechat ? chooseImageBase64() : chooseImageAsDataURL()
+}
+
+/**
+ * base64文本转换为blob，可直接用表单上传
+ * @param {string} base64String 原文本
+ * @returns {Blob}
+ */
+export function base64ToBlob (base64String: string): Blob {
+  const [, mime = '', base64 = ''] = /^data:(.+);base64,(.+)/i.exec(base64String) || []
+  if (!mime) throw new Error('未检测到资源Mime，请检查编码合法性')
+  if (!base64) throw new Error('未检测到资源Base64，请检查编码合法性')
+  // assic to byte
+  const bytes = atob(base64)
+  const array = new ArrayBuffer(bytes.length)
+  var array8 = new Uint8Array(array)
+  for (let index = 0, _len = bytes.length; index < _len; index++) {
+    array8[index] = bytes.charCodeAt(index)    
+  }
+  var blob = new Blob([bytes], {type: mime + ',charset=UTF-8'})
+  return blob
 }

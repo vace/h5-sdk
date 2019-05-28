@@ -9,7 +9,7 @@ export default function initializeApp() {
   if (!element.length) {
     return
   }
-  const props = ['platform', 'type', 'appid', 'scope', 'env', 'callback']
+  const props = ['platform', 'type', 'appid', 'scope', 'env', 'callback', 'version']
   const options: any = getElementAttrs(element, props)
   return Oauth.getInstance(options)
 }

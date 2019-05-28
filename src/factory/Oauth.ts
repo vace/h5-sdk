@@ -14,6 +14,8 @@ import Tasker from "./Tasker";
  */
 
 interface OauthOption {
+  /** 指定版本，版本用户批量清空缓存的用户授权信息 */
+  version?: string
   /** 指定平台 */
   platform: UserPlatform
   /** 指定平台appid */
@@ -46,7 +48,8 @@ interface JwtDecodeRet {
 export default class Oauth {
   public static option: OauthOption = {
     platform: 'wechat',
-    appid: 'wxf4a60c4e95c3db80'
+    appid: 'wxf4a60c4e95c3db80',
+    version: ''
   }
   public static cacheKey: string = 'SdkToken'
 
@@ -70,6 +73,8 @@ export default class Oauth {
   public id: number = 0
   /** 用户实例 */
   public user: User = User.instance
+  /** oauth版本号 */
+  public version!: string
   /** 用户角色 */
   public state!: UserState
   /** 授权种类 */
@@ -133,27 +138,34 @@ export default class Oauth {
       this.accessToken = token
       // cache
       if (this.isAccessTokenValid) {
-        store.set(Oauth.cacheKey, token)
+        // 使用@链接版本号，对比用户信息准确性
+        store.set(Oauth.cacheKey, token + '@' + this.version)
       }
     }
   }
 
   /** 设置配置 */
   public setOption (option: OauthOption) {
-    const { platform, appid, scope, env, url, type } = assign({}, Oauth.option, option)
+    const { platform, appid, scope, env, url, type, version } = assign({}, Oauth.option, option)
     this.platform = platform
     this.appid = appid
     this.type = type || 'none'
     this.scope = scope || ''
     this.env = env || ''
     this.url = url || ''
+    this.version = version
     return this
   }
 
   /** 运行oauth，获取用户信息 */
   public async setup (): Promise<User | any> {
     if (this.accessToken == null) {
-      this.accessToken = store.get(Oauth.cacheKey, '')
+      let [accessToken, tokenVersion = ''] = (store.get(Oauth.cacheKey, '') as string).split('@')
+      this.accessToken = accessToken
+      // 用户设置了版本，则需要检测版本是否正确
+      if (this.version && this.version !== tokenVersion) {
+        this.isAccessTokenValid = false
+      }
     }
     // token 无效，重新获取token
     if (!this.isAccessTokenValid) {

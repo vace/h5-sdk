@@ -1,6 +1,11 @@
 /// <reference types="zepto" />
 /// <reference types="store" />
 /// <reference types="blueimp-md5" />
+declare module 'h5-sdk/types/es6-object-assign' {
+	export function assign(target: any, firstSource: any, ...args: any[]): any;
+	export function polyfill(): void;
+
+}
 declare module 'h5-sdk/src/plugins/store' {
 	export const store: StoreAPI;
 	interface StoreAPI {
@@ -84,14 +89,6 @@ declare module 'h5-sdk/src/functions/qs' {
 	export function parse(qs: string, sep?: string, eq?: string): Record<string, any>;
 
 }
-declare module 'h5-sdk/src/functions/path' {
-	export function isAbsolute(path: string): boolean;
-	export function resolvePath(...args: string[]): string;
-	export function dirname(path: string): string;
-	export function basename(path: string, ext?: string): string;
-	export function extname(path: string): string;
-
-}
 declare module 'h5-sdk/src/factory/Http' {
 	export type CommonResponseData = {
 	    code: number;
@@ -140,6 +137,14 @@ declare module 'h5-sdk/src/factory/Http' {
 	    patch(url: string, data?: any): Promise<any>;
 	    request(option: HttpRequestOption): Promise<any>;
 	}
+
+}
+declare module 'h5-sdk/src/functions/path' {
+	export function isAbsolute(path: string): boolean;
+	export function resolvePath(...args: string[]): string;
+	export function dirname(path: string): string;
+	export function basename(path: string, ext?: string): string;
+	export function extname(path: string): string;
 
 }
 declare module 'h5-sdk/src/utils/global' {

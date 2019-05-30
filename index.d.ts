@@ -354,6 +354,7 @@ declare module 'h5-sdk/src/factory/Oauth' {
 	import User, { UserState, UserPlatform, UserType } from 'h5-sdk/src/factory/User';
 	import Tasker from 'h5-sdk/src/factory/Tasker';
 	interface OauthOption {
+	    version?: string;
 	    platform: UserPlatform;
 	    appid: string;
 	    type?: UserType;
@@ -370,6 +371,7 @@ declare module 'h5-sdk/src/factory/Oauth' {
 	    tasker: Tasker;
 	    id: number;
 	    user: User;
+	    version: string;
 	    state: UserState;
 	    type: UserType;
 	    option: OauthOption;
@@ -824,12 +826,14 @@ declare module 'h5-sdk/src/plugins/tool' {
 	export function chooseFile(accept?: string): Promise<File>;
 	export function chooseImageAsDataURL(): Promise<string>;
 	export function autoGetImageBase64(): Promise<string>;
+	export function base64ToBlob(base64String: string): Blob;
 
 }
 declare module 'h5-sdk/src/plugins/cloud' {
 	export function service(serviceName: string, opt: any, method?: 'get' | 'post'): Promise<any>;
 	export function upbase64(base64: string): Promise<CloudResponse>;
-	export function upfile(file: File): Promise<CloudResponse>;
+	export function upfile(file: File, isTempFile?: boolean): Promise<CloudResponse>;
+	export function uptemp(file: File): Promise<CloudResponse>;
 	export function syncurl(url: string): Promise<CloudResponse>;
 	export function syncimage(url: string): Promise<CloudResponse>;
 	export function wxmedia(media_id: string): Promise<CloudResponse>;

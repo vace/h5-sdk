@@ -159,6 +159,9 @@ export default class Oauth {
 
   /** 运行oauth，获取用户信息 */
   public async setup (): Promise<User | any> {
+    if (this.tasker.isDone) {
+      return this.tasker.task
+    }
     if (this.accessToken == null) {
       let [accessToken, tokenVersion = ''] = (store.get(Oauth.cacheKey, '') as string).split('@')
       // 用户设置了版本，则需要检测版本是否正确
@@ -196,7 +199,8 @@ export default class Oauth {
     const { platform, appid, scope, env } = this
     const url = _url || this.url || getCurrentHref(true)
     const redirect = getApiUri(`api/oauth/redirect/${platform}?` + stringify({ appid, env, scope, url }))
-    location.replace(redirect)
+    console.log(redirect)
+    // location.replace(redirect)
   }
 
   /** 使用token刷新用户信息 */

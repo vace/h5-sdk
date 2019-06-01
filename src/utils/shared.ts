@@ -137,7 +137,17 @@ export function commonResponseReslove (response: CommonResponseData): Promise<Er
 export const assign = Object.assign
 
 /** 受保护的字段列表 */
-const DefaultPrivacyFileds = ['code', 'state', 'nonce', 'token', 'key', 'secret', 'signatue']
+const DefaultPrivacyFileds = [
+  'code',
+  'state',
+  'nonce',
+  'token',
+  'key',
+  'secret',
+  'signatue',
+  'spm_uid',
+  'spm_from'
+]
 /**
  * 获取当前路径
  * @param {boolean|string[]} isPrivacy 是否过滤收保护的字段，比如token之类的字段，可自定义过滤字段

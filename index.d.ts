@@ -151,7 +151,6 @@ declare module 'h5-sdk/src/utils/global' {
 	export const location: Location;
 	export const document: Document;
 	export const getwx: () => any;
-	export const isWxMini: () => boolean;
 	export const fetch: (input: RequestInfo, init?: RequestInit | undefined) => Promise<Response>;
 	export const WeixinJSBridge: any;
 	export const addEventListener: {
@@ -339,21 +338,23 @@ declare module 'h5-sdk/src/plugins/safety' {
 }
 declare module 'h5-sdk/src/factory/Tasker' {
 	export default class Tasker {
+	    isWorked: boolean;
 	    isDone: boolean;
 	    task: Promise<any>;
 	    private _nativeResolve;
 	    private _nativeReject;
 	    constructor();
+	    working(): void;
 	    resolve(val: any): Promise<any>;
 	    reject(err: any): Promise<any>;
 	    then(onfulfilled: any, onrejected: any): Promise<any>;
 	}
 
 }
-declare module 'h5-sdk/src/factory/Oauth' {
+declare module 'h5-sdk/src/factory/Auth' {
 	import User, { UserState, UserPlatform, UserType } from 'h5-sdk/src/factory/User';
 	import Tasker from 'h5-sdk/src/factory/Tasker';
-	interface OauthOption {
+	interface AuthOption {
 	    version?: string;
 	    platform: UserPlatform;
 	    appid: string;
@@ -362,19 +363,21 @@ declare module 'h5-sdk/src/factory/Oauth' {
 	    scope?: string;
 	    env?: string;
 	}
-	export default class Oauth {
-	    static option: OauthOption;
+	export default class Auth {
+	    static option: AuthOption;
 	    static cacheKey: string;
 	    private static _instance;
-	    static readonly instance: Oauth;
-	    static getInstance(options?: OauthOption): Oauth;
+	    static readonly instance: Auth;
+	    static readonly hasInstance: boolean;
+	    static getInstance(options?: AuthOption): Auth;
 	    tasker: Tasker;
+	    isAuthed: boolean;
 	    id: number;
 	    user: User;
 	    version: string;
 	    state: UserState;
-	    type: UserType;
-	    option: OauthOption;
+	    type?: UserType;
+	    option: AuthOption;
 	    platform: UserPlatform;
 	    appid: string;
 	    scope: string;
@@ -382,10 +385,10 @@ declare module 'h5-sdk/src/factory/Oauth' {
 	    url: string;
 	    private _accessToken;
 	    isAccessTokenValid: boolean;
-	    constructor(options?: OauthOption);
+	    constructor(options?: AuthOption);
 	    accessToken: string | null;
 	    saveToken(token: string): void;
-	    setOption(option: OauthOption): this;
+	    setOption(option: AuthOption): this;
 	    setup(): Promise<User | any>;
 	    redirect(_url?: string): void;
 	    refreshUser(): Promise<User | null>;
@@ -396,7 +399,7 @@ declare module 'h5-sdk/src/factory/Oauth' {
 }
 declare module 'h5-sdk/src/factory/App' {
 	import Http from 'h5-sdk/src/factory/Http';
-	import Oauth from 'h5-sdk/src/factory/Oauth';
+	import Auth from 'h5-sdk/src/factory/Auth';
 	import User from 'h5-sdk/src/factory/User';
 	export default class App {
 	    private static cacheKey;
@@ -406,15 +409,16 @@ declare module 'h5-sdk/src/factory/App' {
 	    static readonly hasInstance: boolean;
 	    static getInstance(option?: AppOption): App;
 	    readonly isLogin: boolean;
-	    isInited: boolean;
+	    readonly isAuthed: boolean;
 	    http: Http;
-	    oauth: Oauth;
+	    auth: Auth;
 	    user: User;
 	    private tasker;
 	    appid: string;
 	    version: string;
 	    config: AppServerConfig;
 	    setting: AppServerSetting;
+	    analysisoff?: boolean;
 	    constructor(app: AppOption);
 	    ready(fn?: any): Promise<any>;
 	    private setup;
@@ -444,6 +448,7 @@ declare module 'h5-sdk/src/factory/App' {
 	export type AppOption = {
 	    appid: string;
 	    version: string;
+	    analysisoff?: boolean;
 	}; type TypeAction = {
 	    method: string;
 	    action: string;
@@ -465,6 +470,12 @@ declare module 'h5-sdk/src/plugins/analysis' {
 	    unloadData: any;
 	};
 	export const config: AnalysisOption;
+	export const EVENTS: {
+	    'VIEW': string;
+	    'ERROR': string;
+	    'SHARE': string;
+	    'UNLOAD': string;
+	};
 	export function pv(): Promise<void>;
 	export function event(event: string, data?: string, value?: number): Promise<void>;
 	export function error(error: Error): false | Promise<void> | undefined;
@@ -588,6 +599,7 @@ declare module 'h5-sdk/src/functions/environment' {
 	export const isMobile: boolean;
 	export const isIos: boolean;
 	export const isAndroid: boolean;
+	export const isMiniapp: boolean;
 	export const isWechat: boolean;
 	export function checkSupportWebp(): Promise<boolean>;
 
@@ -826,6 +838,7 @@ declare module 'h5-sdk/src/plugins/tool' {
 	export function chooseFile(accept?: string): Promise<File>;
 	export function chooseImageAsDataURL(): Promise<string>;
 	export function autoGetImageBase64(): Promise<string>;
+	export function scrollTop(): void;
 	export function base64ToBlob(base64String: string): Blob;
 
 }
@@ -874,7 +887,7 @@ declare module 'h5-sdk/src/factory/index' {
 	export { default as App } from 'h5-sdk/src/factory/App';
 	export { default as Emitter } from 'h5-sdk/src/factory/Emitter';
 	export { default as Http } from 'h5-sdk/src/factory/Http';
-	export { default as Oauth } from 'h5-sdk/src/factory/Oauth';
+	export { default as Auth } from 'h5-sdk/src/factory/Auth';
 	export { default as Res } from 'h5-sdk/src/factory/Res';
 	export { default as Tasker } from 'h5-sdk/src/factory/Tasker';
 	export { default as UiBase } from 'h5-sdk/src/factory/UiBase';

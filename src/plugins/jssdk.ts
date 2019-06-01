@@ -7,13 +7,15 @@ import Http from "../factory/Http";
 import Emitter from '../factory/Emitter';
 
 import { getServiceUri } from '../config'
-import { isWechat } from "../functions/environment";
+import { isWechat, isMiniapp } from "../functions/environment";
 import { commonResponseReslove, getCurrentHref, getCurrentPathFile } from '../utils/shared';
-import { getwx, WeixinJSBridge, isWxMini } from '../utils/global';
+import { getwx, WeixinJSBridge } from '../utils/global';
 import { wait } from '../functions/common';
 import { isHttp, isBase64 } from '../functions/is';
-import { event } from './analysis';
+import { event, EVENTS } from './analysis';
 import { each } from '../functions/underscore';
+import { parse, stringify } from '../functions/qs';
+import Auth from '../factory/Auth';
 
 let wechatJssdkAppid: string
 
@@ -132,7 +134,13 @@ export function config (option?: WxConfigOption): Promise<ConfigResponse> {
       emit('config', signature)
       wx.ready(() => {
         emit('ready')
-        reslove()
+        const auth = Auth.instance
+        // 尝试获取用户信息
+        if (auth.isAuthed) {
+          auth.tasker.task.then(reslove)
+        } else {
+          reslove()
+        }
       })
       wx.error((err: any) => {
         emit('error', err)
@@ -191,6 +199,15 @@ const updateShareData = (shareType: ShareType, option: ShareOption) => {
   if (!isHttp(link)) {
     link = getCurrentPathFile(link)
   }
+  // link 追加用户 来源
+  const auth = Auth.instance
+  if (auth.isAuthed) {
+    const [host, queryString] = link.split('?')
+    const query = parse(queryString)
+    query.spm_uid = auth.id
+    link = host + '?' + stringify(query)
+  }
+
   imgUrl = imgUrl || imgurl || img
   if (!isHttp(imgUrl)) {
     imgUrl = getCurrentPathFile(imgUrl || 'share.jpg')
@@ -212,7 +229,7 @@ const updateShareData = (shareType: ShareType, option: ShareOption) => {
     })
   } else if (typeof wx[shareApi] === 'function') {
     const shareSuccessHandle = () => {
-      event('SHARE', shareType) // 触发分享
+      event(EVENTS.SHARE, shareType) // 触发分享
       emit('share', shareType, option)
       if (typeof success === 'function') {
         success(option)
@@ -221,6 +238,11 @@ const updateShareData = (shareType: ShareType, option: ShareOption) => {
     option = assign({}, option, { title, desc, link, imgUrl, success: shareSuccessHandle })
     _shareMap.set(shareType, option)
     wx[shareApi](option)
+
+    if (process.env.NODE_ENV ===  'devlopment') {
+      wx.onMenuShareAppMessage(option)
+      wx.onMenuShareTimeline(option)
+    }
   } else {
     throw new Error(`ShareType ${shareType} dose not exist`);
   }
@@ -244,7 +266,7 @@ export function share (option?: ShareOption): any {
     _shareMap.set(type, newOption)
   }
   // 在小程序中需要进一步设置小程序的分享
-  if ((type === '*' || type === 'mini') && isWxMini()) {
+  if ((type === '*' || type === 'mini') && isMiniapp) {
     updateShareData('mini', newOption)
     if (!_configPromise) return // 防止报错
   }
@@ -315,8 +337,8 @@ export function api (apiName: string, option: any = {}): Promise<any> {
   })
 }
 
-if (process.env.NODE_ENV === 'development' && !isWechat) {
-  console.warn('Development 模式，已重写部分函数保证响应')
+if (process.env.NODE_ENV === 'devlopment' && !isWechat) {
+  console.warn('devlopment 模式，已重写部分函数保证响应')
   const base64Img = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
   const localId = 'DebugModeMockLocalIdData'
   const serverId = 'DebugModeMockServerIdData'

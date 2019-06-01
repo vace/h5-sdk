@@ -12,6 +12,8 @@
 
 
 export default class Tasker {
+  /** 是否已经执行 */
+  public isWorked: boolean = false
   /** 已执行 */
   public isDone: boolean = false
   /** 任务实体 */
@@ -25,6 +27,10 @@ export default class Tasker {
       this._nativeReject = reject
       this._nativeResolve = resolve
     })
+  }
+
+  public working () {
+    this.isWorked = true
   }
 
   public resolve (val: any) {

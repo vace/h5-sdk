@@ -1,6 +1,6 @@
 import { uid, isWechat, now } from "../functions/index";
 import { chooseImageBase64 } from "./jssdk";
-import { addEventListener, removeEventListener } from "../utils/global";
+import { addEventListener, removeEventListener, document } from "../utils/global";
 import { atob } from "./safety";
 
 /**
@@ -105,6 +105,18 @@ export function chooseImageAsDataURL (): Promise<string> {
  */
 export function autoGetImageBase64(): Promise<string> {
   return isWechat ? chooseImageBase64() : chooseImageAsDataURL()
+}
+
+/**
+ * 滚动视图到顶部，用于在input之后触发
+ */
+export function scrollTop () {
+  var scrolling = document.scrollingElement
+  if (scrolling) {
+    scrolling.scrollIntoView()
+  } else {
+    document.documentElement.scrollTop = 0
+  }
 }
 
 /**

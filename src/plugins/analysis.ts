@@ -49,6 +49,13 @@ export const config: AnalysisOption = assign({
 /** 事件集合 */
 type ANA_EVENTS = 'VIEW' | 'ERROR' | 'SHARE' | 'UNLOAD' | string
 
+export const EVENTS = {
+  'VIEW': 'VIEW',
+  'ERROR': 'ERROR',
+  'SHARE': 'SHARE',
+  'UNLOAD': 'UNLOAD',
+}
+
 // 报错处理与上报
 addEventListener('error', e => error(e.error), false)
 
@@ -56,7 +63,7 @@ addEventListener('error', e => error(e.error), false)
 addEventListener('unload', (e) => {
   // 计算页面停留市场
   const stayTime = (now() - config.beforeLoadTime) / 1000
-  event('UNLOAD', config.unloadData, stayTime)
+  event(EVENTS.UNLOAD, config.unloadData, stayTime)
 }, false)
 
 /** 参数map */
@@ -86,17 +93,13 @@ async function send (event: ANA_EVENTS, data: string = '', value: number = 0): P
   }
   const app = App.getInstance()
   // 无应用，不发送数据
-  if (!app.appid || config.disabled) {
+  if (!app.appid || app.analysisoff || config.disabled) {
     return
   }
-  let userId = 0
-  // 如果应用已经启动，需要通过login接口获取uid
-  if (app.isInited) {
-    const user = await app.ready()
-    if (user) {
-      userId = user.id
-    }
-  }
+  // 等待应用初始化完成
+  await app.ready()
+  const userId = app.auth.id || 0
+  
   // 提交的数据选项
   const option: any = {
     [ANA.APPID]: app.appid,
@@ -112,9 +115,10 @@ async function send (event: ANA_EVENTS, data: string = '', value: number = 0): P
   option[ANA.REQEST_SIGNATURE] = signature(option)
   //! 注意：此参数用于去除跨域请求，不参与签名
   option.cros = 'off'
-  await domready
-  const image = new Image()
-  image.src = getServiceUri('analysis/log') + '?' + stringify(option)
+  return domready.then(() => {
+    const image = new Image()
+    image.src = getServiceUri('analysis/log') + '?' + stringify(option)
+  })
 }
 
 /**
@@ -124,15 +128,17 @@ async function send (event: ANA_EVENTS, data: string = '', value: number = 0): P
  */
 export function pv () {
   const params: any = parse(location.search.slice(1))
-  const ADTAG = params.ADTAG || params.from
+  // 来源类型判断，from为微信端使用，spm_from为小程序或用户自定义
+  const spmFrom = params.from || params.spm_from
+  // 来源用户绑定
+  const spmUid = params.spm_uid || 0
   const defaultTags: any = {
     timeline: 'tx.wx.tl', // 朋友圈
     groupmessage: 'tx.wx.gm', // 群组消息
     singlemessage: 'tx.wx.sm', // 好友消息
+    miniapp: 'tx.wx.mini', // 小程序
   }
-  const timing = performance.timing || {}
-  const loadTime = (now() - (timing.fetchStart || config.beforeLoadTime)) || 0
-  return send('VIEW', defaultTags[ADTAG] || 'url', loadTime)
+  return send('VIEW', defaultTags[spmFrom] || spmFrom || 'url', spmUid)
 }
 
 /**

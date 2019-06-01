@@ -47,7 +47,7 @@ export default {
     commonjs(),
     replace({
       '__VERSION__': version,
-      'process.env.NODE_ENV': JSON.stringify(isDevlopment ? 'development' : 'production'),
+      'process.env.NODE_ENV': JSON.stringify(isDevlopment ? 'devlopment' : 'production'),
       // 编译平台
       '__PLANTFORM__': Plantform
     }),

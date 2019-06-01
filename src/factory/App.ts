@@ -3,7 +3,7 @@ import { commonResponseReslove } from "../utils/shared";
 import { parse, stringify } from "../functions/qs";
 import Http from "./Http";
 import UiModal from './UiModal';
-import Oauth from './Oauth';
+import Auth from './Auth';
 import User from './User';
 import Tasker from './Tasker';
 import { alway } from '../functions/common';
@@ -45,14 +45,15 @@ export default class App {
   public get isLogin () {
     return User.instance.isLogin
   }
-
-  /** 是否初始化 */
-  public isInited: boolean = false
+  /** 是否需要授权 */
+  public get isAuthed () {
+    return Auth.instance.isAuthed
+  }
 
   /** 已经注入用户认证信息的`Http`实例 */
   public http: Http
-  /** Oauth信息 */
-  public oauth: Oauth = Oauth.instance
+  /** auth信息 */
+  public auth: Auth = Auth.instance
   /** 用户信息 */
   public user: User = User.instance
   /** 任务进度 */
@@ -67,17 +68,20 @@ export default class App {
   public config!: AppServerConfig
   /** 服务端设置项 */
   public setting!: AppServerSetting
+  /** 是否启用分析系统 */
+  public analysisoff?: boolean
 
   public constructor (app: AppOption) {
-    const { appid, version } = app
+    const { appid, version, analysisoff } = app
     this.appid = appid
-    this.version = version
+    version && (this.version = version)
+    this.analysisoff = analysisoff
     this.http = new Http({
       // 默认api路径
       baseURL: config.api,
       /** 请求时带上appid和authorization */
       transformRequest: option => {
-        const { appid, oauth } = this
+        const { appid, auth } = this
         const [host, queryString = ''] = option.url.split('?')
         const headers = <Headers> option.headers
         // 支持 {appid}/action 的格式
@@ -88,8 +92,8 @@ export default class App {
             option.url = `${host}?${stringify(query)}`
           }
         }
-        if (oauth.isAccessTokenValid && !headers.has('authorization')) {
-          headers.set('authorization', <string> oauth.accessToken)
+        if (auth.isAuthed && auth.isAccessTokenValid && !headers.has('authorization')) {
+          headers.set('authorization', <string> auth.accessToken)
         }
         return option
       },
@@ -97,7 +101,7 @@ export default class App {
       transformResponse (response) {
         const authorize = response.headers.get('authorization')
         if (authorize) {
-          Oauth.instance.saveToken(authorize)
+          Auth.instance.saveToken(authorize)
         }
         return response.json().then((response) => {
           // -100 ~ -90为登陆错误
@@ -110,7 +114,7 @@ export default class App {
                 {
                   label: '重新登陆',
                   onClick () {
-                    Oauth.instance.redirect()
+                    Auth.instance.redirect()
                   }
                 }
               ]
@@ -128,10 +132,12 @@ export default class App {
    * 启动应用（只可调用一次）
    */
   public ready (fn?: any): Promise<any> {
-    const preTaskList = [
-      Oauth.instance.tasker.task,
-      this.tasker.task
-    ]
+    const auth = Auth.instance
+    const preTaskList = [ this.tasker.task ]
+    // 需要获取用户信息
+    if (auth.isAuthed) {
+      preTaskList.push(auth.tasker.task)
+    }
     const task = Promise.all(preTaskList)
     if (typeof fn === 'function') {
       return task.then(fn.bind(this))
@@ -141,7 +147,12 @@ export default class App {
 
   /** 准备工作，获取应用配置以及用户信息 */
   private async setup () {
-    this.isInited = true
+    const { tasker } = this
+    if (tasker.isWorked) {
+      return tasker.task
+    }
+    // 确保只执行一次
+    tasker.working()
     const version = this.version
     let cache: AppServerInit | null = store.get(App.cacheKey)
     if (cache) {
@@ -161,7 +172,7 @@ export default class App {
     if (cache) {
       this.setServer(cache)
     }
-    return this.tasker.resolve(cache)
+    return tasker.resolve(cache)
   }
 
   /** 设置应用配置和管理员设置 */
@@ -235,6 +246,8 @@ export type AppOption = {
   appid: string
   /** API版本号 */
   version: string
+  /** 默认开启分析系统，关闭设置为true */
+  analysisoff?: boolean
 }
 
 /** 参数配置 */

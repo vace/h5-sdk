@@ -14,7 +14,7 @@ import './assets/common.less'
 import './assets/icon.less'
 import './polyfill/index'
 
-import Oauth from './factory/Oauth';
+import Auth from './factory/Auth';
 import User from './factory/User';
 import App from './factory/App';
 import Http from './factory/Http';
@@ -44,7 +44,7 @@ const exportGetter = (key: string, get: any) => {
 exportGetter('app', () => App.instance)
 exportGetter('http', () => Http.instance)
 exportGetter('res', () => Res.instance)
-exportGetter('oauth', () => Oauth.instance)
+exportGetter('auth', () => Auth.instance)
 exportGetter('user', () => User.instance)
 //! 这里只读_instance，部分情况可能会使用 if (sdk.music) 判断music是否存在
 exportGetter('music', () => UiMusic._instance)

@@ -13,6 +13,9 @@ export const isIos: boolean = !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/i)
 /** 是否为安卓设备 */
 export const isAndroid = -1 !== ua.indexOf('android')
 
+/** 是否为小程序 */
+export const isMiniapp = window['__wxjs_environment'] === 'miniprogram'
+
 /** 是否在微信浏览器中 */
 export const isWechat = -1 !== ua.indexOf('micromessenger')
 

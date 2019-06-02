@@ -483,6 +483,7 @@ declare module 'h5-sdk/src/plugins/analysis' {
 }
 declare module 'h5-sdk/src/config' {
 	import { AnalysisOption } from 'h5-sdk/src/plugins/analysis';
+	export const isDev: boolean;
 	export type DefaultConfig = {
 	    api: string;
 	    analysis?: AnalysisOption;

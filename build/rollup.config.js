@@ -20,11 +20,11 @@ import { version } from '../package.json'
  */\n`
 
 // BUILD 格式为 Plantform.Env
-//1. Web.Devlopment 用于网页应用debug模式
+//1. Web.Development 用于网页应用debug模式
 //2. Web.Production 用于网页应用生产模式
 
 const [Plantform, BuildEnv] = (process.env.BUILD || '').toLowerCase().split('.')
-const isDevlopment = BuildEnv === 'devlopment'
+const isDevelopment = BuildEnv === 'development'
 const isProduction = BuildEnv === 'production'
 const isWatchMode = process.env.ROLLUP_WATCH === 'true'
 
@@ -47,11 +47,11 @@ export default {
     commonjs(),
     replace({
       '__VERSION__': version,
-      'process.env.NODE_ENV': JSON.stringify(isDevlopment ? 'devlopment' : 'production'),
+      'process.env.NODE_ENV': JSON.stringify(isDevelopment ? 'development' : 'production'),
       // 编译平台
       '__PLANTFORM__': Plantform
     }),
-    isWatchMode && isDevlopment && serve({
+    isWatchMode && isDevelopment && serve({
       port: 1235,
       contentBase: ['dist', 'demo']
     }),
@@ -71,7 +71,7 @@ export default {
   },
   context: 'window',
   output: {
-    file: isDevlopment ? './dist/sdk-devlopment.js' : './dist/sdk.js',
+    file: isDevelopment ? './dist/sdk.dev.js' : './dist/sdk.js',
     format: 'umd',
     name: 'sdk',
     globals: {

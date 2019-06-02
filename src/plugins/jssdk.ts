@@ -347,8 +347,8 @@ export function api (apiName: string, option: any = {}): Promise<any> {
   })
 }
 
-if (process.env.NODE_ENV === 'devlopment' && !isWechat) {
-  console.warn('devlopment 模式，已重写部分函数保证响应')
+if (process.env.NODE_ENV === 'development' && !isWechat) {
+  console.warn('development 模式，已重写部分函数保证响应')
   const base64Img = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
   const localId = 'DebugModeMockLocalIdData'
   const serverId = 'DebugModeMockServerIdData'

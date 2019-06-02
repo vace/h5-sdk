@@ -10,7 +10,7 @@ import { getServiceUri } from '../config'
 import { isWechat, isMiniapp } from "../functions/environment";
 import { commonResponseReslove, getCurrentHref, getCurrentPathFile } from '../utils/shared';
 import { getwx, WeixinJSBridge } from '../utils/global';
-import { wait } from '../functions/common';
+import { wait, noop } from '../functions/common';
 import { isHttp, isBase64 } from '../functions/is';
 import { event, EVENTS } from './analysis';
 import { each } from '../functions/underscore';
@@ -58,7 +58,7 @@ interface ConfigResponse extends WxConfigOption {
 /** 设置分享 */
 interface ShareOption {
   /* 分享方式 *全部包含, timeline 朋友圈，app 个人|群组|QQ，mini 小程序 */
-  type?: '*' | 'timeline' | 'wxapp' | 'mini'
+  platform?: '*' | SharePlatform
   title?: string
   desc?: string
   link?: string
@@ -69,23 +69,42 @@ interface ShareOption {
   imgurl?: string
   imgUrl?: string
   /** 自定义其他配置 */
+  logid?: number // 日志id
   config?: string
   success?: Function
+  cancel?: Function
 }
 
 /** 回调事件 */
 type WxEventType = 'beforeConfig' | 'config' | 'share' | 'updateShare' | 'error' | 'ready'
 
+// 分享函数配置
+const SHARE_PLATFORMS = {
+  // 这2个API没有success回调，暂不启用
+  // app: 'updateAppMessageShareData',
+  // app: 'updateTimelineShareData',
+  timeline: 'onMenuShareTimeline',
+  app: 'onMenuShareAppMessage',
+  qq: 'onMenuShareQQ',
+  weibo: 'onMenuShareWeibo',
+  qzone: 'onMenuShareQZone',
+  mini: setMiniappShare
+}
+
+// 小程序分享专用
+const MINIAPP_KEYWORD = 'mini'
+
 /**
  * 默认加载的js api list
  */
 export const defaultJsApiList = [
-  // 分享
-  'updateAppMessageShareData', 'updateTimelineShareData',
   // 常用功能
   'previewImage', 'getNetworkType', 'closeWindow', 'openLocation',
   'chooseImage', 'uploadImage', 'getLocalImgData'
 ]
+
+// 分享API设置
+each(SHARE_PLATFORMS, (api: string) => typeof api === 'string' && defaultJsApiList.push(api))
 
 /** 事件分发器 */
 export const emitter = new Emitter()
@@ -169,84 +188,15 @@ export function getAppid (): string {
   return wechatJssdkAppid
 }
 
-enum SHARE_API {
-  wxapp = 'updateAppMessageShareData',
-  timeline = 'updateTimelineShareData'
-}
-type ShareType = 'wxapp' | 'timeline' | 'mini'
+// enum SHARE_API {
+//   wxapp = 'updateAppMessageShareData',
+//   timeline = 'updateTimelineShareData'
+// }
 
-let _shareMap: Map<string, ShareOption> = new Map()
+// 分享种类
+type SharePlatform = 'timeline' | 'app' | 'qq' | 'weibo' | 'qzone' | 'mini'
 
-const updateShareData = (shareType: ShareType, option: ShareOption) => {
-  const wx = getwx()
-  const shareApi = SHARE_API[shareType]
-  let {
-    title = document.title,
-    desc = ' ',
-    link, // 过滤当前隐私字段信息
-    imgUrl = '',
-    imgurl = '',
-    img = '',
-    success,
-    banner,
-    config
-  } = option
-  // 取默认值
-  if (!link) {
-    link = getCurrentHref(true)
-  }
-  // 相对路径
-  if (!isHttp(link)) {
-    link = getCurrentPathFile(link)
-  }
-  // link 追加用户 来源
-  const auth = Auth.instance
-  if (auth.isAuthed) {
-    const [host, queryString] = link.split('?')
-    const query = parse(queryString)
-    query.spm_uid = auth.id
-    link = host + '?' + stringify(query)
-  }
-
-  imgUrl = imgUrl || imgurl || img
-  if (!isHttp(imgUrl)) {
-    imgUrl = getCurrentPathFile(imgUrl || 'share.jpg')
-  }
-  if (shareType === 'mini') {
-    const _icon = imgUrl
-    const _banner = banner && isHttp(banner) ? banner : getCurrentPathFile(banner)
-    // 推送分享消息到小程序，完成自定义分享
-    wx.miniProgram.postMessage({
-      data: {
-        appid: App.getInstance().appid,
-        title,
-        desc,
-        link,
-        icon: _icon,
-        banner: _banner,
-        config
-      } as H5PostMessageStruct
-    })
-  } else if (typeof wx[shareApi] === 'function') {
-    const shareSuccessHandle = () => {
-      event(EVENTS.SHARE, shareType) // 触发分享
-      emit('share', shareType, option)
-      if (typeof success === 'function') {
-        success(option)
-      }
-    }
-    option = assign({}, option, { title, desc, link, imgUrl, success: shareSuccessHandle })
-    _shareMap.set(shareType, option)
-    wx[shareApi](option)
-
-    if (process.env.NODE_ENV ===  'devlopment') {
-      wx.onMenuShareAppMessage(option)
-      wx.onMenuShareTimeline(option)
-    }
-  } else {
-    throw new Error(`ShareType ${shareType} dose not exist`);
-  }
-}
+let shareConfigCache: Map<string, ShareOption> = new Map()
 
 /**
  * 读取/设置 分享参数
@@ -255,35 +205,95 @@ const updateShareData = (shareType: ShareType, option: ShareOption) => {
  */
 export function share (option?: ShareOption): any {
   if (!option) {
-    return _shareMap
+    return shareConfigCache
   }
-  const { type = '*' } = option
-  const globalOption = _shareMap.get('*')
-  const oldOption = _shareMap.get(type) || {}
-  const newOption = assign({}, globalOption, oldOption, option)
-  // 全局配置
-  if (type === '*') {
-    _shareMap.set(type, newOption)
-  }
-  // 在小程序中需要进一步设置小程序的分享
-  if ((type === '*' || type === 'mini') && isMiniapp) {
-    updateShareData('mini', newOption)
-    if (!_configPromise) return // 防止报错
-  }
+  const sharePlatform = option.platform || '*'
+  const isAllType = sharePlatform === '*'
   if (!_configPromise) {
-    throw new TypeError('Please jssdk.config first before sharing');
+    throw new TypeError('sdk.jssdk 需要预先签名才可使用！详见文档。');
   }
   return config().then(() => {
-    emit('updateShare', newOption)
-    // 设置所有分享参数
-    if (type === '*') {
-      updateShareData('wxapp', newOption)
-      updateShareData('timeline', newOption)
+    if (isAllType) {
+      // 设置分享
+      each(SHARE_PLATFORMS, (api: string, platform: string) => {
+        triggerShare(platform, _parseShareOption(option, platform))
+      })
     } else {
-      updateShareData(type, newOption)
+      triggerShare(sharePlatform, _parseShareOption(option, sharePlatform))
     }
-    return newOption
+    return shareConfigCache
   })
+}
+
+/** 触发分享 */
+function triggerShare (platform: string, setting: any) {
+  const wx = getwx()
+  const api = SHARE_PLATFORMS[platform]
+  if (typeof api === 'function') {
+    api(setting)
+  } else if (typeof wx[api] === 'function') {
+    wx[api](setting)
+  } else {
+    throw new TypeError(`sdk.jssdk.share 不支持分享类型 ${platform}`)
+  }
+  shareConfigCache.set(platform, setting)
+}
+
+/** 设置小程序分享 */
+export function setMiniappShare (option: ShareOption) {
+  return isMiniapp && getwx().miniProgram.postMessage({ data: option as H5PostMessageStruct })
+}
+
+function _sendShareLog (platform: string) {
+  const setting = shareConfigCache.get(platform)
+  event(EVENTS.SHARE, 'wx.' + platform, setting && setting.logid || 0)
+}
+
+function _parseShareOption (option: ShareOption, platform: string) {
+  const resetSuccess = option.success
+
+  const prevConfig = assign({}, shareConfigCache.get(platform) || {}, option)
+  let { title = document.title, desc = ' ', link, imgUrl = '', imgurl = '', img = '', success, cancel = noop, logid } = prevConfig
+
+  if (typeof resetSuccess === 'function') {
+    success = () => {
+      resetSuccess(platform)
+      _sendShareLog(platform)
+    }
+  }
+  // 设置发送日志
+  if (typeof success !== 'function') {
+    success = () => _sendShareLog(platform)
+  }
+
+  // 取默认值
+  if (!link) link = getCurrentHref(true)
+  // 相对路径
+  if (!isHttp(link)) link = getCurrentPathFile(link)
+  // link 追加用户来源，增加spm
+  const auth = Auth.instance
+  if (auth.isAuthed) {
+    const [host, queryString] = link.split('?')
+    const query = parse(queryString)
+    query.spm_uid = auth.id
+    link = host + '?' + stringify(query)
+  }
+  imgUrl = imgUrl || imgurl || img
+  if (!isHttp(imgUrl)) {
+    imgUrl = getCurrentPathFile(imgUrl || 'share.jpg')
+  }
+  const parsedConfig = { title, desc, imgUrl, link, logid }
+  let extConfig: any
+  if (platform === MINIAPP_KEYWORD) {
+    let { banner = 'banner.jpg', config } = option
+    banner = isHttp(banner) ? banner : getCurrentPathFile(banner)
+    const appid = App.hasInstance ? App.getInstance().appid : '' // 应用appid
+    extConfig = { banner, config, appid }
+  } else {
+    extConfig = { success, cancel }
+  }
+  assign(parsedConfig, extConfig)
+  return parsedConfig
 }
 
 /** 上传图片，并获取base64 */

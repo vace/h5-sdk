@@ -97,7 +97,7 @@ export function getElementAttrs (element: HTMLElement | ZeptoCollection, attrs: 
       continue
     }
     if (isBoolean) {
-      value = value !== 'false'
+      value = (value !== 'false' && value !== 'off' && value !== 'disabled')
     } else if (isNumber) {
       value = parseFloat(value)
     } else if (isAutoCovent) {

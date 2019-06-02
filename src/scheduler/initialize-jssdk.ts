@@ -41,7 +41,7 @@ export default function initializeJssdk () {
   const $shares = $('meta[name="sdk:share"]')
   // banner为小程序所用的分享图标
   // config 为附带参数（一般用于设置小程序webview，格式为url parse）
-  const propsShare = ['type', 'title', 'desc', 'link', 'img', 'imgUrl', 'banner', 'config']
+  const propsShare = ['platform', 'title', 'desc', 'link', 'img', 'imgUrl', 'banner', 'config']
   
   $shares.each((index, element) => {
     const options = getElementAttrs($(element), propsShare)

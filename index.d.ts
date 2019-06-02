@@ -618,7 +618,7 @@ declare module 'h5-sdk/src/plugins/jssdk' {
 	    signature: string;
 	}
 	interface ShareOption {
-	    type?: '*' | 'timeline' | 'wxapp' | 'mini';
+	    platform?: '*' | SharePlatform;
 	    title?: string;
 	    desc?: string;
 	    link?: string;
@@ -626,8 +626,10 @@ declare module 'h5-sdk/src/plugins/jssdk' {
 	    banner?: string;
 	    imgurl?: string;
 	    imgUrl?: string;
+	    logid?: number;
 	    config?: string;
 	    success?: Function;
+	    cancel?: Function;
 	} type WxEventType = 'beforeConfig' | 'config' | 'share' | 'updateShare' | 'error' | 'ready';
 	export const defaultJsApiList: string[];
 	export const emitter: Emitter;
@@ -635,8 +637,9 @@ declare module 'h5-sdk/src/plugins/jssdk' {
 	export function ready(fn: Function): void;
 	export function config(option?: WxConfigOption): Promise<ConfigResponse>;
 	export function fire(resolve: Function): void;
-	export function getAppid(): string;
+	export function getAppid(): string; type SharePlatform = 'timeline' | 'app' | 'qq' | 'weibo' | 'qzone' | 'mini';
 	export function share(option?: ShareOption): any;
+	export function setMiniappShare(option: ShareOption): any;
 	export function chooseImageBase64(): Promise<string>;
 	export function preview(url: string | string[], index?: number): void;
 	export function api(apiName: string, option?: any): Promise<any>;

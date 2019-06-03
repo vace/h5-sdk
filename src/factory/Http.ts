@@ -201,9 +201,27 @@ export default class Http {
     const { url: _fetchUri, ..._fetchOptions } = _option
     // TODO timeout
     return fetch(_fetchUri, _fetchOptions).then((response: Response) => {
-      const { status, statusText } = response
+      const { status, statusText, headers } = response
       if (typeof validateStatus === 'function' && !validateStatus(status)) {
-        return Promise.reject(new Error(`${statusText} - STATUS: ${status}`))
+        const error: any = new Error(`${statusText} - STATUS: ${status}`)
+        const ContentType = headers.get('Content-Type')
+        if (ContentType && ContentType.indexOf('application/json') !== -1) {
+          return response.json().then(err => {
+            if ('code' in err) {
+              error['code'] = err.code
+            }
+            if ('message' in err) {
+              error.message = err.message
+            }
+            if ('data' in err) {
+              error.data = err
+            } else {
+              error.data = err
+            }
+            return Promise.reject(error)
+          })
+        }
+        return Promise.reject(error)
       }
       // 自定义处理函数
       if (typeof transformResponse === 'function') {

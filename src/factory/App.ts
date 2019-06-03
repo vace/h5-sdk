@@ -6,7 +6,6 @@ import UiModal from './UiModal';
 import Auth from './Auth';
 import User from './User';
 import Tasker from './Tasker';
-import { alway } from '../functions/common';
 import config from '../config';
 
 /**

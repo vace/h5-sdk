@@ -13,10 +13,10 @@ import cssnano from 'cssnano'
 import { version } from '../package.json'
 
  const banner = `/*!
- * h5-sdk v${version} ${(new Date).toLocaleString()}
- * Copyright (c) 2019-present, MaQu, Inc. (https://ahmq.net)
- * Authors: Vace<i@ahmq.net>
- * Released under the MIT License.
+ * @overview h5-sdk@${version} ${(new Date).toLocaleString()}
+ * @copyright (c) 2018-present, MaQu, Inc.
+ * @authors Vace<i@ahmq.net>
+ * @license Released under the MIT License.
  */\n`
 
 // BUILD 格式为 Plantform.Env
@@ -57,7 +57,7 @@ export default {
     }),
     isProduction && uglify({
       output: {
-        comments: (node, { value, type }) => type == "comment2" && /@License/i.test(value)
+        comments: (node, { value, type }) => type == "comment2" && /h5-sdk/i.test(value)
       }
     })
   ].filter(val => !!val),

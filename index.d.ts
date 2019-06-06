@@ -520,7 +520,6 @@ declare module 'h5-sdk/src/factory/Res' {
 	    FAILED = 3
 	}
 	export class ResProgress {
-	    static pending: number;
 	    total: number;
 	    current: number;
 	    pending: number;
@@ -537,31 +536,36 @@ declare module 'h5-sdk/src/factory/Res' {
 	    $failed(): void;
 	}
 	export default class Res extends Emitter {
+	    static concurrency: number;
+	    private static pending;
+	    private static _taskList;
 	    static id: number;
 	    static Progress: typeof ResProgress;
 	    static config: ResConfig;
-	    static cache: Record<string, ResouceStruct>;
+	    static cache: Record<string, ResourceStruct>;
 	    protected static _instance: Res;
 	    static readonly instance: Res;
 	    static loaders: Map<string, LoaderHandle>;
 	    static registerLoader(this: any, type: string, handle: LoaderHandle): typeof Res;
 	    static getLoader(type: string): LoaderHandle;
-	    static get(key: string | number): ResouceStruct;
+	    static get(key: string | number): ResourceStruct;
 	    config: ResConfig;
 	    isStart: boolean;
 	    isWorking: boolean;
 	    progress: ResProgress;
-	    queue: ResouceStruct[];
-	    cache: Record<string, ResouceStruct>;
+	    tasks: ResourceStruct[];
+	    cache: Record<string, ResourceStruct>;
+	    private _onResLoaded;
+	    private _onResFailed;
 	    readonly isComplete: boolean;
 	    constructor(option?: ResConfig);
 	    start(): this;
 	    pause(): this;
-	    get(key: string | number): ResouceStruct;
+	    get(key: string | number): ResourceStruct;
 	    add(res: PushResStruct, option?: any): ResourceTask;
-	    private $working;
+	    pushRes(res: ResourceStruct): void;
+	    private __resCb;
 	} type ResConfig = {
-	    concurrency?: number;
 	    root?: string;
 	    defaultType?: string;
 	    autoStart?: boolean;
@@ -569,7 +573,7 @@ declare module 'h5-sdk/src/factory/Res' {
 	    url: string;
 	    key?: string;
 	    type?: string;
-	}; type LoaderHandle = (url: string, option?: any) => Promise<any>; type ResouceStruct = {
+	}; type LoaderHandle = (url: string, option?: any) => Promise<any>; type ResourceStruct = {
 	    id: number;
 	    key: string;
 	    url: string;
@@ -583,9 +587,9 @@ declare module 'h5-sdk/src/factory/Res' {
 	    option: any;
 	    error?: any;
 	};
-	interface ResourceTask extends Promise<ResouceStruct> {
+	interface ResourceTask extends Promise<ResourceStruct> {
 	    id: number;
-	    exec: (a?: ResouceStruct) => void;
+	    exec: (a?: ResourceStruct) => void;
 	}
 	export type ResEvent = 'push' | 'pending' | 'success' | 'complete' | 'fail' | 'clear' | 'progress' | 'start' | 'paused';
 	export {};

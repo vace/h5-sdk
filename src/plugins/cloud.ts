@@ -64,6 +64,15 @@ export function tempurl(url: string): Promise<CloudResponse> {
   return service('cloud/tempurl', { url })
 }
 
+/**
+ * 文件是否存在（临时文件）
+ * @param {string} url
+ * @returns {Promise<CloudResponse>}
+ */
+export function hastemp(key: string): Promise<CloudResponse> {
+  return service('cloud/hastemp', { key })
+}
+
 
 /**
  * 同步远程图片

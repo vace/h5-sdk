@@ -95,7 +95,7 @@ export function isWindow (obj: any): boolean {
 
 /** 检测对象是否为Document */
 export function isDocument (obj: any): boolean {
-  return obj != null && obj.nodeType == obj.DOCUMENT_NODE
+  return obj != null && obj.nodeType == obj.DOCUMENT_NODE && !isNullOrUndefined(obj.nodeType)
 }
 
 

@@ -1,3 +1,5 @@
+import { navigator } from "../utils/global";
+
 /**
  * @module sdk
  */

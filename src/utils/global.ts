@@ -1,6 +1,9 @@
 /** @ignore 全局window变量 */
 const global: Window = window
 
+/** @ignore Navigator */
+export const navigator = global.navigator
+
 /** @ignore Location */
 export const location = global.location
 

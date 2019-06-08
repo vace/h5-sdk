@@ -17,7 +17,7 @@ export function service (serviceName: string, opt: any, method: 'get' | 'post' =
 }
 
 /**q
- * 上传base64文件
+ * 上传base64文件（项目文件）
  * @param {string} base64
  * @returns {Promise<CloudResponse>}
  */
@@ -26,7 +26,7 @@ export function upbase64 (base64: string): Promise<CloudResponse> {
 }
 
 /**
- * 上传一个文件
+ * 上传一个文件（项目文件）
  * @param {File} file
  * @param {boolean} isTempFile 是否为临时文件
  * @returns {Promise<CloudResponse>}
@@ -38,7 +38,7 @@ export function upfile(file: File, isTempFile?: boolean): Promise<CloudResponse>
 }
 
 /**
- * 上传临时文件
+ * 上传文件（临时文件）
  * @param {File} file
  * @returns {Promise<CloudResponse>}
  */
@@ -47,13 +47,23 @@ export function uptemp (file: File): Promise<CloudResponse> {
 }
 
 /**
- * 同步文件到cdn
+ * 同步文件到cdn（项目文件）
  * @param {string} url
  * @returns {Promise<CloudResponse>}
  */
 export function syncurl (url: string): Promise<CloudResponse> {
   return service('cloud/syncurl', { url })
 }
+
+/**
+ * 同步文件到cdn（临时文件）
+ * @param {string} url
+ * @returns {Promise<CloudResponse>}
+ */
+export function tempurl(url: string): Promise<CloudResponse> {
+  return service('cloud/tempurl', { url })
+}
+
 
 /**
  * 同步远程图片

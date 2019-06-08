@@ -148,6 +148,7 @@ declare module 'h5-sdk/src/functions/path' {
 
 }
 declare module 'h5-sdk/src/utils/global' {
+	export const navigator: Navigator;
 	export const location: Location;
 	export const document: Document;
 	export const getwx: () => any;
@@ -917,6 +918,22 @@ declare module 'h5-sdk/src/web-entry' {
 	export * from 'h5-sdk/src/plugins/index';
 	export * from 'h5-sdk/src/factory/index';
 	import 'h5-sdk/src/scheduler/index';
+
+}
+declare module 'h5-sdk/src/functions/common.spec' {
+	export {};
+
+}
+declare module 'h5-sdk/src/functions/is.spec' {
+	export {};
+
+}
+declare module 'h5-sdk/src/functions/path.spec' {
+	export {};
+
+}
+declare module 'h5-sdk/src/functions/qs.spec' {
+	export {};
 
 }
 declare module 'h5-sdk' {

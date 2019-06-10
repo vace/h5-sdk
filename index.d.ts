@@ -857,6 +857,8 @@ declare module 'h5-sdk/src/plugins/cloud' {
 	export function upfile(file: File, isTempFile?: boolean): Promise<CloudResponse>;
 	export function uptemp(file: File): Promise<CloudResponse>;
 	export function syncurl(url: string): Promise<CloudResponse>;
+	export function tempurl(url: string): Promise<CloudResponse>;
+	export function hastemp(key: string): Promise<CloudResponse>;
 	export function syncimage(url: string): Promise<CloudResponse>;
 	export function wxmedia(media_id: string): Promise<CloudResponse>;
 	export function headfile(key: string): Promise<CloudResponse>;

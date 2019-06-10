@@ -12,7 +12,8 @@ import { getAppid } from "./jssdk";
  * @param {('get' | 'post')} [method='get']
  */
 export function service (serviceName: string, opt: any, method: 'get' | 'post' = 'get'): Promise<any> {
-  const api = getServiceUri(`${serviceName}?appid=${App.getInstance().appid}`)
+  const appid = App.hasInstance ? App.getInstance().appid : ''
+  const api = getServiceUri(`${serviceName}?appid=${appid}`)
   return Http.instance[method](api, opt).then(commonResponseReslove)
 }
 

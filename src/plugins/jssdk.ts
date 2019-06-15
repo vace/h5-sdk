@@ -98,6 +98,7 @@ const MINIAPP_KEYWORD = 'mini'
  * 默认加载的js api list
  */
 export const defaultJsApiList = [
+  'updateAppMessageShareData', 'updateTimelineShareData',
   // 常用功能
   'previewImage', 'getNetworkType', 'closeWindow', 'openLocation',
   'chooseImage', 'uploadImage', 'getLocalImgData'

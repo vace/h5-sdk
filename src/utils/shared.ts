@@ -6,6 +6,7 @@ import { dirname, resolvePath } from '../functions/path';
 import { location } from './global';
 import { parse, stringify } from '../functions/qs';
 import { isArray } from '../functions/is';
+import { each } from '../functions/underscore';
 
 // 默认的z-index
 let GLOBAL_ZINDEX = 1e5
@@ -160,9 +161,12 @@ export function getCurrentHref (isPrivacy?: boolean | string[]): string {
     if (query) {
       const object: any = parse(query)
       const PrivacyFileds = isArray(isPrivacy) ? isPrivacy : DefaultPrivacyFileds
-      for (const privacy of PrivacyFileds) {
-        delete object[privacy]
-      }
+      //! 以双下划线__开头的也会被移除
+      each(object, (value: any, key: string) => {
+        if ((typeof key === 'string' && key.slice(0, 2) === '__') || PrivacyFileds.indexOf(key) !== -1) {
+          delete object[key]
+        }
+      })
       const newquery = stringify(object)
       if (newquery) {
         url = host + '?' + newquery

@@ -848,7 +848,7 @@ declare module 'h5-sdk/src/plugins/tool' {
 	export function chooseImageAsDataURL(): Promise<string>;
 	export function autoGetImageBase64(): Promise<string>;
 	export function scrollTop(): void;
-	export function base64ToBlob(base64String: string): Blob;
+	export function base64toBlob(base64String: string, contentType?: string, sliceSize?: number): Blob;
 
 }
 declare module 'h5-sdk/src/plugins/cloud' {

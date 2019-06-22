@@ -66,6 +66,9 @@ addEventListener('unload', (e) => {
   event(EVENTS.UNLOAD, config.unloadData, stayTime)
 }, false)
 
+/** 请求ID */
+let currentRequestId = randomstr(6)
+
 /** 参数map */
 enum ANA {
   APPID = 'ai', // 应用appid
@@ -76,6 +79,7 @@ enum ANA {
   SEND_DATA = 'sd', // 发送数据
   SEND_VALUE = 'vl', // 发送值（必须为数字）
   SDK_VERSION = 'vr', // 版本号
+  REQEST_ID = '_i', // 请求ID
   REQEST_NONCE = '_n', // 随机数
   REQEST_SIGNATURE = '_s' // 此次请求签名
 }
@@ -110,6 +114,7 @@ async function send (event: ANA_EVENTS, data: string = '', value: number = 0): P
     [ANA.EVENT_NAME]: event,
     [ANA.SEND_DATA]: data,
     [ANA.SEND_VALUE]: Math.round(value || 0),
+    [ANA.REQEST_ID]: currentRequestId,
     [ANA.REQEST_NONCE]: randomstr(16)
   }
   option[ANA.REQEST_SIGNATURE] = signature(option)

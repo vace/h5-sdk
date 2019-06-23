@@ -47,13 +47,15 @@ export const config: AnalysisOption = assign({
  */
 
 /** 事件集合 */
-type ANA_EVENTS = 'VIEW' | 'ERROR' | 'SHARE' | 'UNLOAD' | string
+type ANA_EVENTS = 'VIEW' | 'ERROR' | 'SHARE' | 'UNLOAD' | 'CLICK' | 'USER' | string
 
 export const EVENTS = {
   'VIEW': 'VIEW',
   'ERROR': 'ERROR',
   'SHARE': 'SHARE',
   'UNLOAD': 'UNLOAD',
+  'CLICK': 'CLICK',
+  'USER': 'USER'
 }
 
 // 报错处理与上报
@@ -148,17 +150,37 @@ export function pv () {
 
 /**
  * 发送自定义事件
- * @param {string} event 自定义事件名称
+ * @param {string} event 自定义事件名称(VIEW|ERROR|SHARE|UNLOAD|CLICK|USER)
  * @param {string} [data] 任意数据
  */
-export function event (event: string, data?: string, value?: number) {
-  if (!/^\w+$/.test(event)) {
-    throw new Error('event must be alphanumeric')
+export function event (event: string, data?: any, value?: number) {
+  const evt = event.toUpperCase()
+  if (!EVENTS[evt]) {
+    throw new Error('not support event `' + event + '`')
   }
   if (typeof data !== 'string') {
     data = JSON.stringify(data)
   }
-  return send(event.toUpperCase(), data, value)
+  return send(evt, data, value)
+}
+
+/**
+ * 发送用户事件
+ * @param {*} [data] 自定义用户相关值
+ * @param {number} [value] 相关属性值
+ */
+export function user (data?: any, value?: number) {
+  return event(EVENTS.USER, data, value)
+}
+
+/**
+ * 发送点击事件
+ * @param {*} [data] 与点击相关的值
+ * @param {number} [value] 与点击相关的值
+ * @returns
+ */
+export function click (data?: any, value?: number) {
+  return event(EVENTS.CLICK, data, value)
 }
 
 

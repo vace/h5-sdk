@@ -154,13 +154,13 @@ export default class App {
     tasker.working()
     let cache: AppServerInit | null = store.get(App.cacheKey)
     let version = ''
+
+    // 应用缓存是否有效
     if (cache) {
-      const config = cache.config
-      const isValid = config.appid === this.appid
-      if (!isValid) {
-        cache = null
-      } else {
+      if (cache.config.appid === this.appid) {
         version = cache.version
+      } else {
+        cache = null
       }
     }
     const init = await this.get('init', { version })

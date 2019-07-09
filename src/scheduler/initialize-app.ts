@@ -9,7 +9,7 @@ export default function initializeApp () {
   if (!element.length) {
     return
   }
-  const props = ['appid', 'version', '!analysisoff']
+  const props = ['appid', '!analysisoff']
   const options: any = getElementAttrs(element, props)
   return App.getInstance(options)
 }

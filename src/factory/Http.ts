@@ -208,13 +208,13 @@ export default class Http {
         if (ContentType && ContentType.indexOf('application/json') !== -1) {
           return response.json().then(err => {
             if ('code' in err) {
-              error['code'] = err.code
+              error.code = err.code
             }
             if ('message' in err) {
               error.message = err.message
             }
             if ('data' in err) {
-              error.data = err
+              error.data = err.data
             } else {
               error.data = err
             }

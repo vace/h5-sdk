@@ -3,10 +3,13 @@ import { commonResponseReslove } from "../utils/shared";
 import { parse, stringify } from "../functions/qs";
 import Http from "./Http";
 import UiModal from './UiModal';
+import UiToast from './UiToast';
 import Auth from './Auth';
 import User from './User';
 import Tasker from './Tasker';
 import config from '../config';
+import { isAbsolute } from '../functions/path';
+import { isHttp } from '../functions/is';
 
 /**
  * 一个页面一般只有一个应用（可通过`sdk.app`直接获取）
@@ -60,8 +63,6 @@ export default class App {
 
   /** 应用APPID */
   public appid: string = ''
-  /** 当前应用版本号，用于拉取更新API */
-  public version: string = '1.0.0'
 
   /** 服务端共用配置 */
   public config!: AppServerConfig
@@ -71,9 +72,8 @@ export default class App {
   public analysisoff?: boolean
 
   public constructor (app: AppOption) {
-    const { appid, version, analysisoff } = app
+    const { appid, analysisoff } = app
     this.appid = appid
-    version && (this.version = version)
     this.analysisoff = analysisoff
     this.http = new Http({
       // 默认api路径
@@ -119,7 +119,7 @@ export default class App {
               ]
             }).open()
           }
-          return commonResponseReslove(response)
+          return response
         })
       }
     })
@@ -152,20 +152,22 @@ export default class App {
     }
     // 确保只执行一次
     tasker.working()
-    const version = this.version
     let cache: AppServerInit | null = store.get(App.cacheKey)
+    let version = ''
     if (cache) {
       const config = cache.config
-      const isValid = config.appid === this.appid && cache.version === version
+      const isValid = config.appid === this.appid
       if (!isValid) {
         cache = null
+      } else {
+        version = cache.version
       }
     }
-    if (!cache) {
-      const cache = await this.get('init', { version })
-      if (cache) {
-        store.set(App.cacheKey, cache)
-      }
+    const init = await this.get('init', { version })
+    // 版本不统一时刷新缓存
+    if (init.version !== version) {
+      cache = init
+      store.set(App.cacheKey, init)
     }
     // 保存应用属性
     if (cache) {
@@ -198,19 +200,77 @@ export default class App {
     return this.action(action, query, 'delete')
   }
   /** 发送应用请求ACTION */
-  public action (action: string, param?: any, method: string = 'get') {
+  public action (action: string | ActionStruct, param?: any, method: string = 'get') {
+    let actionName: string
+    let showError: boolean | string = false
+    let showLoading: boolean | string = false
+    let showSuccess: boolean | string = false
+
+    let loading: UiToast
+    if (typeof action === 'string') {
+      actionName = action
+    } else {
+      // 支持对象方式
+      actionName = action.api
+      if (!actionName) {
+        throw new TypeError(`参数错误未读取到api属性：${JSON.stringify(action)}`);
+      }
+      param = action.param || action.body || action.query
+      showError = action.showError
+      showLoading = action.showLoading
+      showSuccess = action.showSuccess
+    }
     // 使用ID主键操作
     if (typeof param === 'number') {
       param = { id: param }
     }
-    const api = `/app/${this.appid}/${action}`
-    const response = this.http[method](api, param)
+
+    if (showLoading) {
+      loading = new UiToast({
+        icon: 'loading',
+        message: typeof showLoading === 'string' ? showLoading : '请稍后...'
+      }).open()
+    }
+    // 绝对路径判断
+    const isAbsApi = isAbsolute(actionName) || isHttp(actionName)
+    const api = isAbsApi ? actionName : `/app/${this.appid}/${actionName}`
+    const response = this.http[method](api, param).then(response => {
+      loading && loading.close()
+      // 成功
+      if (!response.code && showSuccess) {
+        new UiToast({
+          icon: 'success',
+          message: typeof showSuccess === 'string' ? showSuccess : response.message
+        })
+      }
+      return commonResponseReslove(response)
+    }).catch((error: Error) => {
+      loading && loading.close()
+      if (showError) {
+        new UiToast({
+          icon: 'err',
+          message: typeof showError === 'string' ? showError : error.message,
+          duration: 3000
+        }).open()
+      }
+      return Promise.reject(error)
+    })
     // 全局的错误捕获器
     if (typeof App.errorHandler === 'function') {
-      return response.catch((err: Error) => App.errorHandler(err, {action, param, method}, this))
+      return response.catch((err: Error) => App.errorHandler(err, {action: actionName, param, method}, this))
     }
     return response
   }
+}
+
+interface ActionStruct {
+  api: string
+  param: any
+  body: any
+  query: any
+  showError: boolean | string
+  showLoading: boolean | string
+  showSuccess: boolean | string
 }
 
 /** 应用配置 */

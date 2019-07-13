@@ -154,7 +154,7 @@ export default class Http {
       method, mode, cache, credentials, redirect, referrer,
       baseURL, timeout, transformRequest, transformResponse, responseType, validateStatus
     } = config
-    let headers = new Headers(config.headers)
+    let headers = new Headers(config.headers || {})
     let { url, params, data, body } = config
     const StrContentType = 'Content-Type'
     // 根据 content type 处理body

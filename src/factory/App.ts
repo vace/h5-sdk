@@ -227,7 +227,7 @@ export default class App {
 
     if (showLoading) {
       if (typeof showLoading === 'function') {
-        loading = showLoading('请稍后...')
+        loading = showLoading('请稍后...', param)
         if (!loading || typeof loading.close !== 'function') {
           throw new TypeError(`showLoading() 返回值必须包含close()方法`);          
         }
@@ -246,7 +246,7 @@ export default class App {
       // 成功
       if (!response.code && showSuccess) {
         if (typeof showSuccess === 'function') {
-          showSuccess(response.message)
+          showSuccess(response.message, response)
         } else {
           new UiToast({
             icon: 'success',
@@ -259,7 +259,7 @@ export default class App {
       loading && loading.close()
       if (showError) {
         if (typeof showError === 'function') {
-          showError(error.message)
+          showError(error.message, error)
         }  else {
           new UiToast({
             icon: 'err',
@@ -278,7 +278,7 @@ export default class App {
   }
 }
 
-type MessageCallback = (msg?: string) => any
+type MessageCallback = (msg?: string, response?: any) => any
 type MessageDialog = boolean | string | MessageCallback
 
 interface ActionStruct {

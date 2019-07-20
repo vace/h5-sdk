@@ -1,6 +1,7 @@
 import { isString, isObject, isHttp, isFormData } from "../functions/is";
 import { stringify } from "../functions/qs";
 import { assign } from 'es6-object-assign'
+import { isAbsolute } from "../functions/path";
 
 /** 服务端约定返回格式 */
 export type CommonResponseData = {
@@ -186,8 +187,8 @@ export default class Http {
       }
       if (contentType) headers.set(StrContentType, contentType)
     }
-    // 设置了根路径
-    if (baseURL && !isHttp(url)) {
+    // 设置了根路径，在远程路径 或者结对路径下，忽略设置
+    if (baseURL && !isHttp(url) && !isAbsolute(url)) {
       url = `${baseURL}${url}`
     }
     const _option: TransformRequestOption = {

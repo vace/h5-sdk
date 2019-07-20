@@ -71,6 +71,7 @@ declare module 'h5-sdk/src/functions/common' {
 	export function uid(prefix?: string): string;
 	export function uuid(): string;
 	export function randomstr(len?: number): string;
+	export function spread(callback: Function): (arr: any[]) => any;
 
 }
 declare module 'h5-sdk/src/functions/underscore' {
@@ -87,6 +88,14 @@ declare module 'h5-sdk/src/functions/underscore' {
 declare module 'h5-sdk/src/functions/qs' {
 	export function stringify(obj?: any, sep?: string, eq?: string): string;
 	export function parse(qs: string, sep?: string, eq?: string): Record<string, any>;
+
+}
+declare module 'h5-sdk/src/functions/path' {
+	export function isAbsolute(path: string): boolean;
+	export function resolvePath(...args: string[]): string;
+	export function dirname(path: string): string;
+	export function basename(path: string, ext?: string): string;
+	export function extname(path: string): string;
 
 }
 declare module 'h5-sdk/src/factory/Http' {
@@ -137,14 +146,6 @@ declare module 'h5-sdk/src/factory/Http' {
 	    patch(url: string, data?: any): Promise<any>;
 	    request(option: HttpRequestOption): Promise<any>;
 	}
-
-}
-declare module 'h5-sdk/src/functions/path' {
-	export function isAbsolute(path: string): boolean;
-	export function resolvePath(...args: string[]): string;
-	export function dirname(path: string): string;
-	export function basename(path: string, ext?: string): string;
-	export function extname(path: string): string;
 
 }
 declare module 'h5-sdk/src/utils/global' {
@@ -417,6 +418,7 @@ declare module 'h5-sdk/src/factory/Auth' {
 	    redirect(_url?: string): void;
 	    refreshUser(): Promise<User | null>;
 	    login(): Promise<boolean | User>;
+	    logout(): Promise<void>;
 	}
 	export {};
 
@@ -451,15 +453,15 @@ declare module 'h5-sdk/src/factory/App' {
 	    get(action: string, query?: any): any;
 	    delete(action: string, query?: any): any;
 	    action(action: string | ActionStruct, param?: any, method?: string): any;
-	}
+	} type MessageCallback = (msg?: string, response?: any) => any; type MessageDialog = boolean | string | MessageCallback;
 	interface ActionStruct {
 	    api: string;
 	    param: any;
 	    body: any;
 	    query: any;
-	    showError: boolean | string;
-	    showLoading: boolean | string;
-	    showSuccess: boolean | string;
+	    showError: MessageDialog;
+	    showLoading: MessageDialog;
+	    showSuccess: MessageDialog;
 	} type AppServerConfig = {
 	    id: number;
 	    name: string;

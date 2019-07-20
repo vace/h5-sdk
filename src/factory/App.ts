@@ -239,8 +239,14 @@ export default class App {
       }
     }
     // 绝对路径判断
-    const isAbsApi = isAbsolute(actionName) || isHttp(actionName)
-    const api = isAbsApi ? actionName : `app/${this.appid}/${actionName}`
+    let api: string
+    if (isAbsolute(actionName)) {
+      api = config.api + actionName
+    } else if (isHttp(actionName)) {
+      api = actionName
+    } else {
+      api = `app/${this.appid}/${actionName}`
+    }
     const response = this.http[method](api, param).then(response => {
       loading && loading.close()
       // 成功

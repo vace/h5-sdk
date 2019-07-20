@@ -122,7 +122,7 @@ export default class Auth {
     this.state = state
     this.id = id
     const isValid = 
-      (!exp || exp > now() / 1000 - 3600) && // 未设置 exp 或者 过期时间推后 有效isExp
+      (!exp || exp > now() / 1000 + 3600) && // 未设置 exp 或者 过期时间推后 有效isExp
       iss === this.appid && sub === this.platform && // isAppid
       this.type === typ // isType
     // console.log({
@@ -267,6 +267,20 @@ export default class Auth {
       }
     }
     return Promise.resolve(false)
+  }
+
+  // 执行登出用户
+  public async logout() {
+    const api = getApiUri(`api/oauth/logout`)
+    // 清空服务端用户信息
+    const response = await fetch(api, {
+      headers: {
+        Authorization: this.accessToken || ''
+      }
+    })
+    this.user.logout()
+    this._accessToken = ''
+    store.remove(Auth.cacheKey)
   }
 }
 

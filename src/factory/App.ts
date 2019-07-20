@@ -77,7 +77,7 @@ export default class App {
     this.analysisoff = analysisoff
     this.http = new Http({
       // 默认api路径
-      baseURL: config.api,
+      baseURL: config.api + '/',
       /** 请求时带上appid和authorization */
       transformRequest: option => {
         const { appid, auth } = this
@@ -240,7 +240,7 @@ export default class App {
     }
     // 绝对路径判断
     const isAbsApi = isAbsolute(actionName) || isHttp(actionName)
-    const api = isAbsApi ? actionName : `/app/${this.appid}/${actionName}`
+    const api = isAbsApi ? actionName : `app/${this.appid}/${actionName}`
     const response = this.http[method](api, param).then(response => {
       loading && loading.close()
       // 成功

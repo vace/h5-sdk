@@ -202,9 +202,9 @@ export default class App {
   /** 发送应用请求ACTION */
   public action (action: string | ActionStruct, param?: any, method: string = 'get') {
     let actionName: string
-    let showError: boolean | string = false
-    let showLoading: boolean | string = false
-    let showSuccess: boolean | string = false
+    let showError: MessageDialog = false
+    let showLoading: MessageDialog = false
+    let showSuccess: MessageDialog = false
 
     let loading: UiToast
     if (typeof action === 'string') {
@@ -226,10 +226,17 @@ export default class App {
     }
 
     if (showLoading) {
-      loading = new UiToast({
-        icon: 'loading',
-        message: typeof showLoading === 'string' ? showLoading : '请稍后...'
-      }).open()
+      if (typeof showLoading === 'function') {
+        loading = showLoading('请稍后...')
+        if (!loading || typeof loading.close !== 'function') {
+          throw new TypeError(`showLoading() 返回值必须包含close()方法`);          
+        }
+      } else {
+        loading = new UiToast({
+          icon: 'loading',
+          message: typeof showLoading === 'string' ? showLoading : '请稍后...'
+        }).open()
+      }
     }
     // 绝对路径判断
     const isAbsApi = isAbsolute(actionName) || isHttp(actionName)
@@ -238,20 +245,28 @@ export default class App {
       loading && loading.close()
       // 成功
       if (!response.code && showSuccess) {
-        new UiToast({
-          icon: 'success',
-          message: typeof showSuccess === 'string' ? showSuccess : response.message
-        })
+        if (typeof showSuccess === 'function') {
+          showSuccess(response.message)
+        } else {
+          new UiToast({
+            icon: 'success',
+            message: typeof showSuccess === 'string' ? showSuccess : response.message
+          })
+        }
       }
       return commonResponseReslove(response)
     }).catch((error: Error) => {
       loading && loading.close()
       if (showError) {
-        new UiToast({
-          icon: 'err',
-          message: typeof showError === 'string' ? showError : error.message,
-          duration: 3000
-        }).open()
+        if (typeof showError === 'function') {
+          showError(error.message)
+        }  else {
+          new UiToast({
+            icon: 'err',
+            message: typeof showError === 'string' ? showError : error.message,
+            duration: 3000
+          }).open()
+        }
       }
       return Promise.reject(error)
     })
@@ -263,14 +278,17 @@ export default class App {
   }
 }
 
+type MessageCallback = (msg?: string) => any
+type MessageDialog = boolean | string | MessageCallback
+
 interface ActionStruct {
   api: string
   param: any
   body: any
   query: any
-  showError: boolean | string
-  showLoading: boolean | string
-  showSuccess: boolean | string
+  showError: MessageDialog
+  showLoading: MessageDialog
+  showSuccess: MessageDialog
 }
 
 /** 应用配置 */

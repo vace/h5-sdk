@@ -75,3 +75,20 @@ export function randomstr (len: number = 8): string {
   }
   return str.slice(0, len).toUpperCase()
 }
+
+/**
+ * 将数组参数赋值为变量
+ * ```js
+ * var arr = [1, 2, 3]
+ * sdk.spread(function (a, b, c) {
+ *  console.log(a, b, c)// 1, 2, 3
+ * })(arr);
+ * ```
+ * @param {Function} callback
+ * @returns {Function}
+ */
+export function spread (callback: Function) {
+  return function wrap (arr: any[]) {
+    return callback.apply(null, arr)
+  }
+}

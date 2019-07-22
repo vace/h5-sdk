@@ -1,15 +1,15 @@
-import { store } from '../plugins/store'
-import { commonResponseReslove } from "../utils/shared";
+import store from '../adapters/store/index'
+import { commonResponseReslove } from "../utils/common";
 import { parse, stringify } from "../functions/qs";
 import Http from "./Http";
-import UiModal from './UiModal';
-import UiToast from './UiToast';
 import Auth from './Auth';
 import User from './User';
 import Tasker from './Tasker';
 import config from '../config';
 import { isAbsolute } from '../functions/path';
 import { isHttp } from '../functions/is';
+
+const noop: any = () => {}
 
 /**
  * 一个页面一般只有一个应用（可通过`sdk.app`直接获取）
@@ -19,37 +19,40 @@ export default class App {
   private static cacheKey: string = 'SdkApp'
   /** 实例 */
   private static _instance: App
-  /** 获取应用实例，`getInstance()`别名 */
+  /** 获取应用实例 */
   public static get instance () {
-    return this.getInstance()
+    return this._instance
   }
 
   /** 全局的错误处理器 */
   public static errorHandler: errorHandler
 
-  /** 是否有实例，直接getInstance回报错 */
+  /** 是否有实例 */
   public static get hasInstance (): boolean {
     return !!this._instance
   }
 
-  /** 获取应用实例 */
-  public static getInstance (option?: AppOption) {
-    if (!this._instance) {
-      // 必须存在
-      if (!option) {
-        throw new Error('App.getInstance(option) 参数必须存在！')
-      }
-      this._instance = new App(option)
+  /** 创建默认实例（注意，重复创建将覆盖之前的默认实例） */
+  public static createInstance (option: AppOption): App {
+    if (this._instance) {
+      console.warn('[App.instance] 已存在，此操作将覆盖默认实例')
     }
-    return this._instance
+    return this._instance = new App(option)
   }
+
+  // 全局样式控制器
+  public static transformRequest = noop
+  public static transformResponse = noop
+  public static showLoading = noop
+  public static showSuccess = noop
+  public static showError = noop
   /** 是否已经登陆 */
   public get isLogin () {
-    return User.instance.isLogin
+    return this.user.isLogin
   }
   /** 是否需要授权 */
   public get isAuthed () {
-    return Auth.instance.isAuthed
+    return this.auth.isAuthed
   }
 
   /** 已经注入用户认证信息的`Http`实例 */
@@ -79,52 +82,18 @@ export default class App {
       // 默认api路径
       baseURL: config.api + '/',
       /** 请求时带上appid和authorization */
-      transformRequest: option => {
-        const { appid, auth } = this
-        const [host, queryString = ''] = option.url.split('?')
-        const headers = <Headers> option.headers
-        // 支持 {appid}/action 的格式
-        if (host.indexOf(appid) === -1) {
-          const query = parse(queryString)
-          if (!query.appid) {
-            query.appid = appid
-            option.url = `${host}?${stringify(query)}`
-          }
-        }
-        if (auth.isAuthed && auth.isAccessTokenValid && !headers.has('authorization')) {
-          headers.set('authorization', <string> auth.accessToken)
-        }
-        return option
-      },
+      transformRequest: App.transformRequest.bind(this),
       /** 处理header中的authorization */
-      transformResponse (response) {
-        const authorize = response.headers.get('authorization')
-        if (authorize) {
-          Auth.instance.saveToken(authorize)
-        }
-        return response.json().then((response) => {
-          // -100 ~ -90为登陆错误
-          if (response.code <= -90 && response.code > -100 ) {
-            new UiModal({
-              title: '用户信息已过期',
-              content: '<div style="text-align:left;">您好，您的授权信息已经过期，请刷新页面重试，或点击下方重新登陆按钮重新授权~</div>',
-              okText: '重新登陆',
-              buttons: [
-                {
-                  label: '重新登陆',
-                  onClick () {
-                    Auth.instance.redirect()
-                  }
-                }
-              ]
-            }).open()
-          }
-          return response
-        })
-      }
+      transformResponse: App.transformResponse.bind(this)
     })
     // 执行初始化
     this.setup()
+  }
+
+  public setAuth (auth: Auth) {
+    this.auth = auth
+    this.user = auth.user
+    return this
   }
 
   /**
@@ -206,7 +175,7 @@ export default class App {
     let showLoading: MessageDialog = false
     let showSuccess: MessageDialog = false
 
-    let loading: UiToast
+    let loading: any
     if (typeof action === 'string') {
       actionName = action
     } else {
@@ -232,10 +201,7 @@ export default class App {
           throw new TypeError(`showLoading() 返回值必须包含close()方法`);          
         }
       } else {
-        loading = new UiToast({
-          icon: 'loading',
-          message: typeof showLoading === 'string' ? showLoading : '请稍后...'
-        }).open()
+        loading = App.showLoading(showLoading)
       }
     }
     // 绝对路径判断
@@ -254,10 +220,7 @@ export default class App {
         if (typeof showSuccess === 'function') {
           showSuccess(response.message, response)
         } else {
-          new UiToast({
-            icon: 'success',
-            message: typeof showSuccess === 'string' ? showSuccess : response.message
-          })
+          App.showSuccess(typeof showSuccess === 'string' ? showSuccess : response.message)
         }
       }
       return commonResponseReslove(response)
@@ -267,11 +230,7 @@ export default class App {
         if (typeof showError === 'function') {
           showError(error.message, error)
         }  else {
-          new UiToast({
-            icon: 'err',
-            message: typeof showError === 'string' ? showError : error.message,
-            duration: 3000
-          }).open()
+          App.showError(typeof showError === 'string' ? showError : error.message)
         }
       }
       return Promise.reject(error)

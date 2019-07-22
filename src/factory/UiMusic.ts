@@ -83,10 +83,10 @@ export default class UiMusic extends Emitter {
   public static _instance: UiMusic
   /** 获取默认实例 */
   public static get instance () {
-    return this.getInstance({})
+    return this.createInstance({})
   }
   /** 获取单例 */
-  public static getInstance (option: UiMusicOption): UiMusic {
+  public static createInstance (option: UiMusicOption): UiMusic {
     if (!this._instance) {
       this._instance = new UiMusic(option)
     }

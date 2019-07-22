@@ -16,5 +16,5 @@ export default function initializeMusic () {
     'target', 'src', 'className', 'theme', 'position', '!autoplay', '!background', '!loop', '!muted', '+volume', 'preload', '?size', '?offsetX', '?offsetY'
   ]
   const options = getElementAttrs(element, props)
-  return UiMusic.getInstance(options)
+  return UiMusic.createInstance(options)
 }

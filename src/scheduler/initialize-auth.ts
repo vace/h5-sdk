@@ -11,5 +11,5 @@ export default function initializeApp() {
   }
   const props = ['platform', 'type', 'appid', 'scope', 'env', 'callback', 'version', '!autorun']
   const options: any = getElementAttrs(element, props)
-  return Auth.getInstance(options)
+  return Auth.createInstance(options)
 }

@@ -8,7 +8,8 @@ import Emitter from '../factory/Emitter';
 
 import { getServiceUri } from '../config'
 import { isWechat, isMiniapp } from "../functions/environment";
-import { commonResponseReslove, getCurrentHref, getCurrentPathFile } from '../utils/shared';
+import { getCurrentHref, getCurrentPathFile } from '../utils/shared';
+import { commonResponseReslove } from '../utils/common'
 import { getwx, WeixinJSBridge } from '../utils/global';
 import { wait, noop } from '../functions/common';
 import { isHttp, isBase64 } from '../functions/is';
@@ -288,7 +289,7 @@ function _parseShareOption (option: ShareOption, platform: string) {
   if (platform === MINIAPP_KEYWORD) {
     let { banner = 'banner.jpg', config } = option
     banner = isHttp(banner) ? banner : getCurrentPathFile(banner)
-    const appid = App.hasInstance ? App.getInstance().appid : '' // 应用appid
+    const appid = App.hasInstance ? App.instance.appid : '' // 应用appid
     extConfig = { banner, config, appid }
   } else {
     extConfig = { success, cancel }

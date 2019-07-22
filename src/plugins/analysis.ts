@@ -65,8 +65,8 @@ export function start () {
   }
   _isStartFlag = true
   // 报错处理与上报
-  const unbindShow = analysis.onShow((e: any) => pv())
-  const unbindError = analysis.onError((e: any) => error(e.error))
+  const unbindShow = analysis.onShow(pv)
+  const unbindError = analysis.onError((err: any) => error(err))
   const unbindUnload = analysis.onUnload((e: any) => {
     // 计算页面停留市场
     const stayTime = (now() - config.beforeLoadTime) / 1000
@@ -155,14 +155,14 @@ async function send (event: ANA_EVENTS, data: string = '', value: number = 0): P
 /**
  * 发送PV记录，记录用户UA、来源记录
  * 根据页面 from 或者 ADTAG 参数统计来源
- * 如：page.html?ADTAG=ali.taobao.browser
+ * 如：page.html?spm_from=ali.taobao.browser
  */
-export function pv () {
+export function pv (e?: any) {
   const params: any = analysis.getCurrentParam()
   // 来源类型判断，from为微信端使用，spm_from为小程序或用户自定义
   const spmFrom = params.from || params.spm_from
-  // 来源用户绑定
-  const spmUid = params.spm_uid || 0
+  // 来源用户绑定（e && e.scene 小程序切前台的场景值）
+  const spmUid = params.spm_uid || (e && e.scene) || 0
   const defaultTags: any = {
     timeline: 'tx.wx.tl', // 朋友圈
     groupmessage: 'tx.wx.gm', // 群组消息

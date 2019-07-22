@@ -10,7 +10,7 @@ export default function createAnalysisWeb (): IAnalysis {
       return domready.then(fn)
     },
     onError (fn) {
-      return addListener(window, 'error', fn)
+      return addListener(window, 'error', (e: any) => fn(e.error))
     },
     onUnload (fn) {
       return addListener(window, 'unload', fn)

@@ -104,7 +104,7 @@ if (Plantform === 'web') {
     context: 'window',
     output: {
       file: './dist/sdk.mini.js',
-      format: 'umd',
+      format: 'cjs',
       name: 'sdk',
       banner
     }

@@ -2,10 +2,11 @@ import { assign } from 'es6-object-assign'
 import { AnalysisOption } from "./plugins/analysis";
 
 /** 加载全局设置的配置 `window._SDK` */
-const GlobalSdkConfig: DefaultConfig = window['_SDK'] || {}
+const GlobalSdkConfig: DefaultConfig = (typeof window !== 'undefined' && window['_SDK']) || {}
 
 /** 是否为调试模式 */
-export const isDev = process.env.NODE_ENV === 'development'
+// @ts-ignore
+export let isDev = process.env.NODE_ENV === 'development'
 
 /** 配置文件格式 */
 export type DefaultConfig = {

@@ -1,16 +1,13 @@
 import { assign } from 'es6-object-assign'
-
 import App from "../factory/App";
-
-import { addEventListener, location } from "../utils/global";
-import { getCurrentHref } from "../utils/shared";
-import { randomstr  } from "../functions/common";
+import { randomstr } from "../functions/common";
 import { now } from "../functions/underscore";
-import { parse, stringify } from '../functions/qs'
+import { stringify } from '../functions/qs'
 import { domready } from '../functions/helper'
 import { getServiceUri } from "../config";
 import _config from "../config";
 import { signature } from "./safety";
+import { analysis } from '../adapters/analysis/index'
 
 /** 分析参数 */
 export type AnalysisOption = {
@@ -28,7 +25,7 @@ export type AnalysisOption = {
 export const config: AnalysisOption = assign({
   disabled: false,
   maxReportError: 3,
-  beforeLoadTime: new Date().getTime(),
+  beforeLoadTime: now(),
   unloadData: ''
 }, _config.analysis)
 
@@ -58,15 +55,44 @@ export const EVENTS = {
   'USER': 'USER'
 }
 
-// 报错处理与上报
-addEventListener('error', e => error(e.error), false)
+let _isStartFlag: boolean = false
+let unBindEventList: any[] = []
 
-// 文档卸载，记录访问时长
-addEventListener('unload', (e) => {
-  // 计算页面停留市场
-  const stayTime = (now() - config.beforeLoadTime) / 1000
-  event(EVENTS.UNLOAD, config.unloadData, stayTime)
-}, false)
+/* 开始记录 */
+export function start () {
+  if (_isStartFlag) {
+    return
+  }
+  _isStartFlag = true
+  // 报错处理与上报
+  const unbindShow = analysis.onShow((e: any) => pv())
+  const unbindError = analysis.onError((e: any) => error(e.error))
+  const unbindUnload = analysis.onUnload((e: any) => {
+    // 计算页面停留市场
+    const stayTime = (now() - config.beforeLoadTime) / 1000
+    event(EVENTS.UNLOAD, config.unloadData, stayTime)
+  })
+  unBindEventList = [
+    unbindShow,
+    unbindError,
+    unbindUnload
+  ]
+}
+
+/** 停止自动记录 */
+export function stop () {
+  if (!_isStartFlag) {
+    return
+  }
+  _isStartFlag = false
+  // 依次执行事件解绑函数
+  unBindEventList.forEach(unbind => {
+    if (typeof unbind === 'function') {
+      unbind()
+    }
+  })
+}
+
 
 /** 请求ID */
 let currentRequestId = randomstr(6)
@@ -109,8 +135,8 @@ async function send (event: ANA_EVENTS, data: string = '', value: number = 0): P
   // 提交的数据选项
   const option: any = {
     [ANA.APPID]: app.appid,
-    [ANA.USER_AGENT]: navigator.userAgent,
-    [ANA.PAGE_URL]: getCurrentHref(true),
+    [ANA.USER_AGENT]: analysis.getUserAgent(),
+    [ANA.PAGE_URL]: analysis.getCurrentUrl(true),
     [ANA.USER_ID]: userId,
     [ANA.SDK_VERSION]: '__VERSION__',
     [ANA.EVENT_NAME]: event,
@@ -122,10 +148,8 @@ async function send (event: ANA_EVENTS, data: string = '', value: number = 0): P
   option[ANA.REQEST_SIGNATURE] = signature(option)
   //! 注意：此参数用于去除跨域请求，不参与签名
   option.cros = 'off'
-  return domready.then(() => {
-    const image = new Image()
-    image.src = getServiceUri('analysis/log') + '?' + stringify(option)
-  })
+  const log = getServiceUri('analysis/log') + '?' + stringify(option)
+  return analysis.send(log)
 }
 
 /**
@@ -134,7 +158,7 @@ async function send (event: ANA_EVENTS, data: string = '', value: number = 0): P
  * 如：page.html?ADTAG=ali.taobao.browser
  */
 export function pv () {
-  const params: any = parse(location.search.slice(1))
+  const params: any = analysis.getCurrentParam()
   // 来源类型判断，from为微信端使用，spm_from为小程序或用户自定义
   const spmFrom = params.from || params.spm_from
   // 来源用户绑定
@@ -189,23 +213,14 @@ let _errorReportHistory: string[] = []
  * 发送错误事件
  * @param {Error} error
  */
-export function error (error: Error) {
+export function error (error: Error | string) {
   // 已经达到最大上报次数
   if (!error || _errorReportHistory.length >= config.maxReportError) {
     return false
   }
-  if (!(error instanceof Error)) {
-    console.log(`error arg must instanceof Error`)
-    return
-  }
-  let errorStack
-  if (error.stack) {
-    errorStack = error.stack.split('\n').slice(0, 2).join('')
-  } else {
-    errorStack = error.name + ': ' + error.message
-  }
+  let errorStack = analysis.getErrorStack(error)
   // 错误已经上报一次了
-  if (_errorReportHistory.indexOf(errorStack) !== -1) {
+  if (!errorStack || _errorReportHistory.indexOf(errorStack) !== -1) {
     return // ignore
   }
   const errCount = _errorReportHistory.push(errorStack)

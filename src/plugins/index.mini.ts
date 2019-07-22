@@ -1,9 +1,11 @@
 import * as safety from './safety'
-export { default as store } from '../adapters/store/index'
-// @ts-ignore
+import store from '../adapters/store/index'
+import * as analysis from './analysis'
 import * as ui from '../adapters/ui/ui.mini'
 
 export {
   safety,
-  ui
+  store,
+  ui,
+  analysis
 }

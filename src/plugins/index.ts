@@ -6,7 +6,8 @@ import * as cloud from './cloud'
 import * as analysis from './analysis'
 import * as wechat from './wechat'
 
-export { store } from './store'
+export { default as store } from '../adapters/store/index'
+
 export {
   jssdk,
   ui,

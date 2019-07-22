@@ -1,5 +1,7 @@
+export const isBrowserEnv = typeof window !== 'undefined'
+
 /** @ignore 全局window变量 */
-const global: Window = window
+const global: any = isBrowserEnv ? window : {}
 
 /** @ignore Navigator */
 export const navigator = global.navigator
@@ -27,3 +29,5 @@ export const removeEventListener = global.removeEventListener
 
 /** @ignore Performance */
 export const performance = global.performance || {}
+
+export const localStorage = global.localStorage

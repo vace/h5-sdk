@@ -1,14 +1,15 @@
 {
   "name": "h5-sdk",
-  "version": "3.2.8",
+  "version": "3.3.0",
   "description": "sdk.js 用于Web H5的sdk",
   "main": "dist/sdk.js",
   "types": "index.d.ts",
   "author": "Vace(ocdo@qq.com)",
   "scripts": {
-    "dev": "rollup --config build/rollup.config.js --watch --environment BUILD:Web.Development",
-    "development": "rollup --config build/rollup.config.js --environment BUILD:Web.Development",
-    "production": "rollup --config build/rollup.config.js --environment BUILD:Web.Production",
+    "dev": "rollup --config build/rollup.config.js --watch --environment BUILD:web.Development",
+    "development": "rollup --config build/rollup.config.js --environment BUILD:web.Development",
+    "production": "rollup --config build/rollup.config.js --environment BUILD:web.Production",
+    "mini": "rollup --config build/rollup.config.js --environment BUILD:mini.Production",
     "prepublish": "yarn development && yarn production && node build/dts-generator.js",
     "test": "mocha --require ts-node/register --watch-extensions ts,tsx \"src/**/*.spec.ts\"",
     "docs": "typedoc --out docs --mode file --exclude \"**/*+(index.ts|.spec.ts|.e2e.ts|.js)\" --excludeNotExported src/web-entry.ts"
@@ -48,7 +49,6 @@
     "chai": "^4.2.0",
     "es6-object-assign": "^1.1.0",
     "es6-promise": "^4.2.6",
-    "store": "^2.0.12",
     "ts-node": "^8.2.0",
     "whatwg-fetch": "^3.0.0"
   }

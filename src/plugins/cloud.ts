@@ -2,7 +2,7 @@ import App from "../factory/App";
 import Http from "../factory/Http";
 
 import { getServiceUri } from "../config";
-import { commonResponseReslove } from "../utils/shared";
+import { commonResponseReslove } from "../utils/common";
 import { getAppid } from "./jssdk";
 
 /**
@@ -12,7 +12,7 @@ import { getAppid } from "./jssdk";
  * @param {('get' | 'post')} [method='get']
  */
 export function service (serviceName: string, opt: any, method: 'get' | 'post' = 'get'): Promise<any> {
-  const appid = App.hasInstance ? App.getInstance().appid : ''
+  const appid = App.hasInstance ? App.instance.appid : ''
   const api = getServiceUri(`${serviceName}?appid=${appid}`)
   return Http.instance[method](api, opt).then(commonResponseReslove)
 }

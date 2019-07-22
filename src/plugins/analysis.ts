@@ -97,9 +97,9 @@ async function send (event: ANA_EVENTS, data: string = '', value: number = 0): P
   if (!App.hasInstance) {
     return
   }
-  const app = App.getInstance()
+  const app = App.instance
   // 无应用，不发送数据
-  if (!app.appid || app.analysisoff || config.disabled) {
+  if (!app || !app.appid || app.analysisoff || config.disabled) {
     return
   }
   // 等待应用初始化完成

@@ -1,5 +1,5 @@
 import { each } from "../functions/underscore";
-import { store } from "../plugins/store";
+import store from "../adapters/store/index";
 
 /** 用户状态:normal=普通用户,black=黑名单用户,admin=管理员用户,super=超级管理员,developer=开发者 */
 export type UserState = 'unknow' | 'normal' | 'black' | 'admin' | 'super' | 'developer'
@@ -16,7 +16,7 @@ export default class User {
   private static cacheKey: string = 'SdkUser'
   /** 实例 */
   private static _instance: User
-  /** 获取应用实例，`getInstance()`别名 */
+  /** 获取用户实例 */
   public static get instance() {
     if (!User._instance) {
       const cache = store.get(User.cacheKey)

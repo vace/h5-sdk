@@ -5,7 +5,8 @@
 import {
   Http,
   Auth,
-  User
+  User,
+  App
 } from './factory/index.mini'
 
 /**
@@ -30,3 +31,4 @@ const exportGetter = (key: string, get: any) => {
 exportGetter('http', () => Http.instance)
 exportGetter('auth', () => Auth.instance)
 exportGetter('user', () => User.instance)
+exportGetter('app', () => App.instance)

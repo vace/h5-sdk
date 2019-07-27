@@ -18,6 +18,7 @@
     "index.d.ts",
     "dist/sdk.dev.js",
     "dist/sdk.js",
+    "dist/sdk.mini.js",
     "dist/sdk.css"
   ],
   "license": "MIT",

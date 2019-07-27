@@ -1,6 +1,6 @@
 import App from "../factory/App";
 import { getElementAttrs } from "../utils/shared";
-import * as analysis from "src/plugins/analysis";
+import * as analysis from "../plugins/analysis";
 /**
  * 自动获取应用参数并启动
  * @ignore

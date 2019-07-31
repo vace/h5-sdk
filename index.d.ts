@@ -1196,6 +1196,11 @@ declare module 'h5-sdk/src/adapters/app/index' {
 	export default _default;
 
 }
+declare module 'h5-sdk/src/adapters/ui/ui.node' {
+	export function preloader(): void;
+	export function loading(): void;
+
+}
 declare module 'h5-sdk/src/functions/common.spec' {
 	export {};
 

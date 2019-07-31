@@ -11,7 +11,7 @@
     "production": "rollup --config build/rollup.config.js --environment BUILD:web.Production",
     "mini": "rollup --config build/rollup.config.js --environment BUILD:mini.Production",
     "node": "rollup --config build/rollup.config.js --environment BUILD:node.Production",
-    "prepublish": "yarn development && yarn production && node build/dts-generator.js && yarn mini && && yarn run node",
+    "prepare": "yarn development && yarn production && node build/dts-generator.js && yarn mini && yarn run node",
     "test": "mocha --require ts-node/register --watch-extensions ts,tsx \"src/**/*.spec.ts\"",
     "docs": "typedoc --out docs --mode file --exclude \"**/*+(index.ts|.spec.ts|.e2e.ts|.js)\" --excludeNotExported src/web-entry.ts"
   },

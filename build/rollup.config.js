@@ -109,6 +109,28 @@ if (Plantform === 'web') {
       banner
     }
   })
+} else if (Plantform === 'node') {
+  // NodeJs端
+  Object.assign(configure, {
+    input: './src/node-entry.ts',
+    plugins: [
+      typescript(),
+      json(),
+      resolve(),
+      createReplace(),
+      commonjs()
+    ].filter(val => !!val),
+    watch: {
+      include: 'src/**',
+      exclude: 'node_modules/**'
+    },
+    output: {
+      file: './dist/sdk.node.js',
+      format: 'cjs',
+      name: 'sdk',
+      banner
+    }
+  })
 }
 
 export default configure

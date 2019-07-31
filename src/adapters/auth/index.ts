@@ -1,5 +1,6 @@
 import createAuthMini from './auth.mini'
 import createAuthWeb from './auth.web'
+import createAuthNode from './auth.node'
 
 import { IAuth } from './interface';
 
@@ -13,6 +14,8 @@ if (platform === 'web') {
   auth = createAuthWeb()
 } else if (platform === 'mini') {
   auth = createAuthMini()
+} else if (platform === 'node') {
+  auth = createAuthNode()
 }
 
 export { auth }

@@ -1,5 +1,6 @@
 import createStoreWeb from './store.web'
 import createStoreMini from './store.mini'
+import createStoreNode from './store.node'
 import { IStore } from './interface';
 
 let store: IStore
@@ -13,6 +14,8 @@ if (platform === 'web') {
   store = createStoreWeb()
 } else if (platform === 'mini') {
   store = createStoreMini()
+} else if (platform === 'node') {
+  store = createStoreNode()
 }
 
 export default {

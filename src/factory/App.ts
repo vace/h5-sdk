@@ -52,7 +52,7 @@ export default class App {
   }
   /** 是否需要授权 */
   public get isAuthed () {
-    return this.auth.isAuthed
+    return this.auth && this.auth.isAuthed
   }
 
   /** 已经注入用户认证信息的`Http`实例 */
@@ -100,11 +100,10 @@ export default class App {
    * 启动应用（只可调用一次）
    */
   public ready (fn?: any): Promise<any> {
-    const auth = Auth.instance
     const preTaskList = [ this.tasker.task ]
     // 需要获取用户信息
-    if (auth.isAuthed) {
-      preTaskList.push(auth.tasker.task)
+    if (this.isAuthed) {
+      preTaskList.push(this.auth.tasker.task)
     }
     const task = Promise.all(preTaskList)
     if (typeof fn === 'function') {

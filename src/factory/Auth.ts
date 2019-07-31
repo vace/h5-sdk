@@ -5,13 +5,13 @@ import { now } from "../functions/underscore";
 import Tasker from "./Tasker";
 import store from "../adapters/store/index";
 import { auth } from '../adapters/auth/index'
-import { AuthOption, JwtDecodeRet } from '../adapters/auth/interface';
+import { AuthOption, JwtDecodeRet, IAuth } from '../adapters/auth/interface';
 
 let ENV_platform = '__PLANTFORM__'
 
 export default class Auth {
   /** 适配器 */
-  public static adapter = auth
+  public static adapter: IAuth = auth
 
   /** 默认配置 */
   public static option: AuthOption = {
@@ -28,6 +28,9 @@ export default class Auth {
   private static _instance: Auth
   /** 获取应用实例 */
   public static get instance() {
+    if (!this._instance) {
+      this._instance = new Auth()
+    }
     return this._instance
   }
   /** 是否有实例 */

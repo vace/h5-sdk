@@ -1,5 +1,7 @@
 import createRequestWeb from './request.web'
 import createRequestMini from './request.mini'
+import createRequestNode from './request.node'
+
 import { IRequest } from './interface';
 
 let request: IRequest
@@ -12,6 +14,8 @@ if (platform === 'web') {
   request = createRequestWeb()
 } else if (platform === 'mini') {
   request = createRequestMini()
+} else if (platform === 'node') {
+  request = createRequestNode()
 }
 
 export { request }

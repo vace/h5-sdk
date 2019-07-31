@@ -40,6 +40,11 @@ declare module 'h5-sdk/src/adapters/store/store.mini' {
 	export default function createStoreMini(): IStore;
 
 }
+declare module 'h5-sdk/src/adapters/store/store.node' {
+	import { IStore } from 'h5-sdk/src/adapters/store/interface';
+	export default function createStoreNode(): IStore;
+
+}
 declare module 'h5-sdk/src/adapters/store/index' {
 	import { IStore } from 'h5-sdk/src/adapters/store/interface'; const _default: {
 	    readonly store: IStore;
@@ -184,6 +189,11 @@ declare module 'h5-sdk/src/adapters/request/request.mini' {
 	export default function createRequestMini(): (config: HttpOption & HttpRequestOption) => Promise<{}>;
 
 }
+declare module 'h5-sdk/src/adapters/request/request.node' {
+	import { HttpOption, HttpRequestOption } from 'h5-sdk/src/adapters/request/interface';
+	export default function createRequestNode(): (config: HttpOption & HttpRequestOption) => any;
+
+}
 declare module 'h5-sdk/src/adapters/request/index' {
 	import { IRequest } from 'h5-sdk/src/adapters/request/interface'; let request: IRequest;
 	export { request };
@@ -310,6 +320,11 @@ declare module 'h5-sdk/src/adapters/auth/auth.web' {
 	export default function createAuthWeb(): IAuth;
 
 }
+declare module 'h5-sdk/src/adapters/auth/auth.node' {
+	import { IAuth } from 'h5-sdk/src/adapters/auth/interface';
+	export default function createAuthNode(): IAuth;
+
+}
 declare module 'h5-sdk/src/adapters/auth/index' {
 	import { IAuth } from 'h5-sdk/src/adapters/auth/interface'; let auth: IAuth;
 	export { auth };
@@ -318,9 +333,9 @@ declare module 'h5-sdk/src/adapters/auth/index' {
 declare module 'h5-sdk/src/factory/Auth' {
 	import User, { UserState, UserPlatform, UserType } from 'h5-sdk/src/factory/User';
 	import Tasker from 'h5-sdk/src/factory/Tasker';
-	import { AuthOption } from 'h5-sdk/src/adapters/auth/interface';
+	import { AuthOption, IAuth } from 'h5-sdk/src/adapters/auth/interface';
 	export default class Auth {
-	    static adapter: import("../adapters/auth/interface").IAuth;
+	    static adapter: IAuth;
 	    static option: AuthOption;
 	    static cacheKey: string;
 	    private static _instance;
@@ -730,6 +745,42 @@ declare module 'h5-sdk/src/mini-entry' {
 	export * from 'h5-sdk/src/functions/index.mini';
 	export * from 'h5-sdk/src/factory/index.mini';
 	export * from 'h5-sdk/src/plugins/index.mini';
+
+}
+declare module 'h5-sdk/src/functions/index.node' {
+	export * from 'h5-sdk/src/functions/common';
+	export * from 'h5-sdk/src/functions/is';
+	export * from 'h5-sdk/src/functions/path';
+	export * from 'h5-sdk/src/functions/qs';
+	export * from 'h5-sdk/src/functions/regex';
+	export * from 'h5-sdk/src/functions/timeago';
+	export * from 'h5-sdk/src/functions/underscore';
+
+}
+declare module 'h5-sdk/src/adapters/app/app.node' {
+	export default function createAppMini(): void;
+
+}
+declare module 'h5-sdk/src/factory/index.node' {
+	export { default as App } from 'h5-sdk/src/factory/App';
+	export { default as Auth } from 'h5-sdk/src/factory/Auth';
+	export { default as Emitter } from 'h5-sdk/src/factory/Emitter';
+	export { default as Http } from 'h5-sdk/src/factory/Http';
+	export { default as User } from 'h5-sdk/src/factory/User';
+
+}
+declare module 'h5-sdk/src/plugins/index.node' {
+	import * as safety from 'h5-sdk/src/plugins/safety';
+	import store from 'h5-sdk/src/adapters/store/index';
+	export { safety, store };
+
+}
+declare module 'h5-sdk/src/node-entry' {
+	export const version = "__VERSION__";
+	export * from 'h5-sdk/src/config';
+	export * from 'h5-sdk/src/functions/index.node';
+	export * from 'h5-sdk/src/factory/index.node';
+	export * from 'h5-sdk/src/plugins/index.node';
 
 }
 declare module 'h5-sdk/src/factory/Res' {

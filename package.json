@@ -1,6 +1,6 @@
 {
   "name": "h5-sdk",
-  "version": "3.3.1",
+  "version": "3.4.0",
   "description": "sdk.js 用于Web/小程序的sdk",
   "main": "dist/sdk.js",
   "types": "index.d.ts",
@@ -11,7 +11,7 @@
     "production": "rollup --config build/rollup.config.js --environment BUILD:web.Production",
     "mini": "rollup --config build/rollup.config.js --environment BUILD:mini.Production",
     "node": "rollup --config build/rollup.config.js --environment BUILD:node.Production",
-    "prepublish": "yarn development && yarn production && node build/dts-generator.js && yarn mini",
+    "prepublish": "yarn development && yarn production && node build/dts-generator.js && yarn mini && && yarn run node",
     "test": "mocha --require ts-node/register --watch-extensions ts,tsx \"src/**/*.spec.ts\"",
     "docs": "typedoc --out docs --mode file --exclude \"**/*+(index.ts|.spec.ts|.e2e.ts|.js)\" --excludeNotExported src/web-entry.ts"
   },
@@ -20,6 +20,7 @@
     "dist/sdk.dev.js",
     "dist/sdk.js",
     "dist/sdk.mini.js",
+    "dist/sdk.node.js",
     "dist/sdk.css"
   ],
   "license": "MIT",

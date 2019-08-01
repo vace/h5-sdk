@@ -61,7 +61,7 @@ export default function createAuthWeb (): IAuth {
       return Promise.resolve(true)
     },
     async login(auth) {
-      const isLogin = checkIsLogin(auth)
+      const isLogin = await checkIsLogin(auth)
       if (!isLogin) {
         redirect(auth)
       }

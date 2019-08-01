@@ -15,7 +15,7 @@ export default function initializeScript () {
   // debug 工具
   if (debug) {
     var injectScript = doc.createElement('script')
-    injectScript.src = '//5.5u55.cn/_lib/eruda/1.5.4/eruda.min.js'
+    injectScript.src = '//h5.ahmq.net/_lib/eruda/1.5.7/eruda.min.js'
     doc.body.appendChild(injectScript)
     injectScript.onload = () => (window['eruda']).init()
   }

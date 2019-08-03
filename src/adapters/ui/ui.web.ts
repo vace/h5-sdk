@@ -54,7 +54,13 @@ export function confirm(option: UiConfirmOption): UiModal {
       if (e.validateForm()) {
         return ok(e)
       }
-      return option.formError && error(option.formError)
+      const formError = option.formError as any
+      if (typeof formError === 'function') {
+        return formError(e)
+      } else if (formError) {
+        return error(formError === true ? '表单项目填写错误，请检查' : formError)
+      }
+      return null
     }
   }
   option.buttons = [

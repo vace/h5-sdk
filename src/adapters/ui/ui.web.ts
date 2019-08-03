@@ -8,6 +8,8 @@ import UiView, { UiViewOption } from '../../factory/UiView';
 import { isObject, isNumber, isFunction } from '../../functions/is';
 import { each } from '../../functions/underscore';
 import { UiAlertOption, UiConfirmOption, UiPromptOption, UiUserboxOption } from './interface';
+import { wrapModal, wrapAlert, wrapPrompt, wrapConfirm, wrapUserbox } from './ui.promise';
+import { regexMobile, regexChinese } from '../../functions/regex';
 
 const closeHelper = (modal: UiModal) => modal.close()
 
@@ -43,14 +45,24 @@ export function alert(option: UiAlertOption | string): UiModal {
  * @returns {UiModal}
  */
 export function confirm(option: UiConfirmOption): UiModal {
-  const { okText = '确定', noText = '取消', ok, no } = option
+  const { okText = '确定', noText = '取消', ok, no, isForm } = option
+  let wrapOkCallback = ok
+
+  // 函数包装，表单需要验证通过
+  if (isForm && typeof ok === 'function') {
+    wrapOkCallback = (e: UiModal) => {
+      if (e.validateForm()) {
+        return ok(e)
+      }
+      return option.formError && error(option.formError)
+    }
+  }
   option.buttons = [
     { label: noText, key: 'no', onClick: no || closeHelper },
-    { label: okText, key: 'ok', onClick: ok || closeHelper, bold: true }
+    { label: okText, key: 'ok', onClick: wrapOkCallback || closeHelper, bold: true }
   ]
   return new UiModal(option).open()
 }
-
 
 /**
  * 打开一个prompt
@@ -63,8 +75,11 @@ export function prompt(option: UiPromptOption | string): UiModal {
   }
   const { defaultValue, type, placeholder } = option
   option.inputs = [
-    { name: 'value', type, value: defaultValue, placeholder }
+    { name: 'value', type, value: defaultValue, placeholder, validate: option.validate }
   ]
+  // 去除原有的验证器名称冲突
+  delete option.validate
+  option.isForm = true
   return confirm(option)
 }
 
@@ -79,10 +94,33 @@ export function userbox(option: UiUserboxOption): UiModal {
   let { profile } = option
   if (!_$cacheMapProfile) {
     _$cacheMapProfile = {
-      username: { type: 'text', name: 'username', placeholder: '点击输入姓名', label: '姓名', tips: '请输入您的姓名', min: 2, max: 12 },
-      mobile: { type: 'tel', name: 'mobile', placeholder: '点击输入手机号', label: '手机', tips: '请输入11位手机号码', min: 11, max: 11 },
-      password: { type: 'password', name: 'password', placeholder: '点击输入密码', label: '密码', tips: '请输入您的密码' },
-      address: { type: 'textarea', name: 'address', placeholder: '点击输入地址', label: '地址', tips: '请输入您的联系地址' },
+      username: { type: 'text', name: 'username', placeholder: '点击输入姓名', label: '姓名', tips: '请输入您的姓名', min: 2, max: 20, validate: function (value: string) {
+        if (!value) {
+          return '姓名不能为空'
+        }
+        if (regexChinese.test(value)) {
+          if (value.length < 2) return '姓名不能少于两个汉字'
+          else if (value.length > 4) return '姓名不能多于四个汉字'
+        } else if (/^[ a-zA-Z]+$/.test(value)) {
+          if (value.length < 3) return '英文名不能少于三个字符'
+          else if (value.length > 20) return '英文名字母过多'
+        } else {
+          return '输入包含特殊字符，请正确输入'
+        }
+        return true
+      } },
+      mobile: { type: 'tel', name: 'mobile', placeholder: '点击输入手机号', label: '手机', tips: '请输入11位手机号码', min: 11, max: 11, validate: function (mobile: string) {
+        if (!mobile) {
+          return '手机号码不能为空'
+        }
+        return regexMobile.test(mobile) ? true : '请填写11位国内手机号码'
+      } },
+      password: { type: 'password', name: 'password', placeholder: '点击输入密码', label: '密码', tips: '请输入您的密码', validate: (pwd: string) => {
+        if (pwd.length < 6) return '密码不能低于6位数字'
+      }},
+      address: { type: 'textarea', name: 'address', placeholder: '点击输入地址', label: '地址', tips: '请输入您的联系地址', validate: (addr: string) => {
+        if (addr.length > 64) return '地址输入内容过多，请检查输入'
+      } },
       hidden: { type: 'hidden', name: 'hidden' }
     }
   }
@@ -104,6 +142,7 @@ export function userbox(option: UiUserboxOption): UiModal {
     }
   })
   option.inputs = inputs
+  option.isForm = true
   return confirm(option)
 }
 
@@ -192,3 +231,42 @@ export function music(option: string | UiMusicOption): UiMusic {
   }
   return UiMusic.createInstance(option)
 }
+
+
+/**
+ * 打开一个modal弹窗，返回按钮key，取消时key=undefined
+ * @param {UiModalOption} option
+ */
+export const $modal = (option: UiModalOption) => wrapModal(modal, option)
+
+/**
+ * 打开一个alert弹窗，用户点击确定，返回true
+ * @param {UiAlertOption} option
+ */
+export const $alert = (option: UiAlertOption) => wrapAlert(alert, option)
+
+/**
+ * 打开一个confirm弹窗，返回true,false
+ * @example
+ * ```js
+ * var isOk = await ui.$confim({title: '确认吗？', content: '内容'})
+ * ```
+ * @param {UiConfirmOption} option
+ */
+export const $confirm = (option: UiConfirmOption) => wrapConfirm(confirm, option)
+
+/**
+ * 打开一个prompt弹窗，返回输入内容，取消返回undefined
+ * @example
+ * ```js
+ * var content = await ui.$prompt({title: '输入内容', content: '请在输入框输入内容'})
+ * ```
+ * @param {UiPromptOption} option
+ */
+export const $prompt = (option: UiPromptOption) => wrapPrompt(prompt, option)
+
+/**
+ * 打开一个userbox弹窗，返回输入对象，取消返回undefined
+ * @param {UiUserboxOption} option
+ */
+export const $userbox = (option: UiUserboxOption) => wrapUserbox(userbox, option)

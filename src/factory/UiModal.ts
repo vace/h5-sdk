@@ -31,6 +31,8 @@ export interface UiModalOption extends UiBaseOption {
   onClick?: (key?: string) => void // 按钮点击回调
   /** 弹层关闭回调 */
   onClose?: Function
+  // 表单验证器
+  validate?: (key: string, value: string, data: object) => any
 }
 
 export default class UiModal extends UiBase{
@@ -63,6 +65,10 @@ export default class UiModal extends UiBase{
   }
 
   constructor (_option: UiModalOption = {}) {
+    // 是否设置表单类型，可手动设置
+    if (_option.inputs && _option.inputs.length) {
+      _option.isForm = true
+    }
     super(assign({}, UiModal.option, _option))
     // 挂载
     this.$modal = createClsElement('modal')
@@ -100,6 +106,66 @@ export default class UiModal extends UiBase{
     return this
   }
 
+  public validateForm (field?: string) {
+    const { option, data } = this
+    const inputs = option.inputs as UiInputOption[]
+    const validate = typeof option.validate === 'function' ? option.validate : null
+    let isPassValid = true
+
+    // 没有可验证的字段
+    if (!inputs || !inputs.length) return isPassValid
+    // 寻找验证器，验证器分为全局验证器和局部验证器，通过遍历inputs读取
+    for (const input of inputs) {
+      const key = input.name
+      // 验证指定字段
+      if (field && field !== key) {
+        continue
+      }
+      const value = data[key]
+      // 局部验证器
+      if (typeof input.validate === 'function') {
+        const ret = input.validate(value)
+        if (!this._validInput(input, ret)) {
+          isPassValid = false
+          continue
+        }
+      }
+      if (validate) {
+        const ret = validate(key, value, data)
+        if (!this._validInput(input, ret)) {
+          isPassValid = false
+        }
+      }
+    }
+    return isPassValid
+  }
+
+  public validateClear (field?: string) {
+    const { option, data } = this
+    const inputs = option.inputs || []
+    for (const input of inputs) {
+      const key = input.name
+      // 验证指定字段
+      if (field && field !== key) {
+        continue
+      }
+      this._validInput(input, true)
+    }
+    return true
+  }
+
+  private _validInput (input: UiInputOption, ret: any) {
+    const $form = this.$form as any
+    const $error = $form.find('.' + classPrefix('modal-field-' + input.name) + ' .' + classPrefix('modal-input-error'))
+    // 验证通过
+    if (ret === true || ret == null) {
+      $error.text('')
+      return true
+    }
+    $error.text(typeof ret === 'string' ? ret : '此项填写错误，请检查。')
+    return false
+  }
+
   // 准备打开
   private _openHook () {
     const { $root, $modal, id } = this
@@ -122,15 +188,17 @@ export default class UiModal extends UiBase{
       const tagTextarea = 'textarea'
       const $form = createClsElement('modal-form', '', 'form')
       let dataIndex = 0
-      for (const { type, label, tips, value = '', innerHTML, ...attrs } of inputs) {
+      for (const { type, label, tips, value = '', validate, innerHTML, ...attrs } of inputs) {
         const tagName = type !== tagTextarea ? 'input' : tagTextarea
         const $input = type === 'custom' ? $(innerHTML) : $(`<${tagName}>`).attr('type', type || 'text')
         const inputId = `${id}__i${++dataIndex}`
         $input.attr('id', inputId).attr(attrs).val(value || '')
         const labelHtml = label ? `<label for="${inputId}">${label || ''} ${tips ? `<span>${tips}</span>` : ''}</label>` : ''
-        const $inputWrap = createClsElement('modal-iptwrap', labelHtml)
+        const $inputWrap = createClsElement('modal-iptwrap', labelHtml).addClass(classPrefix('modal-field-' + (attrs.name || dataIndex)))
         const $inputCont = createClsElement('modal-input', $input)
+        const $inputErr = createClsElement('modal-input-error', '')
         $inputWrap.append($inputCont)
+        $inputWrap.append($inputErr)
         $form.append($inputWrap)
       }
       modalElements.push($form)

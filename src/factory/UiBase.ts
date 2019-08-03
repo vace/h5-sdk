@@ -3,6 +3,7 @@ import { uid, wait } from '../functions/common'
 import { nextZIndex, onceAnimationEnd, classPrefix, createClsElement } from '../utils/shared'
 import $ from '../venders/zepto'
 import { isNullOrUndefined } from '../functions/is'
+import { scrollTop } from '../plugins/tool';
 
 /** UI支持的颜色 */
 export type TypeColor = 'dark' | 'main' | 'primary' | 'warn' | 'info'
@@ -18,6 +19,8 @@ export type UiBaseOption = {
   theme?: UiTheme
   /** 是否添加遮罩层 */
   isAddMask?: boolean
+  /** 是否包含表单 */
+  isForm?: boolean
   /** 类名 */
   className?: string
   /** 延迟自动关闭时间 */
@@ -72,6 +75,8 @@ export type UiInputOption = {
   disabled?: boolean
   /** 自定义内容，type = custom有效 */
   innerHTML?: string
+  /** 验证器，验证未通过返回失败原因，false或string */
+  validate?: (value: string) => any
   [key: string]: any
 }
 
@@ -176,6 +181,11 @@ export default class UiBase extends Emitter {
     ;($target as ZeptoCollection).append($root)
     // 监听事件
     onceAnimationEnd($root, this._onOpened.bind(this))
+
+    if (this.option.isForm) {
+      $root.on('blur', 'input', this._onFormBlur)
+      $root.on('focus', 'input', this._onFormFocus)
+    }
     $root.addClass(inClassName)
     // 渲染结构
     this.emit('open')
@@ -188,7 +198,31 @@ export default class UiBase extends Emitter {
     $root.removeClass(inClassName)
     this.emit('opened')
   }
-  
+
+  // 表单失去焦点，运行
+  private _onFormBlur = (e: any) => {
+    scrollTop()
+    const field = e.target && e.target.name
+    // 运行验证器
+    this.validateForm(field)
+  }
+
+  private _onFormFocus = (e: any) => {
+    // 清空验证器
+    const field = e.target && e.target.name
+    this.validateClear(field)
+  }
+
+  // 表单验证
+  public validateForm (field?: string) {
+    return true
+  }
+
+  // 清空错误消息
+  public validateClear (field?: string) {
+    return true
+  }
+
   /** 关闭弹窗 */
   public close() {
     const { isOpened } = this
@@ -201,6 +235,10 @@ export default class UiBase extends Emitter {
     const { $root, outClassName, option: { onClose } } = this
     this.isOpened = false
     onceAnimationEnd($root, this._onClosed.bind(this))
+    if (this.option.isForm) {
+      $root.off('blur', 'input', this._onFormBlur)
+      $root.off('focus', 'input', this._onFormFocus)
+    }
     $root.addClass(outClassName)
     this.emit('close')
     // 关闭回调函数

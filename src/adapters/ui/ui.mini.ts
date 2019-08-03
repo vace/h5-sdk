@@ -1,5 +1,7 @@
 import { UiAlertOption, UiConfirmOption } from "./interface";
 
+import { wrapModal, wrapAlert, wrapPrompt, wrapConfirm, wrapUserbox } from './ui.promise';
+
 declare var wx: any
 
 export let uiAssetsPath = '/images/ui/'
@@ -111,3 +113,27 @@ export const preloader = (content: string = '请稍后...') => {
   }
 }
 export const music = () => todo('music')
+
+export const $modal = (option: any) => todo('$modal')
+
+/**
+ * 打开一个alert弹窗，用户点击确定，返回true
+ * @param {UiAlertOption} option
+ */
+export const $alert = (option: UiAlertOption) => wrapAlert(alert, option)
+
+/**
+ * 打开一个confirm弹窗，返回true,false
+ * @example
+ * ```js
+ * var isOk = await ui.$confim({title: '确认吗？', content: '内容'})
+ * ```
+ * @param {UiConfirmOption} option
+ */
+export const $confirm = (option: UiConfirmOption) => wrapConfirm(confirm, option)
+
+
+export const $prompt = (option: any) => todo('$prompt')
+
+export const $userbox = (option: any) => todo('$userbox')
+

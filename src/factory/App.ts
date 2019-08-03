@@ -8,6 +8,7 @@ import Tasker from './Tasker';
 import config from '../config';
 import { isAbsolute } from '../functions/path';
 import { isHttp } from '../functions/is';
+import { spread } from '../functions/common';
 
 const noop: any = () => {}
 
@@ -99,7 +100,7 @@ export default class App {
   /**
    * 启动应用（只可调用一次）
    */
-  public ready (fn?: any): Promise<any> {
+  public ready (fn?: any, err?: any): Promise<any> {
     const preTaskList = [ this.tasker.task ]
     // 需要获取用户信息
     if (this.isAuthed) {
@@ -107,7 +108,7 @@ export default class App {
     }
     const task = Promise.all(preTaskList)
     if (typeof fn === 'function') {
-      return task.then(fn.bind(this))
+      return task.then(spread(fn.bind(this)), err)
     }
     return task
   }
@@ -131,17 +132,21 @@ export default class App {
         cache = null
       }
     }
-    const init = await this.get('init', { version })
-    // 版本不统一时刷新缓存
-    if (init.version !== version) {
-      cache = init
-      store.set(App.cacheKey, init)
+    try {
+      const init = await this.get('init', { version })
+      // 版本不统一时刷新缓存
+      if (init.version !== version) {
+        cache = init
+        store.set(App.cacheKey, init)
+      }
+      // 保存应用属性
+      if (cache) {
+        this.setServer(cache)
+      }
+      return tasker.resolve(cache)
+    } catch (error) {
+      return tasker.reject(error)
     }
-    // 保存应用属性
-    if (cache) {
-      this.setServer(cache)
-    }
-    return tasker.resolve(cache)
   }
 
   /** 设置应用配置和管理员设置 */

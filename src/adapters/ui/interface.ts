@@ -14,6 +14,8 @@ export interface UiAlertOption extends UiModalOption {
 
 /** UiConfirm配置 */
 export interface UiConfirmOption extends UiAlertOption {
+  /** 表单验证失败提示文案 */
+  formError?: string
   /** 关闭按钮文字 */
   noText?: string
   /** 关闭按钮回调 */
@@ -28,7 +30,9 @@ export interface UiPromptOption extends UiConfirmOption {
   /** 输入默认值 */
   defaultValue?: string,
   /** 默认输入内容 */
-  placeholder?: string
+  placeholder?: string,
+  /** 输入验证器 */
+  validate?: (value: string) => any
 }
 
 

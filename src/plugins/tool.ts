@@ -112,7 +112,7 @@ export function autoGetImageBase64(): Promise<string> {
  */
 export function scrollTop () {
   var scrolling = document.scrollingElement
-  if (scrolling) {
+  if (typeof scrolling.scrollIntoView === 'function') {
     scrolling.scrollIntoView()
   } else {
     document.documentElement.scrollTop = 0

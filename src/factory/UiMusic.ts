@@ -10,7 +10,7 @@ import { isNullOrUndefined } from "../functions/is";
 import config from '../config';
 import $ from '../venders/zepto';
 import { isWechat, isMobile } from '../functions/environment';
-import { fire, ready } from '../plugins/jssdk';
+import { ready } from '../plugins/jssdk';
 import { document } from '../utils/global';
 
 /** 配置项 */
@@ -184,8 +184,13 @@ export default class UiMusic extends Emitter {
     this.load()
     // 自动播放处理
     if (autoplay) {
+      this.audio.autoplay = true
       // 移动端不允许直接播放audio
-      ready(this.play.bind(this))
+      if (isWechat) {
+        ready(this.play)
+      } else {
+        $(document).one('click', this.play)
+      }
     }
     // root click toggle
     this.$root.on('click', () => {

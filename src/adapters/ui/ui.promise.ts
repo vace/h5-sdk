@@ -1,6 +1,5 @@
 import { UiModalOption } from "../../factory/UiModal";
-import { UiAlertOption } from "h5-sdk/src/adapters/ui/interface";
-import { UiConfirmOption, UiPromptOption, UiUserboxOption } from "./interface";
+import { UiConfirmOption, UiPromptOption, UiUserboxOption, UiAlertOption } from "./interface";
 import { UiModal } from "h5-sdk";
 
 export function wrapModal(fun: Function, option: UiModalOption): Promise<string | undefined> {

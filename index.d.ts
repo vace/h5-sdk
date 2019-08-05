@@ -774,8 +774,7 @@ declare module 'h5-sdk/src/adapters/ui/interface' {
 }
 declare module 'h5-sdk/src/adapters/ui/ui.promise' {
 	import { UiModalOption } from 'h5-sdk/src/factory/UiModal';
-	import { UiAlertOption } from 'h5-sdk/h5-sdk/src/adapters/ui/interface';
-	import { UiConfirmOption, UiPromptOption, UiUserboxOption } from 'h5-sdk/src/adapters/ui/interface';
+	import { UiConfirmOption, UiPromptOption, UiUserboxOption, UiAlertOption } from 'h5-sdk/src/adapters/ui/interface';
 	export function wrapModal(fun: Function, option: UiModalOption): Promise<string | undefined>;
 	export function wrapAlert(fun: Function, option: UiAlertOption): Promise<true | undefined>;
 	export function wrapConfirm(fun: Function, option: UiConfirmOption): Promise<boolean>;

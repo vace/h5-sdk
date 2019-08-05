@@ -132,7 +132,6 @@ export const $alert = (option: UiAlertOption) => wrapAlert(alert, option)
  */
 export const $confirm = (option: UiConfirmOption) => wrapConfirm(confirm, option)
 
-
 export const $prompt = (option: any) => todo('$prompt')
 
 export const $userbox = (option: any) => todo('$userbox')

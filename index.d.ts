@@ -371,6 +371,18 @@ declare module 'h5-sdk/src/factory/Auth' {
 	}
 
 }
+declare module 'h5-sdk/src/functions/common' {
+	export function camelize(str: string): string;
+	export function noop(): void;
+	export function alway(val: any): any;
+	export function dasherize(str: string): string;
+	export function wait<T>(ms: number, arg?: T): Promise<T>;
+	export function uid(prefix?: string): string;
+	export function uuid(): string;
+	export function randomstr(len?: number): string;
+	export function spread(callback: Function): (arr: any[]) => any;
+
+}
 declare module 'h5-sdk/src/factory/App' {
 	import Http from 'h5-sdk/src/factory/Http';
 	import Auth from 'h5-sdk/src/factory/Auth';
@@ -399,7 +411,7 @@ declare module 'h5-sdk/src/factory/App' {
 	    analysisoff?: boolean;
 	    constructor(app: AppOption);
 	    setAuth(auth: Auth): this;
-	    ready(fn?: any): Promise<any>;
+	    ready(fn?: any, err?: any): Promise<any>;
 	    private setup;
 	    private setServer;
 	    post(action: string, data?: any): any;
@@ -443,18 +455,6 @@ declare module 'h5-sdk/src/factory/App' {
 	    param: any;
 	}; type errorHandler = (err: Error, action: TypeAction, vm: App) => void;
 	export {};
-
-}
-declare module 'h5-sdk/src/functions/common' {
-	export function camelize(str: string): string;
-	export function noop(): void;
-	export function alway(val: any): any;
-	export function dasherize(str: string): string;
-	export function wait<T>(ms: number, arg?: T): Promise<T>;
-	export function uid(prefix?: string): string;
-	export function uuid(): string;
-	export function randomstr(len?: number): string;
-	export function spread(callback: Function): (arr: any[]) => any;
 
 }
 declare module 'h5-sdk/src/functions/helper' {
@@ -560,6 +560,84 @@ declare module 'h5-sdk/src/utils/shared' {
 	};
 
 }
+declare module 'h5-sdk/src/functions/environment' {
+	export const isMobile: boolean;
+	export const isIos: boolean;
+	export const isAndroid: boolean;
+	export const isMiniapp: boolean;
+	export const isWechat: boolean;
+	export function checkSupportWebp(): Promise<boolean>;
+
+}
+declare module 'h5-sdk/src/functions/timeago' {
+	export function timeago(unixTime: Date | number): string;
+	export function unixFormat(unixTime: number, format?: string): string;
+
+}
+declare module 'h5-sdk/src/functions/index' {
+	export * from 'h5-sdk/src/functions/common';
+	export * from 'h5-sdk/src/functions/environment';
+	export * from 'h5-sdk/src/functions/helper';
+	export * from 'h5-sdk/src/functions/is';
+	export * from 'h5-sdk/src/functions/path';
+	export * from 'h5-sdk/src/functions/qs';
+	export * from 'h5-sdk/src/functions/regex';
+	export * from 'h5-sdk/src/functions/timeago';
+	export * from 'h5-sdk/src/functions/underscore';
+
+}
+declare module 'h5-sdk/src/plugins/jssdk' {
+	import 'h5-sdk/src/polyfill/jweixin-1.5.0';
+	import Emitter from 'h5-sdk/src/factory/Emitter'; type WxConfigOption = {
+	    url: string;
+	    debug?: boolean;
+	    appid?: string;
+	    jsApiList: [];
+	};
+	interface ConfigResponse extends WxConfigOption {
+	    timestamp: string;
+	    nonceStr: string;
+	    signature: string;
+	}
+	interface ShareOption {
+	    platform?: '*' | SharePlatform;
+	    title?: string;
+	    desc?: string;
+	    link?: string;
+	    img?: string;
+	    banner?: string;
+	    imgurl?: string;
+	    imgUrl?: string;
+	    logid?: number;
+	    config?: string;
+	    success?: Function;
+	    cancel?: Function;
+	} type WxEventType = 'beforeConfig' | 'config' | 'share' | 'updateShare' | 'error' | 'ready';
+	export const defaultJsApiList: string[];
+	export const emitter: Emitter;
+	export const on: (type: WxEventType, callback: EventHandlerNonNull) => () => Emitter;
+	export function ready(fn: Function): void;
+	export function config(option?: WxConfigOption): Promise<ConfigResponse>;
+	export function fire(resolve: Function): void;
+	export function getAppid(): string; type SharePlatform = 'timeline' | 'app' | 'qq' | 'weibo' | 'qzone' | 'mini';
+	export function share(option?: ShareOption): any;
+	export function setMiniappShare(option: ShareOption): any;
+	export function chooseImageBase64(): Promise<string>;
+	export function preview(url: string | string[], index?: number): void;
+	export function api(apiName: string, option?: any): Promise<any>;
+	export {};
+
+}
+declare module 'h5-sdk/src/plugins/tool' {
+	export function onShake(callback: Function): false | (() => void);
+	export function readAsDataURL(inputer: File): Promise<string>;
+	export function chooseFile(accept?: string): Promise<File>;
+	export function chooseImageAsDataURL(): Promise<string>;
+	export function autoGetImageBase64(): Promise<string>;
+	export function scrollTop(): void;
+	export function base64toBlob(base64String: string, contentType?: string, sliceSize?: number): Blob;
+
+}
 declare module 'h5-sdk/src/factory/UiBase' {
 	/// <reference types="zepto" />
 	import Emitter from 'h5-sdk/src/factory/Emitter';
@@ -569,6 +647,7 @@ declare module 'h5-sdk/src/factory/UiBase' {
 	    id?: string;
 	    theme?: UiTheme;
 	    isAddMask?: boolean;
+	    isForm?: boolean;
 	    className?: string;
 	    duration?: boolean | number;
 	    target?: string | HTMLElement;
@@ -595,6 +674,7 @@ declare module 'h5-sdk/src/factory/UiBase' {
 	    value?: string;
 	    disabled?: boolean;
 	    innerHTML?: string;
+	    validate?: (value: string) => any;
 	    [key: string]: any;
 	};
 	export default class UiBase extends Emitter {
@@ -616,6 +696,10 @@ declare module 'h5-sdk/src/factory/UiBase' {
 	    open(): this;
 	    private _onOpen;
 	    private _onOpened;
+	    private _onFormBlur;
+	    private _onFormFocus;
+	    validateForm(field?: string): boolean;
+	    validateClear(field?: string): boolean;
 	    close(): void;
 	    private _onClose;
 	    private _onClosed;
@@ -639,6 +723,7 @@ declare module 'h5-sdk/src/factory/UiModal' {
 	    target?: string | HTMLElement;
 	    onClick?: (key?: string) => void;
 	    onClose?: Function;
+	    validate?: (key: string, value: string, data: object) => any;
 	}
 	export default class UiModal extends UiBase {
 	    static option: UiModalOption;
@@ -653,6 +738,9 @@ declare module 'h5-sdk/src/factory/UiModal' {
 	    constructor(_option?: UiModalOption);
 	    showSpinning(message: string): this;
 	    hideSpinning(): this;
+	    validateForm(field?: string): boolean;
+	    validateClear(field?: string): boolean;
+	    private _validInput;
 	    private _openHook;
 	    private _closedHook;
 	}
@@ -667,6 +755,7 @@ declare module 'h5-sdk/src/adapters/ui/interface' {
 	    ok?: Function;
 	}
 	export interface UiConfirmOption extends UiAlertOption {
+	    formError?: Function | string;
 	    noText?: string;
 	    no?: Function;
 	}
@@ -674,12 +763,24 @@ declare module 'h5-sdk/src/adapters/ui/interface' {
 	    type?: UiInputType;
 	    defaultValue?: string;
 	    placeholder?: string;
+	    validate?: (value: string) => any;
 	}
 	export type UserProfileType = 'username' | 'mobile' | 'password' | 'address' | 'hidden';
 	export interface UiUserboxOption extends UiConfirmOption {
 	    title: string;
 	    profile: UserProfileType[];
 	}
+
+}
+declare module 'h5-sdk/src/adapters/ui/ui.promise' {
+	import { UiModalOption } from 'h5-sdk/src/factory/UiModal';
+	import { UiAlertOption } from 'h5-sdk/h5-sdk/src/adapters/ui/interface';
+	import { UiConfirmOption, UiPromptOption, UiUserboxOption } from 'h5-sdk/src/adapters/ui/interface';
+	export function wrapModal(fun: Function, option: UiModalOption): Promise<string | undefined>;
+	export function wrapAlert(fun: Function, option: UiAlertOption): Promise<true | undefined>;
+	export function wrapConfirm(fun: Function, option: UiConfirmOption): Promise<boolean>;
+	export function wrapPrompt(fun: Function, option: UiPromptOption): Promise<string | undefined>;
+	export function wrapUserbox(fun: Function, option: UiUserboxOption): Promise<object | undefined>;
 
 }
 declare module 'h5-sdk/src/adapters/ui/ui.mini' {
@@ -702,6 +803,11 @@ declare module 'h5-sdk/src/adapters/ui/ui.mini' {
 	    close(): void;
 	};
 	export const music: () => any;
+	export const $modal: (option: any) => any;
+	export const $alert: (option: UiAlertOption) => Promise<true | undefined>;
+	export const $confirm: (option: UiConfirmOption) => Promise<boolean>;
+	export const $prompt: (option: any) => any;
+	export const $userbox: (option: any) => any;
 
 }
 declare module 'h5-sdk/src/adapters/app/app.mini' {
@@ -714,11 +820,6 @@ declare module 'h5-sdk/src/factory/index.mini' {
 	export { default as Emitter } from 'h5-sdk/src/factory/Emitter';
 	export { default as Http } from 'h5-sdk/src/factory/Http';
 	export { default as User } from 'h5-sdk/src/factory/User';
-
-}
-declare module 'h5-sdk/src/functions/timeago' {
-	export function timeago(unixTime: Date | number): string;
-	export function unixFormat(unixTime: number, format?: string): string;
 
 }
 declare module 'h5-sdk/src/functions/index.mini' {
@@ -886,57 +987,6 @@ declare module 'h5-sdk/src/assets/star-loading' {
 	export default _default;
 
 }
-declare module 'h5-sdk/src/functions/environment' {
-	export const isMobile: boolean;
-	export const isIos: boolean;
-	export const isAndroid: boolean;
-	export const isMiniapp: boolean;
-	export const isWechat: boolean;
-	export function checkSupportWebp(): Promise<boolean>;
-
-}
-declare module 'h5-sdk/src/plugins/jssdk' {
-	import 'h5-sdk/src/polyfill/jweixin-1.5.0';
-	import Emitter from 'h5-sdk/src/factory/Emitter'; type WxConfigOption = {
-	    url: string;
-	    debug?: boolean;
-	    appid?: string;
-	    jsApiList: [];
-	};
-	interface ConfigResponse extends WxConfigOption {
-	    timestamp: string;
-	    nonceStr: string;
-	    signature: string;
-	}
-	interface ShareOption {
-	    platform?: '*' | SharePlatform;
-	    title?: string;
-	    desc?: string;
-	    link?: string;
-	    img?: string;
-	    banner?: string;
-	    imgurl?: string;
-	    imgUrl?: string;
-	    logid?: number;
-	    config?: string;
-	    success?: Function;
-	    cancel?: Function;
-	} type WxEventType = 'beforeConfig' | 'config' | 'share' | 'updateShare' | 'error' | 'ready';
-	export const defaultJsApiList: string[];
-	export const emitter: Emitter;
-	export const on: (type: WxEventType, callback: EventHandlerNonNull) => () => Emitter;
-	export function ready(fn: Function): void;
-	export function config(option?: WxConfigOption): Promise<ConfigResponse>;
-	export function fire(resolve: Function): void;
-	export function getAppid(): string; type SharePlatform = 'timeline' | 'app' | 'qq' | 'weibo' | 'qzone' | 'mini';
-	export function share(option?: ShareOption): any;
-	export function setMiniappShare(option: ShareOption): any;
-	export function chooseImageBase64(): Promise<string>;
-	export function preview(url: string | string[], index?: number): void;
-	export function api(apiName: string, option?: any): Promise<any>;
-	export {};
-
-}
 declare module 'h5-sdk/src/factory/UiMusic' {
 	/// <reference types="zepto" />
 	import 'h5-sdk/src/assets/ui-music.less';
@@ -1006,18 +1056,6 @@ declare module 'h5-sdk/src/factory/UiMusic' {
 	    gotoAndPlay(name: string, callback?: Function): void;
 	}
 	export {};
-
-}
-declare module 'h5-sdk/src/functions/index' {
-	export * from 'h5-sdk/src/functions/common';
-	export * from 'h5-sdk/src/functions/environment';
-	export * from 'h5-sdk/src/functions/helper';
-	export * from 'h5-sdk/src/functions/is';
-	export * from 'h5-sdk/src/functions/path';
-	export * from 'h5-sdk/src/functions/qs';
-	export * from 'h5-sdk/src/functions/regex';
-	export * from 'h5-sdk/src/functions/timeago';
-	export * from 'h5-sdk/src/functions/underscore';
 
 }
 declare module 'h5-sdk/src/venders/index' {
@@ -1100,20 +1138,15 @@ declare module 'h5-sdk/src/adapters/ui/ui.web' {
 	export function image(option: UiViewOption | string, isFullScreen?: boolean): UiView;
 	export function preloader(content?: string): UiView;
 	export function music(option: string | UiMusicOption): UiMusic;
+	export const $modal: (option: UiModalOption) => Promise<string | undefined>;
+	export const $alert: (option: UiAlertOption) => Promise<true | undefined>;
+	export const $confirm: (option: UiConfirmOption) => Promise<boolean>;
+	export const $prompt: (option: UiPromptOption) => Promise<string | undefined>;
+	export const $userbox: (option: UiUserboxOption) => Promise<object | undefined>;
 
 }
 declare module 'h5-sdk/src/plugins/ui' {
 	export * from 'h5-sdk/src/adapters/ui/ui.web';
-
-}
-declare module 'h5-sdk/src/plugins/tool' {
-	export function onShake(callback: Function): false | (() => void);
-	export function readAsDataURL(inputer: File): Promise<string>;
-	export function chooseFile(accept?: string): Promise<File>;
-	export function chooseImageAsDataURL(): Promise<string>;
-	export function autoGetImageBase64(): Promise<string>;
-	export function scrollTop(): void;
-	export function base64toBlob(base64String: string, contentType?: string, sliceSize?: number): Blob;
 
 }
 declare module 'h5-sdk/src/plugins/cloud' {

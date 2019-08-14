@@ -13,13 +13,14 @@ export default function createAppWeb () {
 
   App.showSuccess = (showSuccess: string) => new UiToast({
     icon: 'success',
-    message: showSuccess
+    message: showSuccess,
+    duration: 2500
   }).open()
 
   App.showError = (showError: string) => new UiToast({
     icon: 'err',
     message: showError,
-    duration: 3000
+    duration: 2500
   }).open()
 
 

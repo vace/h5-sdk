@@ -1,12 +1,12 @@
-import { CommonResponseData } from '../adapters/request/interface';
+import { ICommonResponseData } from '../adapters/request/interface';
 
 /**
  * 通用http错误处理
  * @ignore
- * @param {CommonResponseData} response
+ * @param {ICommonResponseData} response
  * @returns {Promise<Error> | Promise<any>}
  */
-export function commonResponseReslove(response: CommonResponseData): Promise<Error> | Promise<any> {
+export function commonResponseReslove(response: ICommonResponseData): Promise<Error> | Promise<any> {
   if (!response) {
     return Promise.reject(new Error('响应内容为空！'))
   }

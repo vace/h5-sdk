@@ -26,14 +26,15 @@ let wechatJssdkAppid: string
 /** 微信对象，有可能未初始化导致未读取到值 */
 
 /** 配置结构 */
-type WxConfigOption = {
-  url: string
+export type IWxConfigOption = {
+  url?: string
   debug?: boolean
   appid?: string
-  jsApiList: []
+  jsApiList?: any[]
 }
 
-type H5PostMessageStruct = {
+/** h5 push到小程序的消息结构 */
+export type IPostMessageStruct = {
   /** 应用ID */
   appid: string
   /** 分享标题 */
@@ -50,14 +51,14 @@ type H5PostMessageStruct = {
 
 
 /** 返回结构 */
-interface ConfigResponse extends WxConfigOption {
+export interface IConfigResponse extends IWxConfigOption {
   timestamp: string
   nonceStr: string
   signature: string
 }
 
 /** 设置分享 */
-interface ShareOption {
+export interface IWxShareOption {
   /* 分享方式 *全部包含, timeline 朋友圈，app 个人|群组|QQ，mini 小程序 */
   platform?: '*' | SharePlatform
   title?: string
@@ -77,7 +78,7 @@ interface ShareOption {
 }
 
 /** 回调事件 */
-type WxEventType = 'beforeConfig' | 'config' | 'share' | 'updateShare' | 'error' | 'ready'
+export type IWxEventType = 'beforeConfig' | 'config' | 'share' | 'updateShare' | 'error' | 'ready'
 
 // 分享函数配置
 const SHARE_PLATFORMS = {
@@ -111,10 +112,10 @@ each(SHARE_PLATFORMS, (api: string) => typeof api === 'string' && defaultJsApiLi
 /** 事件分发器 */
 export const emitter = new Emitter()
 
-const emit = (evt: WxEventType, arg?: any, arg2?: any) => emitter.emit(evt, arg, arg2)
+const emit = (evt: IWxEventType, arg?: any, arg2?: any) => emitter.emit(evt, arg, arg2)
 
 /** 监听事件 */
-export const on = (type: WxEventType, callback: EventHandlerNonNull) => emitter.on(type, callback)
+export const on = (type: IWxEventType, callback: EventHandlerNonNull) => emitter.on(type, callback)
 
 /** wx.ready触发，不在微信浏览器则直接触发 */
 export function ready (fn: Function) {
@@ -129,9 +130,9 @@ let _configPromise: Promise<any>
 
 /**
  * 获取微信签名，一般只用签名一次，不提供appid则从App中读取jsappid
- * @param {WxConfigOption} [option]
+ * @param {IWxConfigOption} [option]
  */
-export function config (option?: WxConfigOption): Promise<ConfigResponse> {
+export function config (option?: IWxConfigOption): Promise<IConfigResponse> {
   // fetch(url)
   return _configPromise || (_configPromise = new Promise((reslove, reject) => {
     if (!option) {
@@ -149,7 +150,7 @@ export function config (option?: WxConfigOption): Promise<ConfigResponse> {
       appid,
       // 注意这里的URL必须是去除锚点包含完整参数的URL，签名校验非常严格
       url: getCurrentHref()
-    }).then(commonResponseReslove).then((signature: ConfigResponse) => {
+    }).then(commonResponseReslove).then((signature: IConfigResponse) => {
       signature.jsApiList = jsApiList || defaultJsApiList
       signature.debug = !!debug
       emit('config', signature)
@@ -198,14 +199,14 @@ export function getAppid (): string {
 // 分享种类
 type SharePlatform = 'timeline' | 'app' | 'qq' | 'weibo' | 'qzone' | 'mini'
 
-let shareConfigCache: Map<string, ShareOption> = new Map()
+let shareConfigCache: Map<string, IWxShareOption> = new Map()
 
 /**
  * 读取/设置 分享参数
- * @param {ShareOption} [option]
+ * @param {IWxShareOption} [option]
  * @returns {Promise<any>}
  */
-export function share (option?: ShareOption): any {
+export function share (option?: IWxShareOption): any {
   if (!option) {
     return shareConfigCache
   }
@@ -242,8 +243,8 @@ function triggerShare (platform: string, setting: any) {
 }
 
 /** 设置小程序分享 */
-export function setMiniappShare (option: ShareOption) {
-  return isMiniapp && getwx().miniProgram.postMessage({ data: option as H5PostMessageStruct })
+export function setMiniappShare (option: IWxShareOption) {
+  return isMiniapp && getwx().miniProgram.postMessage({ data: option as IPostMessageStruct })
 }
 
 function _sendShareLog (platform: string) {
@@ -251,7 +252,7 @@ function _sendShareLog (platform: string) {
   event(EVENTS.SHARE, 'wx.' + platform, setting && setting.logid || 0)
 }
 
-function _parseShareOption (option: ShareOption, platform: string) {
+function _parseShareOption (option: IWxShareOption, platform: string) {
   const resetSuccess = option.success
 
   const prevConfig = assign({}, shareConfigCache.get(platform) || {}, option)

@@ -2,7 +2,7 @@ import { isString, isFormData, isObject, isHttp } from '../../functions/is'
 import { stringify } from '../../functions/qs';
 import { isAbsolute } from '../../functions/path';
 
-import { TransformRequestOption, HttpOption, HttpRequestOption, Method, ContentType } from "./interface";
+import { ITransformRequestOption, IHttpOption, IHttpRequestOption, Method, ContentType } from "./interface";
 
 
 /**
@@ -12,7 +12,7 @@ import { TransformRequestOption, HttpOption, HttpRequestOption, Method, ContentT
  * @returns
  */
 export default function createRequestWeb () {
-  return function (config: HttpOption & HttpRequestOption) {
+  return function (config: IHttpOption & IHttpRequestOption) {
     const {
       method, mode, cache, credentials, redirect, referrer,
       baseURL, timeout, transformRequest, transformResponse, responseType, validateStatus
@@ -54,7 +54,7 @@ export default function createRequestWeb () {
     if (baseURL && !isHttp(url) && !isAbsolute(url)) {
       url = `${baseURL}${url}`
     }
-    const _option: TransformRequestOption = {
+    const _option: ITransformRequestOption = {
       url, method, headers, body, mode, cache, credentials, redirect, referrer
     }
     // 通过处理函数，返回新的配置文件

@@ -1,5 +1,5 @@
 import { UiModalOption } from "../../factory/UiModal";
-import { UiConfirmOption, UiPromptOption, UiUserboxOption, UiAlertOption } from "./interface";
+import { IUiConfirmOption, IUiPromptOption, IUiUserboxOption, IUiAlertOption } from "./interface";
 import { UiModal } from "h5-sdk";
 
 export function wrapModal(fun: Function, option: UiModalOption): Promise<string | undefined> {
@@ -16,7 +16,7 @@ export function wrapModal(fun: Function, option: UiModalOption): Promise<string 
   })
 }
 
-export function wrapAlert(fun: Function, option: UiAlertOption): Promise<true | undefined> {
+export function wrapAlert(fun: Function, option: IUiAlertOption): Promise<true | undefined> {
   return new Promise((resolve) => {
     let instance: any
     option.ok = (key: any) => {
@@ -30,7 +30,7 @@ export function wrapAlert(fun: Function, option: UiAlertOption): Promise<true | 
   })
 }
 
-export function wrapConfirm (fun: Function, option: UiConfirmOption): Promise<boolean> {
+export function wrapConfirm (fun: Function, option: IUiConfirmOption): Promise<boolean> {
   return new Promise((resolve, reject) => {
     option.ok = (e: UiModal) => {
       resolve(true)
@@ -44,7 +44,7 @@ export function wrapConfirm (fun: Function, option: UiConfirmOption): Promise<bo
   })
 }
 
-export function wrapPrompt (fun: Function, option: UiPromptOption): Promise<string | undefined> {
+export function wrapPrompt (fun: Function, option: IUiPromptOption): Promise<string | undefined> {
   return new Promise((resolve, reject) => {
     option.ok = (e: UiModal) => {
       resolve(e.value)
@@ -58,7 +58,7 @@ export function wrapPrompt (fun: Function, option: UiPromptOption): Promise<stri
   })
 }
 
-export function wrapUserbox (fun: Function, option: UiUserboxOption): Promise<object | undefined> {
+export function wrapUserbox (fun: Function, option: IUiUserboxOption): Promise<object | undefined> {
   return new Promise((resolve, reject) => {
     option.ok = (e: UiModal) => {
       resolve(e.data)

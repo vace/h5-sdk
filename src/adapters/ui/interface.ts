@@ -2,7 +2,7 @@ import { UiInputType } from '../../factory/UiBase';
 import { UiModalOption } from '../../factory/UiModal';
 
 /** UiAlert 配置 */
-export interface UiAlertOption extends UiModalOption {
+export interface IUiAlertOption extends UiModalOption {
   /** 点击链接可选 */
   href?: string
   /** 按钮名称 */
@@ -13,7 +13,7 @@ export interface UiAlertOption extends UiModalOption {
 
 
 /** UiConfirm配置 */
-export interface UiConfirmOption extends UiAlertOption {
+export interface IUiConfirmOption extends IUiAlertOption {
   /** 表单验证失败提示文案 */
   formError?: Function | string
   /** 关闭按钮文字 */
@@ -24,7 +24,7 @@ export interface UiConfirmOption extends UiAlertOption {
 
 
 /** UiPrompt 配置 */
-export interface UiPromptOption extends UiConfirmOption {
+export interface IUiPromptOption extends IUiConfirmOption {
   /** 输入种类 */
   type?: UiInputType
   /** 输入默认值 */
@@ -36,9 +36,9 @@ export interface UiPromptOption extends UiConfirmOption {
 }
 
 
-export type UserProfileType = 'username' | 'mobile' | 'password' | 'address' | 'hidden'
+export type IUserProfileType = 'username' | 'mobile' | 'password' | 'address' | 'hidden'
 /** UserBox类型 */
-export interface UiUserboxOption extends UiConfirmOption {
+export interface IUiUserboxOption extends IUiConfirmOption {
   title: string
-  profile: UserProfileType[]
+  profile: IUserProfileType[]
 }

@@ -14,7 +14,7 @@ import { ready } from '../plugins/jssdk';
 import { document } from '../utils/global';
 
 /** 配置项 */
-export interface UiMusicOption {
+export interface IUiMusicOption {
   /** 是否在后台播放 */
   background?: boolean
   /** 挂载元素 */
@@ -50,7 +50,7 @@ export interface UiMusicOption {
 }
 
 /** 主题注册 */
-interface UiMusicTheme {
+export interface IUiMusicTheme {
   /** 播放中主题 */
   playing: string | Function
   /** 暂停状态主题 */
@@ -60,7 +60,7 @@ interface UiMusicTheme {
 }
 
 /** 雪碧音支持 */
-interface UiMusicTimeline {
+interface IUiMusicTimeline {
   /** 开始播放时间点 */
   begin: number
   /** 结束播放时间点 */
@@ -90,14 +90,14 @@ export default class UiMusic extends Emitter {
     return !!this._instance
   }
   /** 获取单例 */
-  public static createInstance (option: UiMusicOption): UiMusic {
+  public static createInstance (option: IUiMusicOption): UiMusic {
     if (!this._instance) {
       this._instance = new UiMusic(option)
     }
     return this._instance
   }
   /** 全局配置 */
-  public static option: UiMusicOption ={
+  public static option: IUiMusicOption ={
     target: 'body',
     src: 'music.mp3',
     theme: 'default',
@@ -115,8 +115,8 @@ export default class UiMusic extends Emitter {
   /** 主题列表 */
   public static themes = new Map
   /** 注册主题 */
-  public static registerTheme (themeName, adapter: UiMusicTheme | number[]): Map<string, UiMusicTheme> {
-    let _adapter: UiMusicTheme
+  public static registerTheme (themeName, adapter: IUiMusicTheme | number[]): Map<string, IUiMusicTheme> {
+    let _adapter: IUiMusicTheme
     if (Array.isArray(adapter)) {
       const [playingIndex, pausedIndex] = adapter
       _adapter = {
@@ -129,9 +129,9 @@ export default class UiMusic extends Emitter {
     return this.themes.set(themeName, _adapter)
   }
   /** 雪碧音支持 */
-  public timelines: Record<string, UiMusicTimeline> = Object.create(null)
+  public timelines: Record<string, IUiMusicTimeline> = Object.create(null)
   /** 实例配置 */
-  public option: UiMusicOption
+  public option: IUiMusicOption
   /** 是否挂载 */
   public isMounted: boolean = false
   /** 用户暂停应用 */
@@ -152,7 +152,7 @@ export default class UiMusic extends Emitter {
   public $paused: ZeptoCollection
   // audio 元素
   public audio:HTMLAudioElement = document.createElement('audio')
-  constructor (_option: UiMusicOption) {
+  constructor (_option: IUiMusicOption) {
     super()
     this.option = assign({}, UiMusic.option, _option)
     const { $root, $view, audio, option } = this
@@ -226,7 +226,7 @@ export default class UiMusic extends Emitter {
     return this.audio.currentTime
   }
   /** 获取主题 */
-  public get theme (): UiMusicTheme {
+  public get theme (): IUiMusicTheme {
     return UiMusic.themes.get(this.option.theme)
   }
   // 是否加载中
@@ -362,7 +362,7 @@ export default class UiMusic extends Emitter {
    * timeline 支持
    */
   /** 添加雪碧音 */
-  public addTimeline (name: string, timeline: UiMusicTimeline) {
+  public addTimeline (name: string, timeline: IUiMusicTimeline) {
     this.timelines[name] = timeline
   }
   private _unbindTimeupdate!: Function

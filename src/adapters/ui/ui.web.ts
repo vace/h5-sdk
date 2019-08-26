@@ -2,12 +2,12 @@ import { assign } from 'es6-object-assign'
 
 import UiModal, { UiModalOption } from '../../factory/UiModal'
 import UiToast, { UiToastOption } from '../../factory/UiToast';
-import UiMusic, { UiMusicOption } from '../../factory/UiMusic';
+import UiMusic, { IUiMusicOption } from '../../factory/UiMusic';
 import UiView, { UiViewOption } from '../../factory/UiView';
 
 import { isObject, isNumber, isFunction } from '../../functions/is';
 import { each } from '../../functions/underscore';
-import { UiAlertOption, UiConfirmOption, UiPromptOption, UiUserboxOption } from './interface';
+import { IUiAlertOption, IUiConfirmOption, IUiPromptOption, IUiUserboxOption } from './interface';
 import { wrapModal, wrapAlert, wrapPrompt, wrapConfirm, wrapUserbox } from './ui.promise';
 import { regexMobile, regexChinese } from '../../functions/regex';
 
@@ -24,10 +24,10 @@ export function modal(option: UiModalOption): UiModal {
 
 /**
  * 打开一个Alert弹窗
- * @param {(UiAlertOption | string)} option
+ * @param {(IUiAlertOption | string)} option
  * @returns {UiModal}
  */
-export function alert(option: UiAlertOption | string): UiModal {
+export function alert(option: IUiAlertOption | string): UiModal {
   // 文本处理
   if (typeof option === 'string') {
     option = { content: option }
@@ -41,10 +41,10 @@ export function alert(option: UiAlertOption | string): UiModal {
 
 /**
  * 打开一个confirm弹窗
- * @param {UiConfirmOption} option
+ * @param {IUiConfirmOption} option
  * @returns {UiModal}
  */
-export function confirm(option: UiConfirmOption): UiModal {
+export function confirm(option: IUiConfirmOption): UiModal {
   const { okText = '确定', noText = '取消', ok, no, isForm } = option
   let wrapOkCallback = ok
 
@@ -72,10 +72,10 @@ export function confirm(option: UiConfirmOption): UiModal {
 
 /**
  * 打开一个prompt
- * @param {UiPromptOption | string} option
+ * @param {IUiPromptOption | string} option
  * @returns {UiModal}
  */
-export function prompt(option: UiPromptOption | string): UiModal {
+export function prompt(option: IUiPromptOption | string): UiModal {
   if (typeof option === 'string') {
     option = { title: option }
   }
@@ -93,10 +93,10 @@ let _$cacheMapProfile: any
 
 /**
  * 打开自定义输入面板
- * @param {UiUserboxOption} option
+ * @param {IUiUserboxOption} option
  * @returns {UiModal}
  */
-export function userbox(option: UiUserboxOption): UiModal {
+export function userbox(option: IUiUserboxOption): UiModal {
   let { profile } = option
   if (!_$cacheMapProfile) {
     _$cacheMapProfile = {
@@ -228,10 +228,10 @@ export function preloader(content: string = '请稍后...'): UiView {
 /**
  * !注意，一个应用一般只有一个播放器，所以为单例模式
  * 如果需要多个实例，通过 `new ui.UiMusic(option) 创建`
- * @param {(string | UiMusicOption)} option
+ * @param {(string | IUiMusicOption)} option
  * @returns {UiMusic}
  */
-export function music(option: string | UiMusicOption): UiMusic {
+export function music(option: string | IUiMusicOption): UiMusic {
   if (typeof option === 'string') {
     option = { src: option }
   }
@@ -247,9 +247,9 @@ export const $modal = (option: UiModalOption) => wrapModal(modal, option)
 
 /**
  * 打开一个alert弹窗，用户点击确定，返回true
- * @param {UiAlertOption} option
+ * @param {IUiAlertOption} option
  */
-export const $alert = (option: UiAlertOption) => wrapAlert(alert, option)
+export const $alert = (option: IUiAlertOption) => wrapAlert(alert, option)
 
 /**
  * 打开一个confirm弹窗，返回true,false
@@ -257,9 +257,9 @@ export const $alert = (option: UiAlertOption) => wrapAlert(alert, option)
  * ```js
  * var isOk = await ui.$confim({title: '确认吗？', content: '内容'})
  * ```
- * @param {UiConfirmOption} option
+ * @param {IUiConfirmOption} option
  */
-export const $confirm = (option: UiConfirmOption) => wrapConfirm(confirm, option)
+export const $confirm = (option: IUiConfirmOption) => wrapConfirm(confirm, option)
 
 /**
  * 打开一个prompt弹窗，返回输入内容，取消返回undefined
@@ -267,12 +267,12 @@ export const $confirm = (option: UiConfirmOption) => wrapConfirm(confirm, option
  * ```js
  * var content = await ui.$prompt({title: '输入内容', content: '请在输入框输入内容'})
  * ```
- * @param {UiPromptOption} option
+ * @param {IUiPromptOption} option
  */
-export const $prompt = (option: UiPromptOption) => wrapPrompt(prompt, option)
+export const $prompt = (option: IUiPromptOption) => wrapPrompt(prompt, option)
 
 /**
  * 打开一个userbox弹窗，返回输入对象，取消返回undefined
- * @param {UiUserboxOption} option
+ * @param {IUiUserboxOption} option
  */
-export const $userbox = (option: UiUserboxOption) => wrapUserbox(userbox, option)
+export const $userbox = (option: IUiUserboxOption) => wrapUserbox(userbox, option)

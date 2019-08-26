@@ -1,4 +1,4 @@
-import { HttpOption, HttpRequestOption, Method, ContentType, TransformRequestOption } from "./interface";
+import { IHttpOption, IHttpRequestOption, Method, ContentType, ITransformRequestOption } from "./interface";
 import { isString, isFormData, isObject, isHttp } from "../../functions/is";
 import { stringify } from "../../functions/qs";
 import { isAbsolute } from "../../functions/path";
@@ -77,7 +77,7 @@ declare var wx: {
  * @returns
  */
 export default function createRequestMini () {
-  return function (config: HttpOption & HttpRequestOption) {
+  return function (config: IHttpOption & IHttpRequestOption) {
     return new Promise((resolve, reject) => {
       const {
         method, mode, cache, credentials, redirect, referrer,
@@ -120,7 +120,7 @@ export default function createRequestMini () {
       if (baseURL && !isHttp(url) && !isAbsolute(url)) {
         url = `${baseURL}${url}`
       }
-      const _option: TransformRequestOption = {
+      const _option: ITransformRequestOption = {
         url, method, headers, body, mode, cache, credentials, redirect, referrer
       }
       // 通过处理函数，返回新的配置文件

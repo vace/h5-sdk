@@ -1,7 +1,7 @@
-export type IRequest = (config: HttpOption & HttpRequestOption) => Promise<any>
+export type IRequest = (config: IHttpOption & IHttpRequestOption) => Promise<any>
 
 /** 服务端约定返回格式 */
-export type CommonResponseData = {
+export type ICommonResponseData = {
   /** 错误码，无错误返回0 */
   code: number
   /** 返回数据 */
@@ -13,7 +13,7 @@ export type CommonResponseData = {
 }
 
 /** Http请求参数 */
-export interface HttpRequestBase {
+export interface IHttpRequestBase {
   // 附带参数
   method?: 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH'
   headers?: HeadersInit
@@ -28,13 +28,13 @@ export interface HttpRequestBase {
 }
 
 /** Http配置 */
-export interface HttpOption extends HttpRequestBase {
+export interface IHttpOption extends IHttpRequestBase {
   /** 根路径 */
   baseURL?: string
   /** 超时时间 */
   timeout?: number
   /** 对请求对象进行转换 */
-  transformRequest?: (arg: TransformRequestOption) => any
+  transformRequest?: (arg: ITransformRequestOption) => any
   /** 对响应对象进行转换 */
   transformResponse?: (res: Response) => any
   /** 返回数据格式 */
@@ -44,13 +44,13 @@ export interface HttpOption extends HttpRequestBase {
 }
 
 /** 转换请求参数 */
-export interface TransformRequestOption extends RequestInit {
+export interface ITransformRequestOption extends RequestInit {
   /** 接口请求链接 */
   url: string
 }
 
 /** 默认请求格式 */
-export interface HttpRequestOption extends HttpRequestBase {
+export interface IHttpRequestOption extends IHttpRequestBase {
   url: string
   query?: any
   params?: any

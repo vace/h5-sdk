@@ -1,5 +1,5 @@
 import Auth from "../../factory/Auth";
-import { UserPlatform, UserType, UserState } from "../../factory/User";
+import { IUserPlatform, IUserType, IUserState } from "../../factory/User";
 
 export interface IAuth {
   /** 检测auth是否有效 */
@@ -18,15 +18,15 @@ export interface IAuth {
  * Auth 授权处理
  */
 
-export interface AuthOption {
+export interface IAuthOption {
   /** 指定版本，版本用户批量清空缓存的用户授权信息 */
   version?: string
   /** 指定平台 */
-  platform: UserPlatform
+  platform: IUserPlatform
   /** 指定平台appid */
   appid: string
   /** 用户种类 */
-  type?: UserType
+  type?: IUserType
   /** 回调页面 */
   url?: string
   /** 指定scope */
@@ -35,7 +35,7 @@ export interface AuthOption {
   env?: string
 }
 
-export interface JwtDecodeRet {
+export interface IJwtDecodeRet {
   /** 签名有效期 */
   exp: number
   /** 签发者（授权方appid） */
@@ -43,9 +43,9 @@ export interface JwtDecodeRet {
   /** 用户ID */
   id: number
   /** 用户角色 */
-  state: UserState
+  state: IUserState
   /** 用户平台 */
-  sub: UserPlatform
+  sub: IUserPlatform
   /** 用户资料种类 */
-  typ: UserType
+  typ: IUserType
 }

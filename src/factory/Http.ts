@@ -1,5 +1,5 @@
 import { assign } from 'es6-object-assign'
-import { HttpOption, Method, HttpRequestOption } from "../adapters/request/interface";
+import { IHttpOption, Method, IHttpRequestOption } from "../adapters/request/interface";
 import { request } from '../adapters/request/index'
 
 /**
@@ -10,9 +10,9 @@ export default class Http {
   /**
    * 全局配置
    * @static
-   * @type {HttpOption}
+   * @type {IHttpOption}
    */
-  public static option: HttpOption = {
+  public static option: IHttpOption = {
     baseURL: '',
     timeout: 0,
     // headers: {
@@ -38,12 +38,12 @@ export default class Http {
     return this._instance
   }
   /** 实例配置 */
-  public option: HttpOption
+  public option: IHttpOption
   /**
    * 创建指定格式实例
-   * @param {HttpOption} [_option] 配置
+   * @param {IHttpOption} [_option] 配置
    */
-  public constructor (_option?: HttpOption) {
+  public constructor (_option?: IHttpOption) {
     this.option = assign({}, Http.option, _option)
   }
   /** GET 请求 */
@@ -75,8 +75,8 @@ export default class Http {
     return this.request({ url,  method: Method.PATCH, data })
   }
   /** 发送request */
-  public request(option: HttpRequestOption): Promise<any> {
-    const config: HttpRequestOption & HttpOption = assign({}, option, this.option)
+  public request(option: IHttpRequestOption): Promise<any> {
+    const config: IHttpRequestOption & IHttpOption = assign({}, option, this.option)
     return request(config)
   }
 }

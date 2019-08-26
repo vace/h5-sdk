@@ -1,4 +1,4 @@
-import { UiAlertOption, UiConfirmOption } from "./interface";
+import { IUiAlertOption, IUiConfirmOption } from "./interface";
 
 import { wrapModal, wrapAlert, wrapPrompt, wrapConfirm, wrapUserbox } from './ui.promise';
 
@@ -16,7 +16,7 @@ function safeObject(object) {
   return object
 }
 
-export function alert(option: UiAlertOption): Promise<boolean> {
+export function alert(option: IUiAlertOption): Promise<boolean> {
   return new Promise((resolve) => {
     const arg = {
       title: option.title,
@@ -35,7 +35,7 @@ export function alert(option: UiAlertOption): Promise<boolean> {
   })
 }
 
-export function confirm(option: UiConfirmOption): Promise<boolean> {
+export function confirm(option: IUiConfirmOption): Promise<boolean> {
   return new Promise((resolve) => {
     const arg = {
       title: option.title,
@@ -118,9 +118,9 @@ export const $modal = (option: any) => todo('$modal')
 
 /**
  * 打开一个alert弹窗，用户点击确定，返回true
- * @param {UiAlertOption} option
+ * @param {IUiAlertOption} option
  */
-export const $alert = (option: UiAlertOption) => wrapAlert(alert, option)
+export const $alert = (option: IUiAlertOption) => wrapAlert(alert, option)
 
 /**
  * 打开一个confirm弹窗，返回true,false
@@ -128,9 +128,9 @@ export const $alert = (option: UiAlertOption) => wrapAlert(alert, option)
  * ```js
  * var isOk = await ui.$confim({title: '确认吗？', content: '内容'})
  * ```
- * @param {UiConfirmOption} option
+ * @param {IUiConfirmOption} option
  */
-export const $confirm = (option: UiConfirmOption) => wrapConfirm(confirm, option)
+export const $confirm = (option: IUiConfirmOption) => wrapConfirm(confirm, option)
 
 export const $prompt = (option: any) => todo('$prompt')
 

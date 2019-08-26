@@ -34,7 +34,7 @@ export default class App {
   }
 
   /** 创建默认实例（注意，重复创建将覆盖之前的默认实例） */
-  public static createInstance (option: AppOption): App {
+  public static createInstance (option: IAppOption): App {
     if (this._instance) {
       console.warn('[App.instance] 已存在，此操作将覆盖默认实例')
     }
@@ -69,13 +69,13 @@ export default class App {
   public appid: string = ''
 
   /** 服务端共用配置 */
-  public config!: AppServerConfig
+  public config!: IAppServerConfig
   /** 服务端设置项 */
-  public setting!: AppServerSetting
+  public setting!: IAppServerSetting
   /** 是否启用分析系统 */
   public analysisoff?: boolean
 
-  public constructor (app: AppOption) {
+  public constructor (app: IAppOption) {
     const { appid, analysisoff } = app
     this.appid = appid
     this.analysisoff = analysisoff
@@ -121,7 +121,7 @@ export default class App {
     }
     // 确保只执行一次
     tasker.working()
-    let cache: AppServerInit | null = store.get(App.cacheKey)
+    let cache: IAppServerInit | null = store.get(App.cacheKey)
     let version = ''
 
     // 应用缓存是否有效
@@ -150,7 +150,7 @@ export default class App {
   }
 
   /** 设置应用配置和管理员设置 */
-  private setServer (server: AppServerInit) {
+  private setServer (server: IAppServerInit) {
     this.config = server.config
     this.setting = server.setting
   }
@@ -173,7 +173,7 @@ export default class App {
     return this.action(action, query, 'delete')
   }
   /** 发送应用请求ACTION */
-  public action (action: string | ActionStruct, param?: any, method: string = 'get') {
+  public action (action: string | IActionStruct, param?: any, method: string = 'get') {
     let actionName: string
     let showError: MessageDialog = false
     let showLoading: MessageDialog = false
@@ -250,7 +250,7 @@ export default class App {
 type MessageCallback = (msg?: string, response?: any) => any
 type MessageDialog = boolean | string | MessageCallback
 
-interface ActionStruct {
+export interface IActionStruct {
   api: string
   param: any
   body: any
@@ -261,7 +261,7 @@ interface ActionStruct {
 }
 
 /** 应用配置 */
-type AppServerConfig = {
+type IAppServerConfig = {
   id: number
   name: string
   oauth: string
@@ -272,22 +272,22 @@ type AppServerConfig = {
 }
 
 /** 管理员配置 */
-type AppServerSetting = Record<string, any>
+type IAppServerSetting = Record<string, any>
 
 /** 服务端返回的配置数据 */
-export type AppServerInit = {
+export type IAppServerInit = {
   /** 接口 */
   api: { [module: string]: string[] },
   /** 配置 */
-  config: AppServerConfig,
+  config: IAppServerConfig,
   /** 设置 */
-  setting: AppServerSetting,
+  setting: IAppServerSetting,
   /** 版本 */
   version: string
 }
 
 /** 应用配置 */
-export type AppOption = {
+export type IAppOption = {
   /** 当前应用appid */
   appid: string
   /** 默认开启分析系统，关闭设置为true */
@@ -295,10 +295,10 @@ export type AppOption = {
 }
 
 /** 参数配置 */
-type TypeAction = {
+type ITypeAction = {
   method: string
   action: string
   param: any
 }
 /** 应用接口错误消息捕获 */
-type errorHandler = (err: Error, action: TypeAction, vm: App) => void
+type errorHandler = (err: Error, action: ITypeAction, vm: App) => void

@@ -1,11 +1,11 @@
 import { assign } from 'es6-object-assign'
-import User, { UserState, UserPlatform, UserType } from "./User";
+import User, { IUserState, IUserPlatform, IUserType } from "./User";
 import { jwtDecode } from "../plugins/safety";
 import { now } from "../functions/underscore";
 import Tasker from "./Tasker";
 import store from "../adapters/store/index";
 import { auth } from '../adapters/auth/index'
-import { AuthOption, JwtDecodeRet, IAuth } from '../adapters/auth/interface';
+import { IAuthOption, IJwtDecodeRet, IAuth } from '../adapters/auth/interface';
 
 let ENV_platform = '__PLANTFORM__'
 
@@ -14,7 +14,7 @@ export default class Auth {
   public static adapter: IAuth = auth
 
   /** 默认配置 */
-  public static option: AuthOption = {
+  public static option: IAuthOption = {
     // 小程序端自动识别
     platform: ENV_platform === 'mini' ? 'mini' : 'wechat',
     appid: '',
@@ -39,7 +39,7 @@ export default class Auth {
   }
   
   /** 创建默认实例（注意，重复创建将覆盖之前的默认实例） */
-  public static createInstance(option: AuthOption): Auth {
+  public static createInstance(option: IAuthOption): Auth {
     if (this._instance) {
       console.warn('[App.instance] 已存在，此操作将覆盖默认实例')
     }
@@ -58,13 +58,13 @@ export default class Auth {
   /** Auth版本号 */
   public version!: string
   /** 用户角色 */
-  public state!: UserState
+  public state!: IUserState
   /** 授权种类 */
-  public type?: UserType
+  public type?: IUserType
   /** 授权配置 */
-  public option!: AuthOption
+  public option!: IAuthOption
   /** 当前应用所在平台 */
-  public platform!: UserPlatform
+  public platform!: IUserPlatform
   /** 当前应用appid */
   public appid!: string
   /** 当前应用scope */
@@ -78,7 +78,7 @@ export default class Auth {
   /** accessToken 是否有效 */
   public isAccessTokenValid: boolean = false
 
-  public constructor (options?: AuthOption) {
+  public constructor (options?: IAuthOption) {
     if (options) {
       this.setOption(options)
       this.setup()
@@ -91,7 +91,7 @@ export default class Auth {
     if (!token || this._accessToken === token) return
     const [tokenType, tokenValue] = token.split(' ')
     if (tokenType !== 'Bearer') throw new TypeError('TokenType Must Be `Bearer`')
-    const jwt: JwtDecodeRet = jwtDecode(tokenValue)
+    const jwt: IJwtDecodeRet = jwtDecode(tokenValue)
     if (!jwt) return
     const { exp, iss, id, state, sub, typ } = jwt
     this.state = state
@@ -136,7 +136,7 @@ export default class Auth {
   }
 
   /** 设置配置 */
-  public setOption (option: AuthOption) {
+  public setOption (option: IAuthOption) {
     const { platform, appid, scope, env, url, type, version } = assign({}, Auth.option, option)
     this.platform = platform
     this.appid = appid

@@ -85,7 +85,7 @@ export class ResProgress {
     this.$notify('clear')
   }
   /** 分发加载事件 */
-  public $notify (event: ResEvent) {
+  public $notify (event: IResEvent) {
     if (this.$bus) {
       this.$bus.emit(event, this)
     }
@@ -130,19 +130,19 @@ export default class Res extends Emitter{
   public static concurrency = 10
 
   private static pending: number = 0
-  private static _taskList: ResourceStruct[] = []
+  private static _taskList: IResourceStruct[] = []
   /** 资源ID */
   public static id: number = 0
   /** 进度实例 */
   public static Progress: typeof ResProgress = ResProgress
   /** 默认配置 */
-  public static config: ResConfig = {
+  public static config: IResConfig = {
     autoStart: false,
     root: '',
     defaultType: TYPE.UNKNOWN
   }
   /** 加载任务缓存 */
-  public static cache: Record<string, ResourceStruct> = Object.create(null)
+  public static cache: Record<string, IResourceStruct> = Object.create(null)
   /** 默认实例缓存 */
   protected static _instance: Res
   /** 获取默认实例 */
@@ -173,12 +173,12 @@ export default class Res extends Emitter{
   }
 
   /** 根据文件的key或者任务ID读取资源项目 */
-  public static get (key: string | number): ResourceStruct {
+  public static get (key: string | number): IResourceStruct {
     return this.cache[key]
   }
 
   /** 实例配置 */
-  public config: ResConfig
+  public config: IResConfig
 
   /** 是否开始加载 */
   public isStart: boolean = false
@@ -190,9 +190,9 @@ export default class Res extends Emitter{
   public isExecuted: boolean = false
 
   /** 加载队列 */
-  public tasks: ResourceStruct[] = []
+  public tasks: IResourceStruct[] = []
   /** 当前实例缓存 */
-  public cache: Record<string, ResourceStruct> = Object.create(null)
+  public cache: Record<string, IResourceStruct> = Object.create(null)
 
   /** 绑定资源加载事件 */
   private _onResLoaded!: any
@@ -204,7 +204,7 @@ export default class Res extends Emitter{
   }
 
   /** 初始化 */
-  public constructor(option?: ResConfig) {
+  public constructor(option?: IResConfig) {
     super()
     this.config = assign({}, Res.config, option)
     this._onResLoaded = this.__resCb.bind(this, true)
@@ -229,7 +229,7 @@ export default class Res extends Emitter{
       progress.$notify('complete')
     } else {
       while (tasks.length) {
-        this.pushRes(tasks.shift() as ResourceStruct)
+        this.pushRes(tasks.shift() as IResourceStruct)
       }
     }
     return this
@@ -243,11 +243,11 @@ export default class Res extends Emitter{
     return this
   }
   /** 读取资源 */
-  public get (key: string | number): ResourceStruct {
+  public get (key: string | number): IResourceStruct {
     return Res.get(key)
   }
   /** 追加资源 */
-  public add(res: PushResStruct, option?: any) {
+  public add(res: IResPushStruct, option?: any) {
     const { config: { root, defaultType } } = this
     let { key, url, type = defaultType } = res
     // 绝对路径以及http不处理
@@ -267,7 +267,7 @@ export default class Res extends Emitter{
       throw new TypeError(`Res key 必须为字符串`);
     }
     /** 资源缓存KEY */
-    let item: ResourceStruct = Res.cache[key]
+    let item: IResourceStruct = Res.cache[key]
     // 命中缓存
     if (item) {
       // 缓存不一致
@@ -281,7 +281,7 @@ export default class Res extends Emitter{
         _reject = reject
       })
       // 任务调度处理
-      const task = promise as ResourceTask
+      const task = promise as IResourceTask
       task.id = ++Res.id
       task.exec = () => {
         const loader = Res.getLoader(item.type)
@@ -331,7 +331,7 @@ export default class Res extends Emitter{
   }
 
   /** 添加一个任务到加载队列 */
-  public pushRes (res: ResourceStruct) {
+  public pushRes (res: IResourceStruct) {
     const { concurrency, pending, _taskList } = Res
     // 未达到加载上限时直接加载
     if (!concurrency || concurrency > pending) {
@@ -428,7 +428,7 @@ export default class Res extends Emitter{
 // }))
 
 /** 配置文件 */
-export type ResConfig = {
+export type IResConfig = {
   /** 根目录 */
   root?: string
   /** 默认类型 */
@@ -438,7 +438,7 @@ export type ResConfig = {
 }
 
 /** 资源预加载处理 */
-export type PushResStruct = {
+export type IResPushStruct = {
   /** Res 地址 */
   url: string
   /** 别名 */
@@ -451,7 +451,7 @@ export type PushResStruct = {
 type LoaderHandle = (url: string, option?: any) => Promise<any>
 
 /** 资源结构 */
-export type ResourceStruct = {
+export type IResourceStruct = {
   /** 资源ID */
   id: number
   /** 唯一KEY */
@@ -469,24 +469,24 @@ export type ResourceStruct = {
   readonly isLoaded: boolean
   readonly isFailed: boolean
   /** 任务 */
-  task: ResourceTask
+  task: IResourceTask
   /** 任务参数 */
   option: any
   /** 错误信息，出错时包含 */
   error?: any
 }
 
-export interface ResourceTask extends Promise<ResourceStruct> {
+export interface IResourceTask extends Promise<IResourceStruct> {
   id: number,
-  exec: (a?: ResourceStruct) => void
+  exec: (a?: IResourceStruct) => void
 }
 
 /** 事件通知 */
-export type ResEvent = 'push' | 'pending' | 'success' | 'complete' | 'fail' | 'clear' | 'progress' | 'start' | 'paused'
+export type IResEvent = 'push' | 'pending' | 'success' | 'complete' | 'fail' | 'clear' | 'progress' | 'start' | 'paused'
 
 // 注册快捷方式路由
 function bindLoaderMethod (type: string, context?: any) {
-  return function (this: any, res: string | any[] | PushResStruct, option?: any) {
+  return function (this: any, res: string | any[] | IResPushStruct, option?: any) {
     context = context || this
     // 支持批量加载
     if (Array.isArray(res)) {

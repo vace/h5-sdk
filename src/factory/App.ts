@@ -290,8 +290,6 @@ export type AppServerInit = {
 export type AppOption = {
   /** 当前应用appid */
   appid: string
-  /** API版本号 */
-  version: string
   /** 默认开启分析系统，关闭设置为true */
   analysisoff?: boolean
 }

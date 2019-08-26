@@ -186,6 +186,8 @@ export default class Res extends Emitter{
   public isWorking: boolean = false
   /** 操作进度 */
   public progress: ResProgress = new ResProgress
+  /** start后触发 */
+  public isExecuted: boolean = false
 
   /** 加载队列 */
   public tasks: ResourceStruct[] = []
@@ -198,7 +200,7 @@ export default class Res extends Emitter{
 
   /** 队列是否完全加载 */
   public get isComplete () {
-    return this.progress.isComplete
+    return this.isExecuted && this.progress.isComplete
   }
 
   /** 初始化 */
@@ -219,6 +221,7 @@ export default class Res extends Emitter{
     if (this.isStart) {
       return this
     }
+    this.isExecuted = true
     this.isStart = true
     this.progress.$notify('start')
     // 队列中没有任务，直接通知完成
@@ -343,6 +346,12 @@ export default class Res extends Emitter{
       _taskList.push(res)
     }
   }
+  /** 清空加载队列，一般用于重新加载 */
+  public clear () {
+    this.isStart = false
+    this.progress.clear()
+    this.isExecuted = false
+  }
   /** 资源项加载完毕处理 */
   private __resCb (isLoaded: boolean) {
     const progress = this.progress
@@ -419,7 +428,7 @@ export default class Res extends Emitter{
 // }))
 
 /** 配置文件 */
-type ResConfig = {
+export type ResConfig = {
   /** 根目录 */
   root?: string
   /** 默认类型 */
@@ -429,7 +438,7 @@ type ResConfig = {
 }
 
 /** 资源预加载处理 */
-type PushResStruct = {
+export type PushResStruct = {
   /** Res 地址 */
   url: string
   /** 别名 */
@@ -442,7 +451,7 @@ type PushResStruct = {
 type LoaderHandle = (url: string, option?: any) => Promise<any>
 
 /** 资源结构 */
-type ResourceStruct = {
+export type ResourceStruct = {
   /** 资源ID */
   id: number
   /** 唯一KEY */
@@ -467,7 +476,7 @@ type ResourceStruct = {
   error?: any
 }
 
-interface ResourceTask extends Promise<ResourceStruct> {
+export interface ResourceTask extends Promise<ResourceStruct> {
   id: number,
   exec: (a?: ResourceStruct) => void
 }

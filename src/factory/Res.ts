@@ -6,6 +6,7 @@ import { isHttp, isBase64 } from '../functions/is';
 import Emitter from './Emitter';
 import { isAbsolute } from '../functions/path';
 import { uuid } from '../functions/common';
+import { isIos } from 'src/functions/index';
 
 /**
  * ```javascript
@@ -382,7 +383,7 @@ export default class Res extends Emitter{
 // register document element handle
 [TYPE.CSS, TYPE.JS, TYPE.IMG, TYPE.AUDIO, TYPE.VIDEO].forEach(type => {
   Res.registerLoader(type, (url, option) => new Promise((resolve, reject) => {
-    let eventResolve: 'onload' | 'oncanplaythrough' | 'oncanplay' = 'onload'
+    let eventResolve: null | 'onload' | 'oncanplaythrough' | 'oncanplay' = 'onload'
     /** 是否插入文档 */
     let isInsertDocument: boolean = false
     /** 标签别名 */
@@ -401,19 +402,21 @@ export default class Res extends Emitter{
     else if (type === TYPE.IMG) {
       _option = { src: url }
     }
-    else if (type === TYPE.AUDIO) {
-      eventResolve = 'oncanplaythrough'
-      _option = { src: url }
-    }
-    else if (type === TYPE.VIDEO) {
-      eventResolve = 'oncanplay'
+    else if (type === TYPE.AUDIO || type === TYPE.VIDEO) {
+      // ios 不支持canplay
+      eventResolve = isIos ? null : 'oncanplay'
       _option = { src: url }
     }
     const element = document.createElement(tagName)
-    // 绑定事件
-    element[eventResolve] = () => resolve(element)
     element.onerror = reject
     each(assign(_option, option), (val: string, key: string) => element.setAttribute(key, val))
+    // 绑定事件
+    if (eventResolve) {
+      element[eventResolve] = () => resolve(element)
+    } else {
+      // 不支持则直接返回
+      resolve(element)
+    }
     if (isInsertDocument) {
       const inserted = document.head || document.documentElement
       inserted.insertAdjacentElement('beforeend', element)

@@ -569,6 +569,12 @@ declare module 'h5-sdk/src/functions/environment' {
 	export function checkSupportWebp(): Promise<boolean>;
 
 }
+declare module 'h5-sdk/src/functions/lodash' {
+	export function before(n: number, func: Function | any): (this: any, ...args: any[]) => any;
+	export function after(n: number, func: Function): (this: any, ...args: any[]) => any;
+	export function once(func: Function): (this: any, ...args: any[]) => any;
+
+}
 declare module 'h5-sdk/src/functions/timeago' {
 	export function timeago(unixTime: Date | number): string;
 	export function unixFormat(unixTime: number, format?: string): string;
@@ -579,6 +585,7 @@ declare module 'h5-sdk/src/functions/index' {
 	export * from 'h5-sdk/src/functions/environment';
 	export * from 'h5-sdk/src/functions/helper';
 	export * from 'h5-sdk/src/functions/is';
+	export * from 'h5-sdk/src/functions/lodash';
 	export * from 'h5-sdk/src/functions/path';
 	export * from 'h5-sdk/src/functions/qs';
 	export * from 'h5-sdk/src/functions/regex';
@@ -746,7 +753,7 @@ declare module 'h5-sdk/src/factory/UiModal' {
 	    };
 	    readonly value: string;
 	    constructor(_option?: UiModalOption);
-	    showSpinning(message: string): this;
+	    showSpinning(message?: string): this;
 	    hideSpinning(): this;
 	    validateForm(field?: string): boolean;
 	    validateClear(field?: string): boolean;
@@ -1137,6 +1144,7 @@ declare module 'h5-sdk/src/adapters/ui/ui.web' {
 	import UiMusic, { IUiMusicOption } from 'h5-sdk/src/factory/UiMusic';
 	import UiView, { UiViewOption } from 'h5-sdk/src/factory/UiView';
 	import { IUiAlertOption, IUiConfirmOption, IUiPromptOption, IUiUserboxOption } from 'h5-sdk/src/adapters/ui/interface';
+	export function close(fn?: any): (modal: UiModal) => any;
 	export function modal(option: UiModalOption): UiModal;
 	export function alert(option: IUiAlertOption | string): UiModal;
 	export function confirm(option: IUiConfirmOption): UiModal;
@@ -1255,12 +1263,6 @@ declare module 'h5-sdk/src/functions/common.spec' {
 }
 declare module 'h5-sdk/src/functions/is.spec' {
 	export {};
-
-}
-declare module 'h5-sdk/src/functions/lodash' {
-	export function before(n: number, func: Function | any): (this: any, ...args: any[]) => any;
-	export function after(n: number, func: Function): (this: any, ...args: any[]) => any;
-	export function once(func: Function): (this: any, ...args: any[]) => any;
 
 }
 declare module 'h5-sdk/src/functions/path.spec' {

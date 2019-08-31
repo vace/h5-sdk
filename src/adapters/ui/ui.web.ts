@@ -5,13 +5,46 @@ import UiToast, { UiToastOption } from '../../factory/UiToast';
 import UiMusic, { IUiMusicOption } from '../../factory/UiMusic';
 import UiView, { UiViewOption } from '../../factory/UiView';
 
-import { isObject, isNumber, isFunction } from '../../functions/is';
+import { isObject, isNumber, isFunction, isPromise } from '../../functions/is';
 import { each } from '../../functions/underscore';
 import { IUiAlertOption, IUiConfirmOption, IUiPromptOption, IUiUserboxOption } from './interface';
 import { wrapModal, wrapAlert, wrapPrompt, wrapConfirm, wrapUserbox } from './ui.promise';
 import { regexMobile, regexChinese } from '../../functions/regex';
 
 const closeHelper = (modal: UiModal) => modal.close()
+
+/**
+ * 包装的关闭任务函数，返回falsevalue不会关闭窗口
+ * @example
+ * ```js
+ * sdk.ui.close((modal) => sdk.app.get('api'))
+ * ```
+ * @param {*} [fn]
+ * @returns
+ */
+export function close (fn?: any) {
+  return (modal:UiModal) => {
+    // 直接关闭弹窗
+    if (typeof fn === 'function') {
+      fn = fn(modal)
+    }
+    // 是个Promise
+    if (isPromise(fn)) {
+      modal.showSpinning()
+      fn.then((value: any) => {
+        modal.hideSpinning()
+        modal.close()
+        return value
+      }, (error: any) => {
+        modal.hideSpinning()
+        return Promise.reject(error)
+      })
+    } else if (typeof fn === 'undefined' || fn) {
+      modal.close()
+      return fn
+    }
+  }
+}
 
 /**
  * 打开一个Modal

@@ -85,7 +85,7 @@ export default class UiModal extends UiBase{
     this.on('closed', this._closedHook.bind(this))
   }
   /** 显示操作loading */
-  public showSpinning (message: string) {
+  public showSpinning (message?: string) {
     if (this.$spinning) {
       this.$spinning.remove()
     }

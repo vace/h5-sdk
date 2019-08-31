@@ -6,7 +6,7 @@ import { isHttp, isBase64 } from '../functions/is';
 import Emitter from './Emitter';
 import { isAbsolute } from '../functions/path';
 import { uuid } from '../functions/common';
-import { isIos } from 'src/functions/index';
+import { isIos } from '../functions/index';
 
 /**
  * ```javascript

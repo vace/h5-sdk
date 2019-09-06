@@ -63,7 +63,8 @@ export default class UiToast extends UiBase{
   }
   /** 更新图标内容 */
   public setIcon(icon: string) {
-    this.$root.find('._sdkfont').removeClass(this.option.icon).addClass(icon)
+    const iconPrefix = '_sf-'
+    this.$root.find('._sdkfont').removeClass(iconPrefix + this.option.icon).addClass(iconPrefix + icon)
     return this
   }
 

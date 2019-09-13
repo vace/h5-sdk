@@ -15,7 +15,7 @@ export type ICommonResponseData = {
 /** Http请求参数 */
 export interface IHttpRequestBase {
   // 附带参数
-  method?: 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH'
+  method?: 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'JSONP'
   headers?: HeadersInit
   // 请求的 body 信息：可能是一个 Blob、BufferSource、FormData、URLSearchParams 或者 USVString 对象。注意 GET 或 HEAD 方法的请求不能包含 body 信息。
   body?: any
@@ -65,7 +65,8 @@ export enum Method {
   OPTIONS = 'OPTIONS',
   POST = 'POST',
   PUT = 'PUT',
-  PATCH = 'PATCH'
+  PATCH = 'PATCH',
+  JSONP = 'JSONP'
 }
 
 /** 可用ContentType */

@@ -1,7 +1,7 @@
 export const isBrowserEnv = typeof window !== 'undefined'
 
 /** @ignore 全局window变量 */
-const global: any = isBrowserEnv ? window : {}
+export const global: any = isBrowserEnv ? window : {}
 
 /** @ignore Navigator */
 export const navigator = global.navigator

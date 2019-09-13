@@ -58,3 +58,9 @@ export function getCurrentHref(isPrivacy?: boolean | string[]): string {
 export function getCurrentPathFile(filename: string = ''): string {
   return dirname(<string>location.href.split('?').shift()) + '/' + filename
 }
+
+// export function jsonp (src) {
+//   var jsonpScript = document.createElement('script');
+//   jsonpScript.setAttribute("src", src);
+//   document.getElementsByTagName("head")[0].appendChild(jsonpScript)
+// }

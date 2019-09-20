@@ -192,7 +192,7 @@ export default class UiModal extends UiBase{
         const tagName = type !== tagTextarea ? 'input' : tagTextarea
         const $input = type === 'custom' ? $(innerHTML) : $(`<${tagName}>`).attr('type', type || 'text')
         const inputId = `${id}__i${++dataIndex}`
-        $input.attr('id', inputId).attr(attrs).val(value || '')
+        $input.attr('id', inputId).attr(attrs).val(value == null ? '' : value)
         const labelHtml = label ? `<label for="${inputId}">${label || ''} ${tips ? `<span>${tips}</span>` : ''}</label>` : ''
         const $inputWrap = createClsElement('modal-iptwrap', labelHtml).addClass(classPrefix('modal-field-' + (attrs.name || dataIndex)))
         const $inputCont = createClsElement('modal-input', $input)

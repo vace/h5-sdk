@@ -18,6 +18,7 @@ declare module 'h5-sdk/src/adapters/store/interface' {
 }
 declare module 'h5-sdk/src/utils/global' {
 	export const isBrowserEnv: boolean;
+	export const global: any;
 	export const navigator: any;
 	export const location: any;
 	export const document: any;
@@ -66,7 +67,7 @@ declare module 'h5-sdk/src/adapters/request/interface' {
 	    msg?: string;
 	};
 	export interface IHttpRequestBase {
-	    method?: 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH';
+	    method?: 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'JSONP';
 	    headers?: HeadersInit;
 	    body?: any;
 	    mode?: 'cors' | 'no-cors' | 'same-origin';
@@ -99,7 +100,8 @@ declare module 'h5-sdk/src/adapters/request/interface' {
 	    OPTIONS = "OPTIONS",
 	    POST = "POST",
 	    PUT = "PUT",
-	    PATCH = "PATCH"
+	    PATCH = "PATCH",
+	    JSONP = "JSONP"
 	}
 	export enum ContentType {
 	    UrlEncode = "application/x-www-form-urlencoded; charset=utf-8",

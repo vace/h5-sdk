@@ -177,7 +177,8 @@ export function userbox(option: IUiUserboxOption): UiModal {
       }
       inputs.push(input)
     } else {
-      inputs.push(_$cacheMapProfile[data])
+      // 支持对象嵌套
+      inputs.push(typeof data === 'string' ? _$cacheMapProfile[data] : data)
     }
   })
   option.inputs = inputs

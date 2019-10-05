@@ -458,11 +458,6 @@ declare module 'h5-sdk/src/factory/App' {
 	export {};
 
 }
-declare module 'h5-sdk/src/functions/helper' {
-	export function addListener(element: Window | HTMLElement | Document, event: string, callback: EventListener): Function;
-	export const domready: Promise<boolean>;
-
-}
 declare module 'h5-sdk/src/adapters/analysis/interface' {
 	export interface IAnalysis {
 	    getCurrentUrl(privacy: any): string;
@@ -479,6 +474,11 @@ declare module 'h5-sdk/src/adapters/analysis/interface' {
 declare module 'h5-sdk/src/adapters/analysis/analysis.mini' {
 	import { IAnalysis } from 'h5-sdk/src/adapters/analysis/interface';
 	export default function createAnalysisMini(): IAnalysis;
+
+}
+declare module 'h5-sdk/src/functions/helper' {
+	export function addListener(element: Window | HTMLElement | Document, event: string, callback: EventListener): Function;
+	export const domready: Promise<boolean>;
 
 }
 declare module 'h5-sdk/src/adapters/analysis/analysis.web' {
@@ -715,6 +715,7 @@ declare module 'h5-sdk/src/factory/UiBase' {
 	    open(): this;
 	    private _onOpen;
 	    private _onOpened;
+	    private $_autoScrollTopId;
 	    private _onFormBlur;
 	    private _onFormFocus;
 	    validateForm(field?: string): boolean;

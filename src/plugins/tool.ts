@@ -127,9 +127,10 @@ export function scrollTop () {
  * @returns {Blob}
  */
 export function base64toBlob (base64String: string, contentType: string = '', sliceSize: number = 512): Blob {
-  const [, mime = '', b64Data = ''] = /^data:(.+);base64,(.+)/i.exec(base64String) || []
+  const [ prefix, b64Data ] = base64String.split(',')
+  const [, mime = ''] = /^data:(.+);base64/i.exec(prefix) || []
   if (!mime) throw new Error('未检测到资源Mime，请检查编码合法性')
-  if (!b64Data) throw new Error('未检测到资源Base64，请检查编码合法性')
+  if (!b64Data) throw new Error('未检测到资源Base64，请检查编码完整性')
   contentType = contentType || mime
 
   var byteCharacters = atob(b64Data);

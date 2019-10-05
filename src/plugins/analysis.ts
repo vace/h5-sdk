@@ -3,7 +3,6 @@ import App from "../factory/App";
 import { randomstr } from "../functions/common";
 import { now } from "../functions/underscore";
 import { stringify } from '../functions/qs'
-import { domready } from '../functions/helper'
 import { getServiceUri } from "../config";
 import _config from "../config";
 import { signature } from "./safety";
@@ -129,27 +128,27 @@ async function send (event: ANA_EVENTS, data: string = '', value: number = 0): P
     return
   }
   // 等待应用初始化完成
-  await app.ready()
-  const userId = app.auth.id || 0
-  
-  // 提交的数据选项
-  const option: any = {
-    [ANA.APPID]: app.appid,
-    [ANA.USER_AGENT]: analysis.getUserAgent(),
-    [ANA.PAGE_URL]: analysis.getCurrentUrl(true),
-    [ANA.USER_ID]: userId,
-    [ANA.SDK_VERSION]: '__VERSION__',
-    [ANA.EVENT_NAME]: event,
-    [ANA.SEND_DATA]: data,
-    [ANA.SEND_VALUE]: Math.round(value || 0),
-    [ANA.REQEST_ID]: currentRequestId,
-    [ANA.REQEST_NONCE]: randomstr(16)
-  }
-  option[ANA.REQEST_SIGNATURE] = signature(option)
-  //! 注意：此参数用于去除跨域请求，不参与签名
-  option.cros = 'off'
-  const log = getServiceUri('analysis/log') + '?' + stringify(option)
-  return analysis.send(log)
+  return await app.ready(() => {
+    const userId = app.auth.id || 0
+    // 提交的数据选项
+    const option: any = {
+      [ANA.APPID]: app.appid,
+      [ANA.USER_AGENT]: analysis.getUserAgent(),
+      [ANA.PAGE_URL]: analysis.getCurrentUrl(true),
+      [ANA.USER_ID]: userId,
+      [ANA.SDK_VERSION]: '__VERSION__',
+      [ANA.EVENT_NAME]: event,
+      [ANA.SEND_DATA]: data,
+      [ANA.SEND_VALUE]: Math.round(value || 0),
+      [ANA.REQEST_ID]: currentRequestId,
+      [ANA.REQEST_NONCE]: randomstr(16)
+    }
+    option[ANA.REQEST_SIGNATURE] = signature(option)
+    //! 注意：此参数用于去除跨域请求，不参与签名
+    option.cros = 'off'
+    const log = getServiceUri('analysis/log') + '?' + stringify(option)
+    return analysis.send(log)
+  })
 }
 
 /**

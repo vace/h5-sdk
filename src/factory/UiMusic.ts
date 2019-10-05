@@ -318,7 +318,7 @@ export default class UiMusic extends Emitter {
       audio
     } = this
     if (!theme) {
-      throw new TypeError(`adapter theme: '${optTheme}' not exists`);
+      throw new TypeError(`UiMusic theme not exists:` + optTheme);
     }
     // 挂载处理
     if (!isMounted) {

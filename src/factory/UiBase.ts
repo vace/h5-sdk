@@ -199,15 +199,19 @@ export default class UiBase extends Emitter {
     this.emit('opened')
   }
 
+  // 定时容器滚动（ios软键盘bug）
+  private $_autoScrollTopId: any
+
   // 表单失去焦点，运行
   private _onFormBlur = (e: any) => {
-    scrollTop()
+    this.$_autoScrollTopId = setTimeout(scrollTop, 150)
     const field = e.target && e.target.name
     // 运行验证器
     this.validateForm(field)
   }
-
+  // 表格获得焦点，执行表单校检
   private _onFormFocus = (e: any) => {
+    clearTimeout(this.$_autoScrollTopId)
     // 清空验证器
     const field = e.target && e.target.name
     this.validateClear(field)

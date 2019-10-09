@@ -1,5 +1,6 @@
 import { each } from "../functions/underscore";
-import store from "../adapters/store/index";
+// import store from "../adapters/store/index";
+import cacher from './_cacher'
 
 /** 用户状态:normal=普通用户,black=黑名单用户,admin=管理员用户,super=超级管理员,developer=开发者 */
 export type IUserState = 'unknow' | 'normal' | 'black' | 'admin' | 'super' | 'developer'
@@ -10,20 +11,36 @@ export type IUserPlatform = 'unknow' | 'wechat' | 'qq' | 'taobao' | 'weibo' | 'd
 /** 用户种类，base只有用户id，user包含头像昵称 */
 export type IUserType = 'none' | 'base' | 'user'
 
+export type IUserOption = {
+  appid: string
+}
+
 /** 用啥结构 */
 export default class User {
   /** 当前用户 */
-  private static cacheKey: string = 'SdkUser'
+  private static cacher = cacher('@SdkUsers')
   /** 实例 */
   private static _instance: User
   /** 获取用户实例 */
   public static get instance() {
-    if (!User._instance) {
-      const cache = store.get(User.cacheKey)
-      User._instance = new User(cache)
+    if (!this._instance) {
+      console.warn('[User.instance] 不存在，需先创建实例')      
     }
-    return User._instance
+    return this._instance
   }
+  /** 是否有实例 */
+  public static get hasInstance(): boolean {
+    return !!this._instance
+  }
+
+  /** 创建默认实例（注意，重复创建将覆盖之前的默认实例） */
+  public static createInstance(option: IUserOption): User {
+    if (this._instance) {
+      console.warn('[User.instance] 已存在，此操作将覆盖默认实例')
+    }
+    return this._instance = new User(option)
+  }
+
   /** 是否登陆 */
   public isLogin!: boolean
   /** 用户ID */
@@ -53,7 +70,11 @@ export default class User {
   /** 同一主体下的ID */
   public unionid: string = ''
 
-  public constructor (user?: any) {
+  /** 读取授权作用域下的账号 */
+  public constructor (option: IUserOption) {
+    this.appid = option.appid
+    // 缓存查找用户
+    const user = User.cacher.get(this.appid)
     if (user) {
       this.login(user)
     }
@@ -65,14 +86,16 @@ export default class User {
       this.isLogin = true
       // 同步用户信息到user对象中
       each(user, (val: any, key: any) => this[key] = val)
-      store.set(User.cacheKey, user)
+      // store.set(User.cacheKey, user)
+      User.cacher.set(this.appid, user)
     }
     return this
   }
 
   /** 登出用户 */
   public logout () {
-    store.remove(User.cacheKey)
+    // store.remove(User.cacheKey)
+    User.cacher.remove(this.appid)
     this.isLogin = false
     this.id = 0
   }

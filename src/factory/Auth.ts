@@ -3,9 +3,9 @@ import User, { IUserState, IUserPlatform, IUserType } from "./User";
 import { jwtDecode } from "../plugins/safety";
 import { now } from "../functions/underscore";
 import Tasker from "./Tasker";
-import store from "../adapters/store/index";
 import { auth } from '../adapters/auth/index'
 import { IAuthOption, IJwtDecodeRet, IAuth } from '../adapters/auth/interface';
+import cacher from './_cacher'
 
 let ENV_platform = '__PLANTFORM__'
 
@@ -22,7 +22,7 @@ export default class Auth {
   }
 
   /** 缓存KEY */
-  public static cacheKey: string = 'SdkToken'
+  public static cacher = cacher('@SdkTokens')
 
   /** 实例 */
   private static _instance: Auth
@@ -54,7 +54,7 @@ export default class Auth {
   /** 用户ID */
   public id: number = 0
   /** 用户实例 */
-  public user: User = User.instance
+  public user!: User
   /** Auth版本号 */
   public version!: string
   /** 用户角色 */
@@ -125,14 +125,14 @@ export default class Auth {
       // cache
       if (this.isAccessTokenValid) {
         // 使用@链接版本号，对比用户信息准确性
-        store.set(Auth.cacheKey, token + '@' + this.version)
+        Auth.cacher.set(this.appid, token + '@' + this.version)
       }
     }
   }
 
   public clearToken () {
     this._accessToken = ''
-    store.remove(Auth.cacheKey)
+    Auth.cacher.remove(this.appid)
   }
 
   /** 设置配置 */
@@ -145,6 +145,7 @@ export default class Auth {
     this.env = env || ''
     this.url = url || ''
     this.version = version
+    this.user = User.createInstance({ appid: appid })
     return this
   }
 
@@ -157,7 +158,8 @@ export default class Auth {
     this.isAuthed = true
     tasker.working()
     if (this.accessToken == null) {
-      let [accessToken, tokenVersion = ''] = (store.get(Auth.cacheKey, '') as string).split('@')
+      const token = Auth.cacher.get(this.appid) || ''
+      let [accessToken, tokenVersion = ''] = token.split('@')
       // 用户设置了版本，则需要检测版本是否正确
       if (this.version && this.version !== tokenVersion) {
         this.isAccessTokenValid = false

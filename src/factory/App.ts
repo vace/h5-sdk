@@ -1,4 +1,3 @@
-import store from '../adapters/store/index'
 import { commonResponseReslove } from "../utils/common";
 import Http from "./Http";
 import Auth from './Auth';
@@ -8,6 +7,7 @@ import config from '../config';
 import { isAbsolute } from '../functions/path';
 import { isHttp } from '../functions/is';
 import { spread } from '../functions/common';
+import cacher from './_cacher'
 
 const noop: any = () => {}
 
@@ -16,7 +16,8 @@ const noop: any = () => {}
  * @class App
  */
 export default class App {
-  private static cacheKey: string = 'SdkApp'
+  // 获取实例，需要时可覆盖重写
+  private static cacher = cacher('@SdkApps')
   /** 实例 */
   private static _instance: App
   /** 获取应用实例 */
@@ -120,7 +121,7 @@ export default class App {
     }
     // 确保只执行一次
     tasker.working()
-    let cache: IAppServerInit | null = store.get(App.cacheKey)
+    let cache: IAppServerInit | null = App.cacher.get(this.appid)
     let version = ''
 
     // 应用缓存是否有效
@@ -136,7 +137,7 @@ export default class App {
       // 版本不统一时刷新缓存
       if (init.version !== version) {
         cache = init
-        store.set(App.cacheKey, init)
+        App.cacher.set(this.appid, cache)
       }
       // 保存应用属性
       if (cache) {

@@ -13,5 +13,12 @@ require('dts-generator').default({
   //     return null
   //   }
   // }
-  exclude: ['node_modules/**/*.d.ts', 'src/scheduler/*.ts', '*.spec.ts', '*.js']
+  exclude: [
+    'node_modules/**/*.d.ts',
+    'src/scheduler/*.ts',
+    'src/mini-entry.ts',
+    'src/node-entry.ts',
+    '*.spec.ts',
+    '*.js'
+  ]
 });

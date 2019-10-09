@@ -6,58 +6,6 @@ declare module 'h5-sdk/types/es6-object-assign' {
 	export function polyfill(): void;
 
 }
-declare module 'h5-sdk/src/adapters/store/interface' {
-	export interface IStore {
-	    read(key: string): any;
-	    write(key: string, val: any): any;
-	    remove(key: string): any;
-	    clearAll(): any;
-	    keys(): string[];
-	}
-
-}
-declare module 'h5-sdk/src/utils/global' {
-	export const isBrowserEnv: boolean;
-	export const global: any;
-	export const navigator: any;
-	export const location: any;
-	export const document: any;
-	export const getwx: () => any;
-	export const fetch: any;
-	export const WeixinJSBridge: any;
-	export const addEventListener: any;
-	export const removeEventListener: any;
-	export const performance: any;
-	export const localStorage: any;
-
-}
-declare module 'h5-sdk/src/adapters/store/store.web' {
-	import { IStore } from 'h5-sdk/src/adapters/store/interface';
-	export default function createStoreWeb(): IStore;
-
-}
-declare module 'h5-sdk/src/adapters/store/store.mini' {
-	import { IStore } from 'h5-sdk/src/adapters/store/interface';
-	export default function createStoreMini(): IStore;
-
-}
-declare module 'h5-sdk/src/adapters/store/store.node' {
-	import { IStore } from 'h5-sdk/src/adapters/store/interface';
-	export default function createStoreNode(): IStore;
-
-}
-declare module 'h5-sdk/src/adapters/store/index' {
-	import { IStore } from 'h5-sdk/src/adapters/store/interface'; const _default: {
-	    readonly store: IStore;
-	    get(key: string, _defaultValue?: any): any;
-	    set(key: string, value: any): any;
-	    remove(key: string): any;
-	    each(fn: (value: any, key: string) => void): void;
-	    clearAll(): any;
-	};
-	export default _default;
-
-}
 declare module 'h5-sdk/src/adapters/request/interface' {
 	export type IRequest = (config: IHttpOption & IHttpRequestOption) => Promise<any>;
 	export type ICommonResponseData = {
@@ -220,14 +168,79 @@ declare module 'h5-sdk/src/factory/Http' {
 	}
 
 }
+declare module 'h5-sdk/src/adapters/store/interface' {
+	export interface IStore {
+	    read(key: string): any;
+	    write(key: string, val: any): any;
+	    remove(key: string): any;
+	    clearAll(): any;
+	    keys(): string[];
+	}
+
+}
+declare module 'h5-sdk/src/utils/global' {
+	export const isBrowserEnv: boolean;
+	export const global: any;
+	export const navigator: any;
+	export const location: any;
+	export const document: any;
+	export const getwx: () => any;
+	export const fetch: any;
+	export const WeixinJSBridge: any;
+	export const addEventListener: any;
+	export const removeEventListener: any;
+	export const performance: any;
+	export const localStorage: any;
+
+}
+declare module 'h5-sdk/src/adapters/store/store.web' {
+	import { IStore } from 'h5-sdk/src/adapters/store/interface';
+	export default function createStoreWeb(): IStore;
+
+}
+declare module 'h5-sdk/src/adapters/store/store.mini' {
+	import { IStore } from 'h5-sdk/src/adapters/store/interface';
+	export default function createStoreMini(): IStore;
+
+}
+declare module 'h5-sdk/src/adapters/store/store.node' {
+	import { IStore } from 'h5-sdk/src/adapters/store/interface';
+	export default function createStoreNode(): IStore;
+
+}
+declare module 'h5-sdk/src/adapters/store/index' {
+	import { IStore } from 'h5-sdk/src/adapters/store/interface'; const _default: {
+	    readonly store: IStore;
+	    get(key: string, _defaultValue?: any): any;
+	    set(key: string, value: any): any;
+	    remove(key: string): any;
+	    each(fn: (value: any, key: string) => void): void;
+	    clearAll(): any;
+	};
+	export default _default;
+
+}
+declare module 'h5-sdk/src/factory/_cacher' {
+	export default function cacher(cacheKey: string): {
+	    get: (key: string) => any;
+	    set: (key: string, value: any) => any;
+	    remove: (key: string) => void;
+	};
+
+}
 declare module 'h5-sdk/src/factory/User' {
 	export type IUserState = 'unknow' | 'normal' | 'black' | 'admin' | 'super' | 'developer';
 	export type IUserPlatform = 'unknow' | 'wechat' | 'qq' | 'taobao' | 'weibo' | 'douyin' | 'github' | 'google' | 'linkedin' | 'facebook' | 'open' | 'mini';
 	export type IUserType = 'none' | 'base' | 'user';
+	export type IUserOption = {
+	    appid: string;
+	};
 	export default class User {
-	    private static cacheKey;
+	    private static cacher;
 	    private static _instance;
 	    static readonly instance: User;
+	    static readonly hasInstance: boolean;
+	    static createInstance(option: IUserOption): User;
 	    isLogin: boolean;
 	    id: number;
 	    platform: IUserPlatform;
@@ -242,7 +255,7 @@ declare module 'h5-sdk/src/factory/User' {
 	    userType: IUserType;
 	    location: string;
 	    unionid: string;
-	    constructor(user?: any);
+	    constructor(option: IUserOption);
 	    login(user: any): this;
 	    logout(): void;
 	}
@@ -339,7 +352,11 @@ declare module 'h5-sdk/src/factory/Auth' {
 	export default class Auth {
 	    static adapter: IAuth;
 	    static option: IAuthOption;
-	    static cacheKey: string;
+	    static cacher: {
+	        get: (key: string) => any;
+	        set: (key: string, value: any) => any;
+	        remove: (key: string) => void;
+	    };
 	    private static _instance;
 	    static readonly instance: Auth;
 	    static readonly hasInstance: boolean;
@@ -390,7 +407,7 @@ declare module 'h5-sdk/src/factory/App' {
 	import Auth from 'h5-sdk/src/factory/Auth';
 	import User from 'h5-sdk/src/factory/User';
 	export default class App {
-	    private static cacheKey;
+	    private static cacher;
 	    private static _instance;
 	    static readonly instance: App;
 	    static errorHandler: errorHandler;
@@ -859,14 +876,6 @@ declare module 'h5-sdk/src/plugins/index.mini' {
 	export { safety, store, ui, analysis };
 
 }
-declare module 'h5-sdk/src/mini-entry' {
-	export const version = "__VERSION__";
-	export * from 'h5-sdk/src/config';
-	export * from 'h5-sdk/src/functions/index.mini';
-	export * from 'h5-sdk/src/factory/index.mini';
-	export * from 'h5-sdk/src/plugins/index.mini';
-
-}
 declare module 'h5-sdk/src/functions/index.node' {
 	export * from 'h5-sdk/src/functions/common';
 	export * from 'h5-sdk/src/functions/is';
@@ -893,14 +902,6 @@ declare module 'h5-sdk/src/plugins/index.node' {
 	import * as safety from 'h5-sdk/src/plugins/safety';
 	import store from 'h5-sdk/src/adapters/store/index';
 	export { safety, store };
-
-}
-declare module 'h5-sdk/src/node-entry' {
-	export const version = "__VERSION__";
-	export * from 'h5-sdk/src/config';
-	export * from 'h5-sdk/src/functions/index.node';
-	export * from 'h5-sdk/src/factory/index.node';
-	export * from 'h5-sdk/src/plugins/index.node';
 
 }
 declare module 'h5-sdk/src/factory/Res' {

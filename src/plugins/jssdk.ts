@@ -322,9 +322,7 @@ export function chooseImageBase64 (): Promise<string> {
  */
 export function preview (url: string | string[], index: number = 0) {
   if (typeof url === 'string') url = [url]
-  url = url.map(u => {
-    return isHttp(u) ? u : getCurrentPathFile(u)
-  })
+  url = url.map(u => (isBase64(u) || isHttp(u)) ? u : getCurrentPathFile(u))
   getwx().previewImage({
     current: url[index],
     urls: url

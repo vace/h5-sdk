@@ -1,6 +1,6 @@
 import { assign } from 'es6-object-assign'
 import { AnalysisOption } from "./plugins/analysis";
-import { isHttp } from './functions/is';
+import { isHttp, isBase64 } from './functions/is';
 
 /** 加载全局设置的配置 `window._SDK` */
 const GlobalSdkConfig: DefaultConfig = (typeof window !== 'undefined' && window['_SDK']) || {}
@@ -70,7 +70,7 @@ export function getCdnRes (filename: string): string {
  * @param {(string | object)} process
  */
 export function getOssRes (filename: string, process: string | object) {
-  if (!filename || isHttp(filename)) {
+  if (!filename || isHttp(filename) || isBase64(filename)) {
     return filename
   }
   const res = getCdnRes(filename)

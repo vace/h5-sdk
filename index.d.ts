@@ -419,9 +419,8 @@ declare module 'h5-sdk/src/factory/App' {
 	    static showSuccess: any;
 	    static showError: any;
 	    readonly isLogin: boolean;
-	    readonly isAuthed: boolean;
 	    http: Http;
-	    auth: Auth;
+	    auth: Auth | null;
 	    user: User;
 	    private tasker;
 	    appid: string;
@@ -592,6 +591,7 @@ declare module 'h5-sdk/src/functions/lodash' {
 	export function before(n: number, func: Function | any): (this: any, ...args: any[]) => any;
 	export function after(n: number, func: Function): (this: any, ...args: any[]) => any;
 	export function once(func: Function): (this: any, ...args: any[]) => any;
+	export function remove(array: any[], predicate: Function): any[];
 
 }
 declare module 'h5-sdk/src/functions/timeago' {

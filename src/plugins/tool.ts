@@ -85,7 +85,7 @@ export function chooseFile (accept: string = '*'): Promise<File> {
       if (files.length) {
         return resolve(files[0])
       }
-      reject(new Error(`select file empty`))
+      reject(new Error(`选择的文件为空`))
     })
   })
 }

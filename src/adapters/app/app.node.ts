@@ -31,7 +31,7 @@ export default function createAppMini() {
         option.url = `${host}?${stringify(query)}`
       }
     }
-    if (auth.isAuthed && auth.isAccessTokenValid) {
+    if (auth && auth.isAuthed && auth.isAccessTokenValid) {
       if (!headers['Authorization']) {
         headers['Authorization'] = <string>auth.accessToken
       }

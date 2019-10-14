@@ -38,7 +38,7 @@ export default function createAppWeb () {
         option.url = `${host}?${stringify(query)}`
       }
     }
-    if (auth.isAuthed && auth.isAccessTokenValid) {
+    if (auth && auth.isAuthed && auth.isAccessTokenValid) {
       if (!headers.has('authorization')) {
         headers.set('authorization', <string>auth.accessToken)
       }

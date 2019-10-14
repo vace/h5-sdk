@@ -129,7 +129,7 @@ async function send (event: ANA_EVENTS, data: string = '', value: number = 0): P
   }
   // 等待应用初始化完成
   return await app.ready(() => {
-    const userId = app.auth.id || 0
+    const userId = app.auth && app.auth.id || 0
     // 提交的数据选项
     const option: any = {
       [ANA.APPID]: app.appid,

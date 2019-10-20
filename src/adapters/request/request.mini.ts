@@ -81,7 +81,8 @@ export default function createRequestMini () {
     return new Promise((resolve, reject) => {
       const {
         method, mode, cache, credentials, redirect, referrer,
-        baseURL, timeout, transformRequest, transformResponse, responseType, validateStatus
+        baseURL, timeout, transformRequest, transformResponse, responseType, validateStatus,
+        auth
       } = config
       let headers = config.headers || {}
       let { url, params, data, body, query } = config
@@ -122,6 +123,12 @@ export default function createRequestMini () {
       }
       const _option: ITransformRequestOption = {
         url, method, headers, body, mode, cache, credentials, redirect, referrer
+      }
+      // 使用自定义的用户凭证信息
+      if (auth && auth.isAccessTokenValid) {
+        if (!headers['authorization']) {
+          headers['authorization'] = auth.accessToken
+        }
       }
       // 通过处理函数，返回新的配置文件
       if (typeof transformRequest === 'function') {

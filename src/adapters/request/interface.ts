@@ -1,3 +1,5 @@
+import Auth from "../../factory/Auth"
+
 export type IRequest = (config: IHttpOption & IHttpRequestOption) => Promise<any>
 
 /** 服务端约定返回格式 */
@@ -29,6 +31,8 @@ export interface IHttpRequestBase {
 
 /** Http配置 */
 export interface IHttpOption extends IHttpRequestBase {
+  /** 设置请求的headerAuth */
+  auth?: Auth,
   /** 根路径 */
   baseURL?: string
   /** 超时时间 */

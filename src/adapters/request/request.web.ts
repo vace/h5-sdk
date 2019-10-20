@@ -15,7 +15,8 @@ export default function createRequestWeb () {
   return function (config: IHttpOption & IHttpRequestOption) {
     const {
       method, mode, cache, credentials, redirect, referrer,
-      baseURL, timeout, transformRequest, transformResponse, responseType, validateStatus
+      baseURL, timeout, transformRequest, transformResponse, responseType, validateStatus,
+      auth
     } = config
     let headers = new Headers(config.headers || {})
     let { url, params, data, body, query } = config
@@ -57,6 +58,14 @@ export default function createRequestWeb () {
     const _option: ITransformRequestOption = {
       url, method, headers, body, mode, cache, credentials, redirect, referrer
     }
+
+    // 使用自定义的用户凭证信息
+    if (auth && auth.isAccessTokenValid) {
+      if (!headers.has('authorization')) {
+        headers.set('authorization', <string> auth.accessToken)
+      }
+    }
+
     // 通过处理函数，返回新的配置文件
     if (typeof transformRequest === 'function') {
       transformRequest.call(config, _option)

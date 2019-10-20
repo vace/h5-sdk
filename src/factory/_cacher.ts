@@ -35,7 +35,7 @@ export default function cacher (cacheKey: string) {
     return value
   }
 
-  const remove  = (key: string) => {
+  const remove = (key: string) => {
     const hit = find(key)
     if (hit) {
       cache.splice(cache.indexOf(hit), 1)

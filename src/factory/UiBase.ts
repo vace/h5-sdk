@@ -3,7 +3,7 @@ import { uid, wait } from '../functions/common'
 import { nextZIndex, onceAnimationEnd, classPrefix, createClsElement } from '../utils/shared'
 import $ from '../venders/zepto'
 import { isNullOrUndefined } from '../functions/is'
-import { scrollTop } from '../plugins/tool';
+import { scrollFix } from '../plugins/tool';
 
 /** UI支持的颜色 */
 export type TypeColor = 'dark' | 'main' | 'primary' | 'warn' | 'info'
@@ -204,7 +204,7 @@ export default class UiBase extends Emitter {
 
   // 表单失去焦点，运行
   private _onFormBlur = (e: any) => {
-    this.$_autoScrollTopId = setTimeout(scrollTop, 150)
+    this.$_autoScrollTopId = setTimeout(scrollFix, 150)
     const field = e.target && e.target.name
     // 运行验证器
     this.validateForm(field)

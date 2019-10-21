@@ -108,15 +108,21 @@ export function autoGetImageBase64(): Promise<string> {
 }
 
 /**
- * 滚动视图到顶部，用于在input之后触发
+ * 滚动视图到顶部
  */
-export function scrollTop () {
-  var scrolling = document.scrollingElement
-  if (typeof scrolling.scrollIntoView === 'function') {
-    scrolling.scrollIntoView()
-  } else {
-    document.documentElement.scrollTop = 0
-  }
+export function scrollTop (element?: HTMLElement) {
+  (element || document.documentElement).scrollTop = 0
+}
+
+/** 
+ * IOS 虚拟键盘bug的处理发付出
+ */
+export function scrollFix (_element?: HTMLElement) {
+  const el: HTMLElement = _element || document.body
+
+  // 触发浏览器的重新渲染机制
+  el.scrollTop = el.scrollTop
+  el.scrollIntoView(false)
 }
 
 /**

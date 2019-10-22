@@ -6,62 +6,6 @@ declare module 'h5-sdk/types/es6-object-assign' {
 	export function polyfill(): void;
 
 }
-declare module 'h5-sdk/src/adapters/request/interface' {
-	export type IRequest = (config: IHttpOption & IHttpRequestOption) => Promise<any>;
-	export type ICommonResponseData = {
-	    code: number;
-	    data: any;
-	    message: string;
-	    msg?: string;
-	};
-	export interface IHttpRequestBase {
-	    method?: 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'JSONP';
-	    headers?: HeadersInit;
-	    body?: any;
-	    mode?: 'cors' | 'no-cors' | 'same-origin';
-	    cache?: RequestCache;
-	    credentials?: RequestCredentials;
-	    redirect?: RequestRedirect;
-	    referrer?: ' no-referrer' | 'client';
-	}
-	export interface IHttpOption extends IHttpRequestBase {
-	    baseURL?: string;
-	    timeout?: number;
-	    transformRequest?: (arg: ITransformRequestOption) => any;
-	    transformResponse?: (res: Response) => any;
-	    responseType?: 'arrayBuffer' | 'blob' | 'formData' | 'json' | 'text';
-	    validateStatus?: (status: number) => boolean;
-	}
-	export interface ITransformRequestOption extends RequestInit {
-	    url: string;
-	}
-	export interface IHttpRequestOption extends IHttpRequestBase {
-	    url: string;
-	    query?: any;
-	    params?: any;
-	    data?: any;
-	}
-	export enum Method {
-	    GET = "GET",
-	    DELETE = "DELETE",
-	    HEAD = "HEAD",
-	    OPTIONS = "OPTIONS",
-	    POST = "POST",
-	    PUT = "PUT",
-	    PATCH = "PATCH",
-	    JSONP = "JSONP"
-	}
-	export enum ContentType {
-	    UrlEncode = "application/x-www-form-urlencoded; charset=utf-8",
-	    JSON = "application/json; charset=utf-8"
-	}
-
-}
-declare module 'h5-sdk/src/utils/common' {
-	import { ICommonResponseData } from 'h5-sdk/src/adapters/request/interface';
-	export function commonResponseReslove(response: ICommonResponseData): Promise<Error> | Promise<any>;
-
-}
 declare module 'h5-sdk/src/functions/regex' {
 	export const regexHttp: RegExp;
 	export const regexBase64: RegExp;
@@ -109,63 +53,6 @@ declare module 'h5-sdk/src/functions/underscore' {
 	export function each(obj: any, iteratee: Function, context?: any): any;
 	export function pick(obj: object, map: string[] | object): {};
 	export function memoize(func: Function, hasher?: Function): any;
-
-}
-declare module 'h5-sdk/src/functions/qs' {
-	export function stringify(obj?: any, sep?: string, eq?: string): string;
-	export function parse(qs: string, sep?: string, eq?: string): Record<string, any>;
-
-}
-declare module 'h5-sdk/src/functions/path' {
-	export function isAbsolute(path: string): boolean;
-	export function resolvePath(...args: string[]): string;
-	export function dirname(path: string): string;
-	export function basename(path: string, ext?: string): string;
-	export function extname(path: string): string;
-
-}
-declare module 'h5-sdk/src/adapters/request/request.web' {
-	import { IHttpOption, IHttpRequestOption } from 'h5-sdk/src/adapters/request/interface';
-	export default function createRequestWeb(): (config: IHttpOption & IHttpRequestOption) => Promise<any>;
-
-}
-declare module 'h5-sdk/src/adapters/request/request.mini' {
-	import { IHttpOption, IHttpRequestOption } from 'h5-sdk/src/adapters/request/interface';
-	export interface WxRequestCallbackResult {
-	    data: string | object | ArrayBuffer;
-	    header: object;
-	    statusCode: number;
-	}
-	export default function createRequestMini(): (config: IHttpOption & IHttpRequestOption) => Promise<{}>;
-
-}
-declare module 'h5-sdk/src/adapters/request/request.node' {
-	import { IHttpOption, IHttpRequestOption } from 'h5-sdk/src/adapters/request/interface';
-	export default function createRequestNode(): (config: IHttpOption & IHttpRequestOption) => any;
-
-}
-declare module 'h5-sdk/src/adapters/request/index' {
-	import { IRequest } from 'h5-sdk/src/adapters/request/interface'; let request: IRequest;
-	export { request };
-
-}
-declare module 'h5-sdk/src/factory/Http' {
-	import { IHttpOption, IHttpRequestOption } from 'h5-sdk/src/adapters/request/interface';
-	export default class Http {
-	    static option: IHttpOption;
-	    private static _instance;
-	    static readonly instance: Http;
-	    option: IHttpOption;
-	    constructor(_option?: IHttpOption);
-	    get(url: string, params?: any): Promise<any>;
-	    delete(url: string, params?: any): Promise<any>;
-	    head(url: string, params?: any): Promise<any>;
-	    options(url: string, params?: any): Promise<any>;
-	    post(url: string, data?: any): Promise<any>;
-	    put(url: string, data?: any): Promise<any>;
-	    patch(url: string, data?: any): Promise<any>;
-	    request(option: IHttpRequestOption): Promise<any>;
-	}
 
 }
 declare module 'h5-sdk/src/adapters/store/interface' {
@@ -314,6 +201,44 @@ declare module 'h5-sdk/src/adapters/auth/interface' {
 	}
 
 }
+declare module 'h5-sdk/src/functions/qs' {
+	export function stringify(obj?: any, sep?: string, eq?: string): string;
+	export function parse(qs: string, sep?: string, eq?: string): Record<string, any>;
+
+}
+declare module 'h5-sdk/src/functions/path' {
+	export function isAbsolute(path: string): boolean;
+	export function resolvePath(...args: string[]): string;
+	export function dirname(path: string): string;
+	export function basename(path: string, ext?: string): string;
+	export function extname(path: string): string;
+
+}
+declare module 'h5-sdk/src/adapters/request/request.web' {
+	import { IHttpOption, IHttpRequestOption } from 'h5-sdk/src/adapters/request/interface';
+	export default function createRequestWeb(): (config: IHttpOption & IHttpRequestOption) => Promise<any>;
+
+}
+declare module 'h5-sdk/src/adapters/request/request.mini' {
+	import { IHttpOption, IHttpRequestOption } from 'h5-sdk/src/adapters/request/interface';
+	export interface WxRequestCallbackResult {
+	    data: string | object | ArrayBuffer;
+	    header: object;
+	    statusCode: number;
+	}
+	export default function createRequestMini(): (config: IHttpOption & IHttpRequestOption) => Promise<{}>;
+
+}
+declare module 'h5-sdk/src/adapters/request/request.node' {
+	import { IHttpOption, IHttpRequestOption } from 'h5-sdk/src/adapters/request/interface';
+	export default function createRequestNode(): (config: IHttpOption & IHttpRequestOption) => any;
+
+}
+declare module 'h5-sdk/src/adapters/request/index' {
+	import { IRequest } from 'h5-sdk/src/adapters/request/interface'; let request: IRequest;
+	export { request };
+
+}
 declare module 'h5-sdk/src/adapters/auth/auth.mini' {
 	import { IAuth } from 'h5-sdk/src/adapters/auth/interface';
 	export default function createAuthMini(): IAuth;
@@ -387,6 +312,83 @@ declare module 'h5-sdk/src/factory/Auth' {
 	    update(param: any): Promise<any>;
 	    login(): Promise<any>;
 	    logout(): Promise<any>;
+	}
+
+}
+declare module 'h5-sdk/src/adapters/request/interface' {
+	import Auth from 'h5-sdk/src/factory/Auth';
+	export type IRequest = (config: IHttpOption & IHttpRequestOption) => Promise<any>;
+	export type ICommonResponseData = {
+	    code: number;
+	    data: any;
+	    message: string;
+	    msg?: string;
+	};
+	export interface IHttpRequestBase {
+	    method?: 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'JSONP';
+	    headers?: HeadersInit;
+	    body?: any;
+	    mode?: 'cors' | 'no-cors' | 'same-origin';
+	    cache?: RequestCache;
+	    credentials?: RequestCredentials;
+	    redirect?: RequestRedirect;
+	    referrer?: ' no-referrer' | 'client';
+	}
+	export interface IHttpOption extends IHttpRequestBase {
+	    auth?: Auth;
+	    baseURL?: string;
+	    timeout?: number;
+	    transformRequest?: (arg: ITransformRequestOption) => any;
+	    transformResponse?: (res: Response) => any;
+	    responseType?: 'arrayBuffer' | 'blob' | 'formData' | 'json' | 'text';
+	    validateStatus?: (status: number) => boolean;
+	}
+	export interface ITransformRequestOption extends RequestInit {
+	    url: string;
+	}
+	export interface IHttpRequestOption extends IHttpRequestBase {
+	    url: string;
+	    query?: any;
+	    params?: any;
+	    data?: any;
+	}
+	export enum Method {
+	    GET = "GET",
+	    DELETE = "DELETE",
+	    HEAD = "HEAD",
+	    OPTIONS = "OPTIONS",
+	    POST = "POST",
+	    PUT = "PUT",
+	    PATCH = "PATCH",
+	    JSONP = "JSONP"
+	}
+	export enum ContentType {
+	    UrlEncode = "application/x-www-form-urlencoded; charset=utf-8",
+	    JSON = "application/json; charset=utf-8"
+	}
+
+}
+declare module 'h5-sdk/src/utils/common' {
+	import { ICommonResponseData } from 'h5-sdk/src/adapters/request/interface';
+	export function commonResponseReslove(response: ICommonResponseData): Promise<Error> | Promise<any>;
+
+}
+declare module 'h5-sdk/src/factory/Http' {
+	import { IHttpOption, IHttpRequestOption } from 'h5-sdk/src/adapters/request/interface';
+	export default class Http {
+	    static option: IHttpOption;
+	    private static _instance;
+	    static readonly instance: Http;
+	    option: IHttpOption;
+	    constructor(_option?: IHttpOption);
+	    get(url: string, params?: any): Promise<any>;
+	    delete(url: string, params?: any): Promise<any>;
+	    head(url: string, params?: any): Promise<any>;
+	    options(url: string, params?: any): Promise<any>;
+	    post(url: string, data?: any): Promise<any>;
+	    put(url: string, data?: any): Promise<any>;
+	    patch(url: string, data?: any): Promise<any>;
+	    request(option: IHttpRequestOption): Promise<any>;
 	}
 
 }
@@ -670,7 +672,8 @@ declare module 'h5-sdk/src/plugins/tool' {
 	export function chooseFile(accept?: string): Promise<File>;
 	export function chooseImageAsDataURL(): Promise<string>;
 	export function autoGetImageBase64(): Promise<string>;
-	export function scrollTop(): void;
+	export function scrollTop(element?: HTMLElement): void;
+	export function scrollFix(_element?: HTMLElement): void;
 	export function base64toBlob(base64String: string, contentType?: string, sliceSize?: number): Blob;
 
 }

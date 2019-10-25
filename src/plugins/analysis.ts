@@ -67,9 +67,11 @@ export function start () {
   const unbindShow = analysis.onShow(pv)
   const unbindError = analysis.onError((err: any) => error(err))
   const unbindUnload = analysis.onUnload((e: any) => {
-    // 计算页面停留市场
+    // 计算页面停留时长，只计算时长大于10s的记录
     const stayTime = (now() - config.beforeLoadTime) / 1000
-    event(EVENTS.UNLOAD, config.unloadData, stayTime)
+    if (stayTime >= 10) {
+      return event(EVENTS.UNLOAD, config.unloadData, stayTime)
+    }
   })
   unBindEventList = [
     unbindShow,

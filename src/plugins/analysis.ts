@@ -7,6 +7,7 @@ import { getServiceUri } from "../config";
 import _config from "../config";
 import { signature } from "./safety";
 import { analysis } from '../adapters/analysis/index'
+import { isArray } from '../functions/is';
 
 /** 分析参数 */
 export type AnalysisOption = {
@@ -161,7 +162,11 @@ async function send (event: ANA_EVENTS, data: string = '', value: number = 0): P
 export function pv (e?: any) {
   const params: any = analysis.getCurrentParam()
   // 来源类型判断，from为微信端使用，spm_from为小程序或用户自定义
-  const spmFrom = params.from || params.spm_from
+  let spmFrom = params.from || params.spm_from
+  // 可能存在参数重复的问题 如：&spm_from=url&spm_from=timeline
+  if (isArray(spmFrom)) {
+    spmFrom = spmFrom.pop()
+  }
   // 来源用户绑定（e && e.scene 小程序切前台的场景值）
   const spmUid = params.spm_uid || (e && e.scene) || 0
   const defaultTags: any = {

@@ -71,7 +71,7 @@ export default class Emitter {
    * @param {String} type  The event type to invoke
    * @param {Any} [evt]  Any value (object is recommended and powerful), passed to each handler
    */
-  emit(type: string, a?: any, b?: any) {
+  public emit(type: string, a?: any, b?: any) {
     const _this = this
     const list = _this.$emitters[type]
     if (list && list.length) {

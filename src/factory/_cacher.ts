@@ -9,7 +9,7 @@ type ICacheObject = {
 
 export default function cacher (cacheKey: string) {
   // 最大缓存长度
-  const maxLength = 10
+  const maxLength = 16
   // 读取当前缓存项目
   const cache: ICacheObject[] = store.get(cacheKey) || []
 

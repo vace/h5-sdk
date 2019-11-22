@@ -8,7 +8,7 @@ import { createClsElement, createSdkIcon, classPrefix } from "../utils/shared";
 
 export interface UiViewOption extends UiBaseOption {
   /* image: 图片预览, preloader: 加载动画 */
-  type: 'image' | 'preloader'
+  type: 'image' | 'preloader' | 'curtain'
   /** 是否全屏 */
   isFullScreen?: boolean
   /** 图片路径 */

@@ -5,6 +5,7 @@
   "main": "dist/sdk.js",
   "types": "index.d.ts",
   "author": "Vace(ocdo@qq.com)",
+  "miniprogram": "dist/sdk.mini.js",
   "scripts": {
     "dev": "rollup --config build/rollup.config.js --watch --environment BUILD:web.Development",
     "development": "rollup --config build/rollup.config.js --environment BUILD:web.Development",

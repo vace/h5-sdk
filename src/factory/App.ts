@@ -49,7 +49,8 @@ export default class App {
   public static showError = noop
   /** 是否已经登陆 */
   public get isLogin () {
-    return this.user.isLogin
+    const user = this.user
+    return user && user.isLogin
   }
 
   /** 已经注入用户认证信息的`Http`实例 */
@@ -57,7 +58,7 @@ export default class App {
   /** auth信息 */
   public auth: Auth | null = Auth.hasInstance ? Auth.instance : null
   /** 用户信息 */
-  public user: User = User.instance
+  public user: User | null = User.hasInstance ? User.instance : null
   /** 任务进度 */
   private tasker: Tasker = new Tasker
 

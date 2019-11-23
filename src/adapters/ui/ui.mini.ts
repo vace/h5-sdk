@@ -4,7 +4,7 @@ import { wrapModal, wrapAlert, wrapPrompt, wrapConfirm, wrapUserbox } from './ui
 
 declare var wx: any
 
-export let uiAssetsPath = '/images/ui/'
+export let uiAssetsPath = '/images/sdk/'
 
 // 小程序使用参数有此限制
 function safeObject(object) {
@@ -72,12 +72,12 @@ export function userbox() {
 }
 
 function toastWrapper(icon?: 'success' | 'loading' | 'none' | any): (message: any, duration?: number) => any {
-  return (message: any, duration: number = 2000) => {
+  return (message: any, duration: any = icon === 'loading' ? undefined : 2000) => {
     const isSystem = ['success', 'loading', 'none'].indexOf(icon) !== -1
     return wx.showToast({
       title: message,
       icon: icon,
-      image: isSystem ? undefined : (`${uiAssetsPath}/${icon}/.svg`),
+      image: isSystem ? undefined : (`${uiAssetsPath}/${icon}.svg`),
       duration: duration,
       mask: false
     })

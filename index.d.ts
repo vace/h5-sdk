@@ -874,16 +874,14 @@ declare module 'h5-sdk/src/functions/index.mini' {
 declare module 'h5-sdk/src/plugins/cloud' {
 	export function service(serviceName: string, opt: any, method?: 'get' | 'post'): Promise<any>;
 	export function upbase64(base64: string): Promise<CloudResponse>;
-	export function upfile(file: File, isTempFile?: boolean): Promise<CloudResponse>;
-	export function uptemp(file: File): Promise<CloudResponse>;
 	export function syncurl(url: string): Promise<CloudResponse>;
 	export function tempurl(url: string): Promise<CloudResponse>;
 	export function hastemp(key: string): Promise<CloudResponse>;
 	export function syncimage(url: string): Promise<CloudResponse>;
-	export function wxmedia(media_id: string): Promise<CloudResponse>;
 	export function headfile(key: string): Promise<CloudResponse>;
 	export function proxy(option: ProxyOption): Promise<any>;
-	export function amr2mp3(input: string, kbs?: number): Promise<CloudResponse>; type CloudResponse = {
+	export function amr2mp3(input: string, kbs?: number): Promise<CloudResponse>;
+	export type CloudResponse = {
 	    name: string;
 	    url: string;
 	    status: number;
@@ -897,12 +895,19 @@ declare module 'h5-sdk/src/plugins/cloud' {
 	export {};
 
 }
+declare module 'h5-sdk/src/plugins/cloud.mini' {
+	export * from 'h5-sdk/src/plugins/cloud';
+	import { CloudResponse } from 'h5-sdk/src/plugins/cloud';
+	export function upfile(path: string, isTempFile?: boolean): any;
+	export function uptemp(path: string): Promise<CloudResponse>;
+
+}
 declare module 'h5-sdk/src/plugins/index.mini' {
 	import * as safety from 'h5-sdk/src/plugins/safety';
 	import store from 'h5-sdk/src/adapters/store/index';
 	import * as analysis from 'h5-sdk/src/plugins/analysis';
 	import * as ui from 'h5-sdk/src/adapters/ui/ui.mini';
-	import * as cloud from 'h5-sdk/src/plugins/cloud';
+	import * as cloud from 'h5-sdk/src/plugins/cloud.mini';
 	export { cloud, safety, store, ui, analysis };
 
 }
@@ -1206,6 +1211,14 @@ declare module 'h5-sdk/src/plugins/ui' {
 	export * from 'h5-sdk/src/adapters/ui/ui.web';
 
 }
+declare module 'h5-sdk/src/plugins/cloud.web' {
+	import { CloudResponse } from 'h5-sdk/src/plugins/cloud';
+	export * from 'h5-sdk/src/plugins/cloud';
+	export function wxmedia(media_id: string): Promise<CloudResponse>;
+	export function upfile(file: File, isTempFile?: boolean): Promise<CloudResponse>;
+	export function uptemp(file: File): Promise<CloudResponse>;
+
+}
 declare module 'h5-sdk/src/plugins/wechat' {
 	export function getQrcode(username: string): string;
 	export function shorturl(url: string, appid?: string): Promise<string>;
@@ -1216,7 +1229,7 @@ declare module 'h5-sdk/src/plugins/index' {
 	import * as ui from 'h5-sdk/src/plugins/ui';
 	import * as safety from 'h5-sdk/src/plugins/safety';
 	import * as tool from 'h5-sdk/src/plugins/tool';
-	import * as cloud from 'h5-sdk/src/plugins/cloud';
+	import * as cloud from 'h5-sdk/src/plugins/cloud.web';
 	import * as analysis from 'h5-sdk/src/plugins/analysis';
 	import * as wechat from 'h5-sdk/src/plugins/wechat';
 	export { default as store } from 'h5-sdk/src/adapters/store/index';
@@ -1278,17 +1291,6 @@ declare module 'h5-sdk/src/functions/path.spec' {
 
 }
 declare module 'h5-sdk/src/functions/qs.spec' {
-	export {};
-
-}
-declare module 'h5-sdk/src/plugins/cloud.mini' {
-	export function upfile(path: string, data?: any): any;
-	export function service(serviceName: string, opt: any, method?: 'get' | 'post'): Promise<any>;
-	export function proxy(option: ProxyOption): Promise<any>;
-	interface ProxyOption extends Request {
-	    url: string;
-	    type: string;
-	}
 	export {};
 
 }

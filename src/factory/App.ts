@@ -86,6 +86,10 @@ export default class App {
     })
     // 执行初始化
     this.setup()
+    // global instance
+    if (!App._instance) {
+      App._instance = this
+    }
   }
 
   public setAuth (auth: Auth) {

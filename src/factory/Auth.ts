@@ -83,6 +83,10 @@ export default class Auth {
       this.setOption(options)
       this.setup()
     }
+    // global instance
+    if (!Auth._instance) {
+      Auth._instance = this
+    }
   }
 
   /** 设置accessToken */

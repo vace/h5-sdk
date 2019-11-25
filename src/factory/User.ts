@@ -78,6 +78,10 @@ export default class User {
     if (user) {
       this.login(user)
     }
+    // global instance
+    if (!User._instance) {
+      User._instance = this
+    }
   }
 
   /** 登陆用户 */

@@ -3,7 +3,6 @@ import Http from "../factory/Http";
 
 import { getServiceUri } from "../config";
 import { commonResponseReslove } from "../utils/common";
-import { getAppid } from "./jssdk";
 
 /**
  * 访问服务端的service
@@ -17,34 +16,13 @@ export function service (serviceName: string, opt: any, method: 'get' | 'post' =
   return Http.instance[method](api, opt).then(commonResponseReslove)
 }
 
-/**q
+/**
  * 上传base64文件（项目文件）
  * @param {string} base64
  * @returns {Promise<CloudResponse>}
  */
 export function upbase64 (base64: string): Promise<CloudResponse> {
   return service('cloud/upbase64', { base64 }, 'post')
-}
-
-/**
- * 上传一个文件（项目文件）
- * @param {File} file
- * @param {boolean} isTempFile 是否为临时文件
- * @returns {Promise<CloudResponse>}
- */
-export function upfile(file: File, isTempFile?: boolean): Promise<CloudResponse> {
-  const form = new FormData()
-  form.append('file', file, file.name)
-  return service('cloud/' + (isTempFile ? 'uptemp': 'upfile'), form, 'post')
-}
-
-/**
- * 上传文件（临时文件）
- * @param {File} file
- * @returns {Promise<CloudResponse>}
- */
-export function uptemp (file: File): Promise<CloudResponse> {
-  return upfile(file, true)
 }
 
 /**
@@ -85,15 +63,6 @@ export function syncimage (url: string): Promise<CloudResponse>  {
 }
 
 /**
- * 同步微信资源文件
- * @param {string} media_id
- * @returns {Promise<CloudResponse>}
- */
-export function wxmedia (media_id: string): Promise<CloudResponse>  {
-  return service('cloud/wxmedia', { jsappid: getAppid(), media_id })
-}
-
-/**
  * 获取文件信息
  * @param {string} key 应用文件存储的key，注意去除前缀
  * @returns {Promise<CloudResponse>}
@@ -121,7 +90,7 @@ export function amr2mp3 (input: string, kbs?: number): Promise<CloudResponse> {
   return service('cloud/amr2mp3', {input, kbs}, 'get')  
 }
 
-type CloudResponse = {
+export type CloudResponse = {
   /** 文件名称 */
   name: string
   /** 文件路径 */

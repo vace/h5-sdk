@@ -117,7 +117,7 @@ declare module 'h5-sdk/src/factory/_cacher' {
 }
 declare module 'h5-sdk/src/factory/User' {
 	export type IUserState = 'unknow' | 'normal' | 'black' | 'admin' | 'super' | 'developer';
-	export type IUserPlatform = 'unknow' | 'wechat' | 'qq' | 'taobao' | 'weibo' | 'douyin' | 'github' | 'google' | 'linkedin' | 'facebook' | 'open' | 'mini';
+	export type IUserPlatform = 'unknow' | 'wechat' | 'qq' | 'taobao' | 'weibo' | 'douyin' | 'github' | 'google' | 'linkedin' | 'facebook' | 'open' | 'mini' | 'dingtalk';
 	export type IUserType = 'none' | 'base' | 'user';
 	export type IUserOption = {
 	    appid: string;
@@ -586,6 +586,7 @@ declare module 'h5-sdk/src/functions/environment' {
 	export const isAndroid: boolean;
 	export const isMiniapp: boolean;
 	export const isWechat: boolean;
+	export const isDingTalk: boolean;
 	export function checkSupportWebp(): Promise<boolean>;
 
 }

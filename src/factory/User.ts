@@ -6,7 +6,7 @@ import cacher from './_cacher'
 export type IUserState = 'unknow' | 'normal' | 'black' | 'admin' | 'super' | 'developer'
 
 /** 支持的平台 */
-export type IUserPlatform = 'unknow' | 'wechat' | 'qq' | 'taobao' | 'weibo' | 'douyin' | 'github' | 'google' | 'linkedin' | 'facebook' | 'open' | 'mini'
+export type IUserPlatform = 'unknow' | 'wechat' | 'qq' | 'taobao' | 'weibo' | 'douyin' | 'github' | 'google' | 'linkedin' | 'facebook' | 'open' | 'mini' | 'dingtalk'
 
 /** 用户种类，base只有用户id，user包含头像昵称 */
 export type IUserType = 'none' | 'base' | 'user'

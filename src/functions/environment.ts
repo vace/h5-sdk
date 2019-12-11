@@ -7,19 +7,22 @@ import { navigator } from "../utils/global";
 const ua = navigator.userAgent.toLowerCase()
 
 /** 是否为移动设备 */
-export const isMobile: boolean = !!ua.match(/mobile/)
+export const isMobile: boolean = /mobile/.test(ua)
 
 /** 是否为ios设备（ipad产品或者iphone） */
-export const isIos: boolean = !!ua.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/i)
+export const isIos: boolean = /\(i[^;]+;( U;)? CPU.+Mac OS X/i.test(ua)
 
 /** 是否为安卓设备 */
-export const isAndroid = -1 !== ua.indexOf('android')
+export const isAndroid = /android/.test(ua)
 
 /** 是否为小程序 */
 export const isMiniapp = window['__wxjs_environment'] === 'miniprogram'
 
 /** 是否在微信浏览器中 */
-export const isWechat = -1 !== ua.indexOf('micromessenger')
+export const isWechat = /micromessenger/i.test(ua)
+
+/** 是否在钉钉浏览器中 */
+export const isDingTalk: boolean = /DingTalk/i.test(ua)
 
 let WEBP_SUPPORT_PROMISE: any
 /**

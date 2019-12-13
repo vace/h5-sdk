@@ -2,6 +2,7 @@ import config from "../../config";
 import { IAuth } from "./interface";
 import { request } from '../request/index'
 import Auth from "../../factory/Auth";
+import { each } from "../../functions/underscore";
 
 declare var wx: any
 
@@ -71,8 +72,22 @@ export default function createAuthMini (): IAuth {
     async update (auth, detail) {
       // 尝试登陆用户
       const {
-        encryptedData, iv, signature
+        encryptedData, iv, signature, userInfo: {
+          avatarUrl: avatar,
+          language,
+          nickName: nickname,
+          gender
+        }
       } = detail
+
+      // 同步用户属性
+      each({
+        nickname,
+        avatar,
+        gender,
+        language
+      }, (val: any, key: any) => this[key] = val)
+
       const user = await request({
         url: config.api + '/wx/mini/loginuser',
         method: 'POST',

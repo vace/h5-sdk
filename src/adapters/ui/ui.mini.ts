@@ -17,6 +17,10 @@ function safeObject(object) {
 }
 
 export function alert(option: IUiAlertOption): Promise<boolean> {
+  // 文本处理
+  if (typeof option === 'string') {
+    option = { content: option }
+  }
   return new Promise((resolve) => {
     const arg = {
       title: option.title,
@@ -72,15 +76,39 @@ export function userbox() {
 }
 
 function toastWrapper(icon?: 'success' | 'loading' | 'none' | any): (message: any, duration?: number) => any {
-  return (message: any, duration: any = icon === 'loading' ? undefined : 2000) => {
-    const isSystem = ['success', 'loading', 'none'].indexOf(icon) !== -1
-    return wx.showToast({
-      title: message,
+  return (message: any, duration: any = 2000) => {
+    let title: string
+    let mask: boolean = false
+    let onClose: Function
+    if (typeof message === 'string') {
+      title = message
+    } else {
+      title = message.title
+      mask = !!(message.mask || message.isAddMask)
+      duration = duration || message.duration
+      onClose = message.onClose
+    }
+
+    if (icon === 'loading') {
+      wx.showLoading({
+        title,
+        mask
+      })
+      return {
+        close: () => wx.hideLoading({ complete: onClose })
+      }
+    }
+    const isSystem = ['success', 'none'].indexOf(icon) !== -1
+    wx.showToast({
+      title,
       icon: icon,
       image: isSystem ? undefined : (`${uiAssetsPath}/${icon}.svg`),
-      duration: duration,
-      mask: false
+      duration,
+      mask
     })
+    return {
+      close: () => wx.hideToast({ complete: onClose })
+    }
   }
 }
 
@@ -102,12 +130,22 @@ export const loading = toastWrapper('loading')
 export const view = () => todo('view')
 export const image = () => todo('image')
 
-export const preloader = (content: string = '请稍后...') => {
-  wx.showLoading({ title: content, mask: true })
+export const preloader = (content: any = '请稍后...') => {
+  let title
+  let mask = true
+  let onClose: any
+  if (typeof content === 'string') {
+    title = content
+  } else {
+    title = content.title
+    mask = content.mask == null ? true : content.mask
+    onClose = content.onClose
+  }
+  wx.showLoading({ title, mask })
   wx.showNavigationBarLoading()
   return {
     close() {
-      wx.closeLoading()
+      wx.closeLoading({ complete: onClose })
       wx.hideNavigationBarLoading()
     }
   }

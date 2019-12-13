@@ -1,0 +1,15 @@
+{
+  "name": "mini-sdk",
+  "version": "3.5.0",
+  "description": "sdk.js 用于小程序的sdk",
+  "main": "dist/sdk.js",
+  "author": "Vace(ocdo@qq.com)",
+  "miniprogram": "dist",
+  "types": "index.d.ts",
+  "files": [
+    "index.d.ts",
+    "dist/sdk.js"
+  ],
+  "devDependencies": {},
+  "dependencies": {}
+}

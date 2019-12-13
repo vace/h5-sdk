@@ -103,7 +103,7 @@ if (Plantform === 'web') {
     },
     context: 'window',
     output: {
-      file: './dist/sdk.mini.js',
+      file: './miniprogram/dist/sdk.js',
       format: 'cjs',
       name: 'sdk',
       banner

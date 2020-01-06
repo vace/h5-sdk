@@ -759,6 +759,7 @@ declare module 'h5-sdk/src/factory/UiModal' {
 	    footer?: string;
 	    buttons?: UiButtonOption[];
 	    inputs?: UiInputOption[];
+	    showClose?: boolean;
 	    maskClose?: boolean;
 	    transparent?: boolean;
 	    target?: string | HTMLElement;

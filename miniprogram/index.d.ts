@@ -759,6 +759,7 @@ declare module 'h5-sdk/src/factory/UiModal' {
 	    footer?: string;
 	    buttons?: UiButtonOption[];
 	    inputs?: UiInputOption[];
+	    showClose?: boolean;
 	    maskClose?: boolean;
 	    transparent?: boolean;
 	    target?: string | HTMLElement;
@@ -1277,22 +1278,6 @@ declare module 'h5-sdk/src/adapters/app/index' {
 declare module 'h5-sdk/src/adapters/ui/ui.node' {
 	export function preloader(): void;
 	export function loading(): void;
-
-}
-declare module 'h5-sdk/src/functions/common.spec' {
-	export {};
-
-}
-declare module 'h5-sdk/src/functions/is.spec' {
-	export {};
-
-}
-declare module 'h5-sdk/src/functions/path.spec' {
-	export {};
-
-}
-declare module 'h5-sdk/src/functions/qs.spec' {
-	export {};
 
 }
 declare module 'h5-sdk' {

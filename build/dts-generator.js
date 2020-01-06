@@ -1,11 +1,11 @@
 const path = require('path')
-const project = path.dirname(__dirname)
+const rootPath = path.dirname(__dirname)
 
-require('dts-generator').default({
+const options = {
+  project: rootPath,
   name: 'h5-sdk',
   main: 'h5-sdk/src/web-entry',
   prefix: 'h5-sdk',
-  project,
   out: 'index.d.ts',
   types: ['zepto', 'store', 'blueimp-md5'],
   // resolveModuleId({ currentModuleId }) {
@@ -13,12 +13,21 @@ require('dts-generator').default({
   //     return null
   //   }
   // }
+  sendMessage: console.log,
   exclude: [
     'node_modules/**/*.d.ts',
     'src/scheduler/*.ts',
     'src/mini-entry.ts',
     'src/node-entry.ts',
-    '*.spec.ts',
-    '*.js'
+    'src/**/*.spec.ts',
+    'dist/**',
+    'build/**',
+    'docs/**',
+    'demo/**',
+    'miniprogram/**',
+    '*.js',
+    'index.d.ts'
   ]
-});
+}
+
+require('dts-generator').default(options);

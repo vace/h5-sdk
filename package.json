@@ -1,6 +1,6 @@
 {
   "name": "h5-sdk",
-  "version": "3.5.0",
+  "version": "3.5.1",
   "description": "sdk.js 用于Web/小程序/Node的sdk",
   "main": "dist/sdk.js",
   "types": "index.d.ts",

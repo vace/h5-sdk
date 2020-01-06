@@ -46,7 +46,12 @@
   * {
     box-sizing: border-box;
   }
-
+  &-close {
+    position: absolute;
+    right: 0.2em;
+    top: 0.2em;
+    font-size: 1.8em;
+  }
   &-title {
     padding: 1.3em @paddingGap .5em;
     font-weight: 600;
@@ -163,6 +168,9 @@
 
 // theme
 ._sdk-theme-android {
+  ._sdk-modal-close {
+    top: 0.6em;
+  }
   ._sdk-modal {
     text-align: left;
     box-shadow: 0 6px 30px 0 rgba(0, 0, 0, .1);

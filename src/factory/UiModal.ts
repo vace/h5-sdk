@@ -21,6 +21,8 @@ export interface UiModalOption extends UiBaseOption {
   buttons?: UiButtonOption[]
   /** 输入项列表 */
   inputs?:  UiInputOption[]
+  /** 是否展示关闭按钮，只有title存在时渲染 */
+  showClose?: boolean,
   /** 点击mask是否可关闭 */
   maskClose?: boolean
   /** 背景透明 */
@@ -170,10 +172,15 @@ export default class UiModal extends UiBase{
   private _openHook () {
     const { $root, $modal, id } = this
     // 渲染结构
-    const { title, header, content, footer, buttons, inputs } = this.option
+    const { title, header, content, footer, buttons, inputs, showClose } = this.option
     const modalElements: ZeptoCollection[] = []
     if (title) {
       modalElements.push(createClsElement('modal-title', title))
+      if (showClose) {
+        const $el = createClsElement('modal-close', createSdkIcon('close'))
+        modalElements.push($el)
+        $el.on('click', this.close.bind(this))
+      }
     } else {
       $modal.addClass(classPrefix('modal-notitle'))
     }

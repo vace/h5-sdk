@@ -1,6 +1,11 @@
 /// <reference types="zepto" />
 /// <reference types="store" />
 /// <reference types="blueimp-md5" />
+declare module 'h5-sdk/types/es6-object-assign' {
+	export function assign(target: any, firstSource: any, ...args: any[]): any;
+	export function polyfill(): void;
+
+}
 declare module 'h5-sdk/src/functions/regex' {
 	export const regexHttp: RegExp;
 	export const regexBase64: RegExp;
@@ -1272,11 +1277,6 @@ declare module 'h5-sdk/src/adapters/app/index' {
 declare module 'h5-sdk/src/adapters/ui/ui.node' {
 	export function preloader(): void;
 	export function loading(): void;
-
-}
-declare module 'h5-sdk/types/es6-object-assign' {
-	export function assign(target: any, firstSource: any, ...args: any[]): any;
-	export function polyfill(): void;
 
 }
 declare module 'h5-sdk' {

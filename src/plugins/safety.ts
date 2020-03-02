@@ -3,13 +3,14 @@
  */
 import _md5 from 'blueimp-md5'
 import { isObject } from '../functions/is';
+import { global } from '../utils/global'
 
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
 
 class InvalidCharacterError extends Error{}
 
-/** base64 to assic */
-export function btoa (input: string) {
+/** binary to assic */
+export const btoa = global.btoa || function (input: string) {
   var str = String(input);
   for (
     // initialize result and counter
@@ -30,8 +31,8 @@ export function btoa (input: string) {
   return output;
 }
 
-/** ascii to base64 */
-export function atob (input: string) {
+/** ascii to binary */
+export const atob = global.atob || function (input: string) {
   var str = String(input).replace(/[=]+$/, ''); // #31: ExtendScript bad parse of /=
   if (str.length % 4 == 1) {
     throw new InvalidCharacterError("'atob' failed: The string to be decoded is not correctly encoded.");

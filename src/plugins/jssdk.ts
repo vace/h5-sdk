@@ -300,8 +300,8 @@ function _parseShareOption (option: IWxShareOption, platform: string) {
 }
 
 /** 上传图片，并获取base64 */
-export function chooseImageBase64 (): Promise<string> {
-  return api('chooseImage', { count: 1, sizeType: ['compressed'] }).then(({ localIds: [localId] }: any) => {
+export function chooseImageBase64 (option): Promise<string> {
+  return api('chooseImage', option || { count: 1, sizeType: ['compressed'] }).then(({ localIds: [localId] }: any) => {
     return api('getLocalImgData', { localId }).then(({ localData }: any) => {
       const mime = 'image/jpeg'
       // fixed 安卓下的bug

@@ -94,7 +94,7 @@ export function chooseFile (accept: string = '*'): Promise<File> {
  * 选择文件并获取base64编码
  * @returns {Promise<string>}
  */
-export function chooseImageAsDataURL (): Promise<string> {
+export function chooseImageAsDataURL(option?:any): Promise<string> {
   return chooseFile('image/*').then(readAsDataURL)
 }
 
@@ -103,8 +103,8 @@ export function chooseImageAsDataURL (): Promise<string> {
  * ! 在微信端会使用微信的上传方式，读取base64
  * @returns {Promise<string>}
  */
-export function autoGetImageBase64(): Promise<string> {
-  return isWechat ? chooseImageBase64() : chooseImageAsDataURL()
+export function autoGetImageBase64(option?: any): Promise<string> {
+  return isWechat ? chooseImageBase64(option) : chooseImageAsDataURL(option)
 }
 
 /** 

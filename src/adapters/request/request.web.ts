@@ -75,7 +75,7 @@ export default function createRequestWeb () {
     const { url: _fetchUri, ..._fetchOptions } = _option
     // 拦截jsonp
     if (method === Method.JSONP) {
-      return jsonp(_fetchUri)
+      return jsonp(_fetchUri, config)
     }
     // TODO timeout
     return fetch(_fetchUri, _fetchOptions).then((response: Response) => {

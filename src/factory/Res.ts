@@ -372,8 +372,12 @@ export default class Res extends Emitter{
   }
 }
 
+// JSONP
+Res.registerLoader(TYPE.JSONP, jsonp)
+
 // register xhr res handle
-[TYPE.UNKNOWN, TYPE.ARRAY_BUFFER, TYPE.BLOB, TYPE.HEADERS, TYPE.JSON, TYPE.TEXT, TYPE.FORM_DATA].forEach(type => {
+const R_FETCH = [TYPE.UNKNOWN, TYPE.ARRAY_BUFFER, TYPE.BLOB, TYPE.HEADERS, TYPE.JSON, TYPE.TEXT, TYPE.FORM_DATA]
+R_FETCH.forEach(type => {
   Res.registerLoader(type, (url, option) => fetch(url, option).then((res: any) => {
     if (type in res) {
       return typeof res[type] === 'function' ? res[type]() : res[type]
@@ -381,11 +385,10 @@ export default class Res extends Emitter{
     return res
   }))
 });
-
-Res.registerLoader(TYPE.JSONP, jsonp)
+const R_RES = [TYPE.CSS, TYPE.JS, TYPE.IMG, TYPE.AUDIO, TYPE.VIDEO]
 
 // register document element handle
-[TYPE.CSS, TYPE.JS, TYPE.IMG, TYPE.AUDIO, TYPE.VIDEO].forEach(type => {
+R_RES.forEach(type => {
   Res.registerLoader(type, (url, option) => new Promise((resolve, reject) => {
     let eventResolve: null | 'onload' | 'oncanplaythrough' | 'oncanplay' = 'onload'
     /** 是否插入文档 */

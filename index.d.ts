@@ -149,8 +149,8 @@ declare module 'h5-sdk/src/factory/User' {
 
 }
 declare module 'h5-sdk/src/plugins/safety' {
-	export function btoa(input: string): string;
-	export function atob(input: string): string;
+	export const btoa: any;
+	export const atob: any;
 	export const md5: (str: string, key?: string) => string;
 	export function signature(object: Record<string, any>, action?: string): string;
 	export function jwtDecode(token: string): any;
@@ -212,6 +212,10 @@ declare module 'h5-sdk/src/functions/path' {
 	export function dirname(path: string): string;
 	export function basename(path: string, ext?: string): string;
 	export function extname(path: string): string;
+
+}
+declare module 'h5-sdk/src/functions/jsonp' {
+	export function jsonp(url: string): Promise<{}>;
 
 }
 declare module 'h5-sdk/src/adapters/request/request.web' {
@@ -388,6 +392,7 @@ declare module 'h5-sdk/src/factory/Http' {
 	    post(url: string, data?: any): Promise<any>;
 	    put(url: string, data?: any): Promise<any>;
 	    patch(url: string, data?: any): Promise<any>;
+	    jsonp(url: string, params?: any): Promise<any>;
 	    request(option: IHttpRequestOption): Promise<any>;
 	}
 
@@ -613,6 +618,7 @@ declare module 'h5-sdk/src/functions/index' {
 	export * from 'h5-sdk/src/functions/regex';
 	export * from 'h5-sdk/src/functions/timeago';
 	export * from 'h5-sdk/src/functions/underscore';
+	export * from 'h5-sdk/src/functions/jsonp';
 
 }
 declare module 'h5-sdk/src/plugins/jssdk' {
@@ -661,7 +667,7 @@ declare module 'h5-sdk/src/plugins/jssdk' {
 	export function getAppid(): string; type SharePlatform = 'timeline' | 'app' | 'qq' | 'weibo' | 'qzone' | 'mini';
 	export function share(option?: IWxShareOption): any;
 	export function setMiniappShare(option: IWxShareOption): any;
-	export function chooseImageBase64(): Promise<string>;
+	export function chooseImageBase64(option: any): Promise<string>;
 	export function preview(url: string | string[], index?: number): void;
 	export function api(apiName: string, option?: any): Promise<any>;
 	export {};
@@ -671,9 +677,8 @@ declare module 'h5-sdk/src/plugins/tool' {
 	export function onShake(callback: Function): false | (() => void);
 	export function readAsDataURL(inputer: File): Promise<string>;
 	export function chooseFile(accept?: string): Promise<File>;
-	export function chooseImageAsDataURL(): Promise<string>;
-	export function autoGetImageBase64(): Promise<string>;
-	export function scrollTop(element?: HTMLElement): void;
+	export function chooseImageAsDataURL(option?: any): Promise<string>;
+	export function autoGetImageBase64(option?: any): Promise<string>;
 	export function scrollFix(_element?: HTMLElement): void;
 	export function base64toBlob(base64String: string, contentType?: string, sliceSize?: number): Blob;
 
@@ -949,6 +954,7 @@ declare module 'h5-sdk/src/factory/Res' {
 	    BLOB = "blob",
 	    HEADERS = "headers",
 	    JSON = "json",
+	    JSONP = "jsonp",
 	    TEXT = "text",
 	    FORM_DATA = "formData",
 	    CSS = "css",

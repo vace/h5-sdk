@@ -215,7 +215,11 @@ declare module 'h5-sdk/src/functions/path' {
 
 }
 declare module 'h5-sdk/src/functions/jsonp' {
-	export function jsonp(url: string): Promise<{}>;
+	interface IJsonpOption {
+	    callback?: string;
+	}
+	export function jsonp(url: string, options?: IJsonpOption | any): Promise<{}>;
+	export {};
 
 }
 declare module 'h5-sdk/src/adapters/request/request.web' {

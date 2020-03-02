@@ -74,9 +74,10 @@ export default class Http {
   public patch(url: string, data?: any): Promise<any> {
     return this.request({ url,  method: Method.PATCH, data })
   }
-  // public jsonp (url: string, params?: any) {
-  //   return this.request({ url, method: Method.JSONP, params })
-  // }
+  /* JSONP 请求 */
+  public jsonp (url: string, params?: any) {
+    return this.request({ url, method: Method.JSONP, params })
+  }
   /** 发送request */
   public request(option: IHttpRequestOption): Promise<any> {
     const config: IHttpRequestOption & IHttpOption = assign({}, option, this.option)

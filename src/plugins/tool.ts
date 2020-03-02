@@ -107,22 +107,13 @@ export function autoGetImageBase64(): Promise<string> {
   return isWechat ? chooseImageBase64() : chooseImageAsDataURL()
 }
 
-/**
- * 滚动视图到顶部
- */
-export function scrollTop (element?: HTMLElement) {
-  (element || document.documentElement).scrollTop = 0
-}
-
 /** 
  * IOS 虚拟键盘bug的处理发付出
  */
 export function scrollFix (_element?: HTMLElement) {
-  const el: HTMLElement = _element || document.body
-
+  const el: HTMLElement = _element || document.documentElement || document.body
   // 触发浏览器的重新渲染机制
   el.scrollTop = el.scrollTop
-  el.scrollIntoView(false)
 }
 
 /**

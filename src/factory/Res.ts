@@ -6,7 +6,7 @@ import { isHttp, isBase64 } from '../functions/is';
 import Emitter from './Emitter';
 import { isAbsolute } from '../functions/path';
 import { uuid } from '../functions/common';
-import { isIos } from '../functions/index';
+import { isIos, jsonp } from '../functions/index';
 
 /**
  * ```javascript
@@ -29,6 +29,8 @@ export enum TYPE {
   HEADERS = 'headers',
   /** 尝试解析json */
   JSON = 'json',
+  /** 尝试解析jsonp */
+  JSONP = 'jsonp',
   /** 尝试以text读取 */
   TEXT = 'text',
   /** 尝试读取formData */
@@ -379,6 +381,8 @@ export default class Res extends Emitter{
     return res
   }))
 });
+
+Res.registerLoader(TYPE.JSONP, jsonp)
 
 // register document element handle
 [TYPE.CSS, TYPE.JS, TYPE.IMG, TYPE.AUDIO, TYPE.VIDEO].forEach(type => {

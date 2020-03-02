@@ -3,6 +3,7 @@ import { stringify } from '../../functions/qs';
 import { isAbsolute } from '../../functions/path';
 
 import { ITransformRequestOption, IHttpOption, IHttpRequestOption, Method, ContentType } from "./interface";
+import { jsonp } from '../../functions/jsonp';
 
 
 /**
@@ -24,7 +25,7 @@ export default function createRequestWeb () {
     // 根据 content type 处理body
     let contentType = headers.get(StrContentType)
     // get
-    if (method === Method.GET || method === Method.HEAD || method === Method.DELETE || method === Method.OPTIONS) {
+    if (method === Method.GET || method === Method.JSONP || method === Method.HEAD || method === Method.DELETE || method === Method.OPTIONS) {
       body = void 0 // clear body
       let queryParams = query || params || data
       if (queryParams) { // 参数组合
@@ -72,6 +73,10 @@ export default function createRequestWeb () {
     }
     // 解析uri和配置
     const { url: _fetchUri, ..._fetchOptions } = _option
+    // 拦截jsonp
+    if (method === Method.JSONP) {
+      return jsonp(_fetchUri)
+    }
     // TODO timeout
     return fetch(_fetchUri, _fetchOptions).then((response: Response) => {
       const { status, statusText, headers } = response

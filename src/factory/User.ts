@@ -83,6 +83,11 @@ export default class User {
       User._instance = this
     }
   }
+  
+  /** 缓存KEY */
+  public get cacheKey (): string {
+    return this.appid + '/' + this.userType
+  }
 
   /** 登陆用户 */
   public login (user: any) {
@@ -90,8 +95,7 @@ export default class User {
       this.isLogin = true
       // 同步用户信息到user对象中
       each(user, (val: any, key: any) => this[key] = val)
-      // store.set(User.cacheKey, user)
-      User.cacher.set(this.appid, user)
+      User.cacher.set(this.cacheKey, user)
     }
     return this
   }
@@ -99,7 +103,7 @@ export default class User {
   /** 登出用户 */
   public logout () {
     // store.remove(User.cacheKey)
-    User.cacher.remove(this.appid)
+    User.cacher.remove(this.cacheKey)
     this.isLogin = false
     this.id = 0
   }

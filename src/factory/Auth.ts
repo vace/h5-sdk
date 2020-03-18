@@ -119,6 +119,11 @@ export default class Auth {
     return this._accessToken
   }
 
+  /** 缓存KEY：应用id/授权类型 */
+  public get cacheKey (): string {
+    return `${this.appid}/${this.type}`
+  }
+
   /**
    * 保存token值
    * @param token 完整的token值
@@ -129,14 +134,15 @@ export default class Auth {
       // cache
       if (this.isAccessTokenValid) {
         // 使用@链接版本号，对比用户信息准确性
-        Auth.cacher.set(this.appid, token + '@' + this.version)
+        Auth.cacher.set(this.cacheKey, token + '@' + this.version)
       }
     }
   }
 
+  /** 清除用户Token */
   public clearToken () {
     this._accessToken = ''
-    Auth.cacher.remove(this.appid)
+    Auth.cacher.remove(this.cacheKey)
   }
 
   /** 设置配置 */
@@ -162,7 +168,7 @@ export default class Auth {
     this.isAuthed = true
     tasker.working()
     if (this.accessToken == null) {
-      const token = Auth.cacher.get(this.appid) || ''
+      const token = Auth.cacher.get(this.cacheKey) || ''
       let [accessToken, tokenVersion = ''] = token.split('@')
       // 用户设置了版本，则需要检测版本是否正确
       if (this.version && this.version !== tokenVersion) {
@@ -212,14 +218,12 @@ export default class Auth {
     return auth.update(this, param)
   }
 
-  /**
-   * 登陆当前应用
-   */
+  /** 登陆当前应用 */
   public login () {
     return auth.login(this)
   }
 
-  // 行登出用户
+  /** 登出当前用户 */
   public logout() {
     return auth.logout(this)
   }

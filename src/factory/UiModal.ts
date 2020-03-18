@@ -71,6 +71,10 @@ export default class UiModal extends UiBase{
     if (_option.inputs && _option.inputs.length) {
       _option.isForm = true
     }
+    // 半屏操作时默认可点击关闭
+    if (_option.theme === 'half' && _option.maskClose == null) {
+      _option.maskClose = true
+    }
     super(assign({}, UiModal.option, _option))
     // 挂载
     this.$modal = createClsElement('modal')

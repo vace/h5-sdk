@@ -9,7 +9,7 @@ import { scrollFix } from '../plugins/tool';
 export type TypeColor = 'dark' | 'main' | 'primary' | 'warn' | 'info'
 
 /** UI支出的主题 */
-export type UiTheme = 'android' | 'ios'
+export type UiTheme = 'android' | 'ios' | 'half'
 
 /** 通用默认配置 */
 export type UiBaseOption = {

@@ -4,6 +4,7 @@ import UiModal, { UiModalOption } from '../../factory/UiModal'
 import UiToast, { UiToastOption } from '../../factory/UiToast';
 import UiMusic, { IUiMusicOption } from '../../factory/UiMusic';
 import UiView, { UiViewOption } from '../../factory/UiView';
+import UiSheet, { IUiSheetOption } from '../../factory/UiSheet';
 
 import { isObject, isNumber, isFunction, isPromise } from '../../functions/is';
 import { each } from '../../functions/underscore';
@@ -67,7 +68,7 @@ export function alert(option: IUiAlertOption | string): UiModal {
   }
   const { okText: label = '确定', ok: onClick = closeHelper, href } = option
   option.buttons = [
-    { label, onClick, key: 'ok', href }
+    { label, onClick, key: 'ok', href, bold: true }
   ]
   return new UiModal(option).open()
 }
@@ -97,7 +98,7 @@ export function confirm(option: IUiConfirmOption): UiModal {
     }
   }
   option.buttons = [
-    { label: noText, key: 'no', onClick: no || closeHelper },
+    { label: noText, key: 'no', onClick: no || closeHelper, bold: true, color: 'dark' },
     { label: okText, key: 'ok', onClick: wrapOkCallback || closeHelper, bold: true }
   ]
   return new UiModal(option).open()
@@ -120,6 +121,15 @@ export function prompt(option: IUiPromptOption | string): UiModal {
   delete option.validate
   option.isForm = true
   return confirm(option)
+}
+
+/**
+ * 打开一个sheet
+ * @param {IUiSheetOption} option
+ * @returns {UiSheet}
+ */
+export function sheet (option: IUiSheetOption) {
+  return new UiSheet(option).open()
 }
 
 let _$cacheMapProfile: any

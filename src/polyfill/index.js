@@ -29,7 +29,7 @@ import './es6-array.js'
 import './es6-collections.js'
 
 // 修复 requestAnimationFrame
-import './raf.js'
+// import './raf.js'
 
 // jweixin
 import './jweixin-1.5.0'

@@ -1,3 +1,7 @@
+/**
+ * 从3.6.0版本起，废弃，主流浏览器支持度非常高，不再考虑兼容性
+ */
+
 /* eslint-disable */
 (function (exports) {
 

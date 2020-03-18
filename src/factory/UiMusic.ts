@@ -343,17 +343,6 @@ export default class UiMusic extends Emitter {
     } else if (eventId === UiMusicEvent.timeupdate) {
 
     }
-    // 准备就绪
-    // if (eventId === UiMusicEvent.canplay) {
-    //   // fixed 自动播放未播放，浏览器限制
-    //   if (autoplay && audio.paused) {
-    //     if (isWechat) fire(this.play)
-    //     else {
-    //       if (!isMobile) setTimeout(this.play, 0)
-    //       $(document).one('click', this.play)
-    //     }
-    //   }
-    // }
     this.emit(eventName, event)
   }
 

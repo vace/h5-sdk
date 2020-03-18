@@ -9,6 +9,10 @@ type EventHandlerMap = {
   [key: string]: AllowEventHandler[],
 };
 
+/**
+ * 事件处理
+ * @class Emitter
+ */
 export default class Emitter {
   /** 单例缓存 */
   protected static _instance: Emitter
@@ -21,19 +25,18 @@ export default class Emitter {
     return this._instance
   }
 
+  /** 缓存监听的实例对象 */
   private $emitters: EventHandlerMap = Object.create(null)
-  // 读取默认的emiiter
-  get $emitter (): AllowEventHandler[] {
-    return this.$emitters['*'] || []
-  }
+
   /**
    * 注册指定事件，返回解绑事件句柄
-   *
    * @param  {String} type	Type of event to listen for, or `"*"` for all events
    * @param  {Function} handler Function to call in response to given event
    */
   public on(type: string, handler: EventHandler) {
-    this.$getEmitter(type).push(handler)
+    const $emitters = this.$emitters
+    const emitter = $emitters[type] || ($emitters[type] = [])
+    emitter.push(handler)
     return () => this.off(type, handler)
   }
 
@@ -57,9 +60,10 @@ export default class Emitter {
    * @param  {Function} handler Handler function to remove
    */
   public off(type: string, handler: EventHandler) {
-    const list = this.$getEmitter(type)
-    if (list.length) {
-      list.splice(list.indexOf(handler) >>> 0, 1)
+    const list = this.$emitters[type]
+    if (list && list.length) {
+      const index = list.indexOf(handler)
+      index !== -1 && list.splice(index, 1)
     }
     return this
   }
@@ -72,30 +76,15 @@ export default class Emitter {
    * @param {Any} [evt]  Any value (object is recommended and powerful), passed to each handler
    */
   public emit(type: string, a?: any, b?: any) {
-    const _this = this
-    const list = _this.$emitters[type]
-    if (list && list.length) {
-      const copy = [...list]
-      for (const handler of copy) {
-        handler.call(_this, a, b)
-      }
+    const $emitters = this.$emitters
+    const callList = $emitters[type]
+    if (callList && callList.length) {
+      for (const handler of callList) handler.call(this, a, b)
     }
-    const all = _this.$emitter
-    if (all && all.length) {
-      const copy = [...all]
-      for (const handler of copy) {
-        handler.call(this, type, a, b)
-      }
+    const callAll = $emitters['*']
+    if (callAll && callAll.length) {
+      for (const handler of callAll) handler.call(this, a, b)
     }
     return this
-  }
-
-  private $getEmitter(type: string): any[] {
-    const map = this.$emitters
-    let target = map[type]
-    if (!target) {
-      target = map[type] = []
-    }
-    return target
   }
 }

@@ -143,6 +143,7 @@ declare module 'h5-sdk/src/factory/User' {
 	    location: string;
 	    unionid: string;
 	    constructor(option: IUserOption);
+	    readonly cacheKey: string;
 	    login(user: any): this;
 	    logout(): void;
 	}
@@ -311,6 +312,7 @@ declare module 'h5-sdk/src/factory/Auth' {
 	    isAccessTokenValid: boolean;
 	    constructor(options?: IAuthOption);
 	    accessToken: string | null;
+	    readonly cacheKey: string;
 	    saveToken(token: string): void;
 	    clearToken(): void;
 	    setOption(option: IAuthOption): this;
@@ -561,17 +563,15 @@ declare module 'h5-sdk/src/config' {
 
 }
 declare module 'h5-sdk/src/factory/Emitter' {
-	 type EventHandler = (event?: any, a1?: any, a2?: any) => void; type WildCardEventHandler = (type: string, event?: any, a1?: any, a2?: any) => void; type AllowEventHandler = EventHandler | WildCardEventHandler;
+	 type EventHandler = (event?: any, a1?: any, a2?: any) => void;
 	export default class Emitter {
 	    protected static _instance: Emitter;
 	    static readonly instance: Emitter;
 	    private $emitters;
-	    readonly $emitter: AllowEventHandler[];
 	    on(type: string, handler: EventHandler): () => this;
 	    once(type: string, handler: EventHandler): () => this;
 	    off(type: string, handler: EventHandler): this;
 	    emit(type: string, a?: any, b?: any): this;
-	    private $getEmitter;
 	}
 	export {};
 
@@ -691,7 +691,7 @@ declare module 'h5-sdk/src/factory/UiBase' {
 	/// <reference types="zepto" />
 	import Emitter from 'h5-sdk/src/factory/Emitter';
 	export type TypeColor = 'dark' | 'main' | 'primary' | 'warn' | 'info';
-	export type UiTheme = 'android' | 'ios';
+	export type UiTheme = 'android' | 'ios' | 'half';
 	export type UiBaseOption = {
 	    id?: string;
 	    theme?: UiTheme;
@@ -1189,17 +1189,44 @@ declare module 'h5-sdk/src/factory/UiView' {
 	}
 
 }
+declare module 'h5-sdk/src/factory/UiSheet' {
+	/// <reference types="zepto" />
+	import UiBase, { UiBaseOption, UiButtonOption } from 'h5-sdk/src/factory/UiBase';
+	interface IUiSheetAction extends UiButtonOption {
+	}
+	export interface IUiSheetOption extends UiBaseOption {
+	    title?: string;
+	    menus?: IUiSheetAction[];
+	    actions?: IUiSheetAction[];
+	    maskClose?: boolean;
+	    transparent?: boolean;
+	    target?: string | HTMLElement;
+	    onClick?: (key?: string) => void;
+	    onClose?: Function;
+	}
+	export default class UiSheet extends UiBase {
+	    static option: IUiSheetOption;
+	    $sheet: ZeptoCollection;
+	    constructor(_option?: IUiSheetOption);
+	    private _openHook;
+	    private _closedHook;
+	}
+	export {};
+
+}
 declare module 'h5-sdk/src/adapters/ui/ui.web' {
 	import UiModal, { UiModalOption } from 'h5-sdk/src/factory/UiModal';
 	import UiToast from 'h5-sdk/src/factory/UiToast';
 	import UiMusic, { IUiMusicOption } from 'h5-sdk/src/factory/UiMusic';
 	import UiView, { UiViewOption } from 'h5-sdk/src/factory/UiView';
+	import UiSheet, { IUiSheetOption } from 'h5-sdk/src/factory/UiSheet';
 	import { IUiAlertOption, IUiConfirmOption, IUiPromptOption, IUiUserboxOption } from 'h5-sdk/src/adapters/ui/interface';
 	export function close(fn?: any): (modal: UiModal) => any;
 	export function modal(option: UiModalOption): UiModal;
 	export function alert(option: IUiAlertOption | string): UiModal;
 	export function confirm(option: IUiConfirmOption): UiModal;
 	export function prompt(option: IUiPromptOption | string): UiModal;
+	export function sheet(option: IUiSheetOption): UiSheet;
 	export function userbox(option: IUiUserboxOption): UiModal;
 	export const toast: (message: any, duration?: any, onClose?: any) => UiToast;
 	export const tips: (message: any, duration?: any, onClose?: any) => UiToast;
@@ -1261,6 +1288,7 @@ declare module 'h5-sdk/src/factory/index' {
 	export { default as Tasker } from 'h5-sdk/src/factory/Tasker';
 	export { default as UiBase } from 'h5-sdk/src/factory/UiBase';
 	export { default as UiMusic } from 'h5-sdk/src/factory/UiMusic';
+	export { default as UiSheet } from 'h5-sdk/src/factory/UiSheet';
 	export { default as UiModal } from 'h5-sdk/src/factory/UiModal';
 	export { default as UiToast } from 'h5-sdk/src/factory/UiToast';
 	export { default as UiView } from 'h5-sdk/src/factory/UiView';

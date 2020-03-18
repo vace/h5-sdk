@@ -131,12 +131,13 @@ export class ResProgress {
 export default class Res extends Emitter{
   /** 全局可设置的并发加载量，0为不限量 */
   public static concurrency = 10
-
+  /** 当前正在加载的树木 */
   private static pending: number = 0
+  /** 全局加载任务队列 */
   private static _taskList: IResourceStruct[] = []
-  /** 资源ID */
+  /** 资源唯一ID */
   public static id: number = 0
-  /** 进度实例 */
+  /** 全局加载进度对象 */
   public static Progress: typeof ResProgress = ResProgress
   /** 默认配置 */
   public static config: IResConfig = {

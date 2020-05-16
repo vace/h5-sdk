@@ -121,6 +121,7 @@ declare module 'h5-sdk/src/factory/User' {
 	export type IUserType = 'none' | 'base' | 'user';
 	export type IUserOption = {
 	    appid: string;
+	    userType: IUserType;
 	};
 	export default class User {
 	    private static cacher;
@@ -301,7 +302,7 @@ declare module 'h5-sdk/src/factory/Auth' {
 	    user: User;
 	    version: string;
 	    state: IUserState;
-	    type?: IUserType;
+	    type: IUserType;
 	    option: IAuthOption;
 	    platform: IUserPlatform;
 	    appid: string;
@@ -433,15 +434,14 @@ declare module 'h5-sdk/src/factory/App' {
 	    static showError: any;
 	    readonly isLogin: boolean | null;
 	    http: Http;
-	    auth: Auth | null;
-	    user: User | null;
+	    readonly auth: Auth | null;
+	    readonly user: User | null;
 	    private tasker;
 	    appid: string;
 	    config: IAppServerConfig;
 	    setting: IAppServerSetting;
 	    analysisoff?: boolean;
 	    constructor(app: IAppOption);
-	    setAuth(auth: Auth): this;
 	    ready(fn?: any, err?: any): Promise<any>;
 	    private setup;
 	    private setServer;
@@ -1122,6 +1122,8 @@ declare module 'h5-sdk/src/factory/UiMusic' {
 	    play: () => this;
 	    pause: () => void;
 	    replay: () => void;
+	    hide(): void;
+	    show(): void;
 	    destory(): void;
 	    private _handleEvent;
 	    addTimeline(name: string, timeline: IUiMusicTimeline): void;

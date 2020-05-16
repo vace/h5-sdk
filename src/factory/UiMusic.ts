@@ -293,6 +293,14 @@ export default class UiMusic extends Emitter {
       this.play()
     }
   }
+  /** 隐藏图标 */
+  public hide () {
+    this.$root.hide()
+  }
+  /** 打开图标 */
+  public show () {
+    this.$root.show()
+  }
 
   /** 销毁 */
   public destory () {

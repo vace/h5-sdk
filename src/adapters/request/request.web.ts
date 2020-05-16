@@ -29,7 +29,10 @@ export default function createRequestWeb () {
       body = void 0 // clear body
       let queryParams = query || params || data
       if (queryParams) { // 参数组合
-        url += (url.indexOf('?') === -1 ? '?' : '&') + (isString(queryParams) ? queryParams : stringify(queryParams))
+        const suffix = isString(queryParams) ? queryParams : stringify(queryParams)
+        if (suffix) {
+          url += (/\?/.test(url) ? '?' : '&') + suffix
+        }
       }
       if (!contentType) {
         headers.set(StrContentType, ContentType.JSON)

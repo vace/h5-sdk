@@ -1,6 +1,6 @@
 {
   "name": "h5-sdk",
-  "version": "3.6.0",
+  "version": "3.6.1",
   "description": "sdk.js 用于Web/小程序/Node的sdk",
   "main": "dist/sdk.js",
   "types": "index.d.ts",
@@ -12,7 +12,7 @@
     "production": "rollup --config build/rollup.config.js --environment BUILD:web.Production",
     "mini": "rollup --config build/rollup.config.js --environment BUILD:mini.Production",
     "node": "rollup --config build/rollup.config.js --environment BUILD:node.Production",
-    "prepare": "yarn development && yarn production && node build/dts-generator.js && yarn mini && yarn run node",
+    "prepare": "npm run development && npm run production && node build/dts-generator.js && npm run mini && npm run node",
     "test": "mocha --require ts-node/register --watch-extensions ts,tsx \"src/**/*.spec.ts\"",
     "docs": "typedoc --out docs --mode file --exclude \"**/*+(index.ts|.spec.ts|.e2e.ts|.js)\" --excludeNotExported src/web-entry.ts"
   },

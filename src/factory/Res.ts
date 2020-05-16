@@ -372,12 +372,10 @@ export default class Res extends Emitter{
     }
   }
 }
-
-// JSONP
-Res.registerLoader(TYPE.JSONP, jsonp)
-
 // register xhr res handle
 const R_FETCH = [TYPE.UNKNOWN, TYPE.ARRAY_BUFFER, TYPE.BLOB, TYPE.HEADERS, TYPE.JSON, TYPE.TEXT, TYPE.FORM_DATA]
+const R_RES = [TYPE.CSS, TYPE.JS, TYPE.IMG, TYPE.AUDIO, TYPE.VIDEO]
+
 R_FETCH.forEach(type => {
   Res.registerLoader(type, (url, option) => fetch(url, option).then((res: any) => {
     if (type in res) {
@@ -386,8 +384,6 @@ R_FETCH.forEach(type => {
     return res
   }))
 });
-const R_RES = [TYPE.CSS, TYPE.JS, TYPE.IMG, TYPE.AUDIO, TYPE.VIDEO]
-
 // register document element handle
 R_RES.forEach(type => {
   Res.registerLoader(type, (url, option) => new Promise((resolve, reject) => {
@@ -431,6 +427,9 @@ R_RES.forEach(type => {
     }
   }))
 })
+
+// JSONP
+Res.registerLoader(TYPE.JSONP, jsonp)
 
 /** 定义插件解析体系 */
 

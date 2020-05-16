@@ -56,9 +56,13 @@ export default class App {
   /** 已经注入用户认证信息的`Http`实例 */
   public http: Http
   /** auth信息 */
-  public auth: Auth | null = Auth.hasInstance ? Auth.instance : null
+  public get auth (): Auth | null {
+    return Auth.hasInstance ? Auth.instance : null
+  }
   /** 用户信息 */
-  public user: User | null = User.hasInstance ? User.instance : null
+  public get user (): User | null {
+    return User.hasInstance ? User.instance : null
+  }
   /** 任务进度 */
   private tasker: Tasker = new Tasker
 
@@ -90,12 +94,6 @@ export default class App {
     if (!App._instance) {
       App._instance = this
     }
-  }
-
-  public setAuth (auth: Auth) {
-    this.auth = auth
-    this.user = auth.user
-    return this
   }
 
   /**

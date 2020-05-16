@@ -31,7 +31,7 @@ export default function createRequestWeb () {
       if (queryParams) { // 参数组合
         const suffix = isString(queryParams) ? queryParams : stringify(queryParams)
         if (suffix) {
-          url += (/\?/.test(url) ? '?' : '&') + suffix
+          url += (/\?/.test(url) ? '&' : '?') + suffix
         }
       }
       if (!contentType) {

@@ -60,7 +60,7 @@ export default class Auth {
   /** 用户角色 */
   public state!: IUserState
   /** 授权种类 */
-  public type?: IUserType
+  public type!: IUserType
   /** 授权配置 */
   public option!: IAuthOption
   /** 当前应用所在平台 */
@@ -155,7 +155,7 @@ export default class Auth {
     this.env = env || ''
     this.url = url || ''
     this.version = version
-    this.user = User.createInstance({ appid: appid })
+    this.user = User.createInstance({ appid: appid, userType: this.type })
     return this
   }
 

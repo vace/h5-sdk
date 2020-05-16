@@ -13,6 +13,7 @@ export type IUserType = 'none' | 'base' | 'user'
 
 export type IUserOption = {
   appid: string
+  userType: IUserType
 }
 
 /** 用啥结构 */
@@ -73,8 +74,10 @@ export default class User {
   /** 读取授权作用域下的账号 */
   public constructor (option: IUserOption) {
     this.appid = option.appid
+    this.userType = option.userType
+
     // 缓存查找用户
-    const user = User.cacher.get(this.appid)
+    const user = User.cacher.get(this.cacheKey)
     if (user) {
       this.login(user)
     }

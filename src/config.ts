@@ -1,6 +1,5 @@
 import { assign } from 'es6-object-assign'
 import { AnalysisOption } from "./plugins/analysis";
-import { isHttp, isBase64 } from './functions/is';
 
 /** 加载全局设置的配置 `window._SDK` */
 const GlobalSdkConfig: DefaultConfig = (typeof window !== 'undefined' && window['_SDK']) || {}
@@ -20,15 +19,16 @@ export type DefaultConfig = {
   /** CDN根目录 */
   cdn: string
 }
+const host = (api: string) => `https://${api}.ahmq.net`
 
 /** 默认配置 */
 export const config: DefaultConfig = assign({
   /** 接口服务 */
-  api: 'https://api.ahmq.net',
+  api: host('api'),
   // 域名服务名称
-  service: 'https://h5-service.ahmq.net',
+  service: host('h5-service'),
   // CDN 的名称
-  cdn: 'https://h5.ahmq.net'
+  cdn: host('h5'),
 } as DefaultConfig, GlobalSdkConfig)
 
 /** 默认配置 */
@@ -48,56 +48,4 @@ export function getServiceUri (name: string): string {
  */
 export function getApiUri(name: string): string {
   return `${config.api}/${name}`
-}
-
-
-/**
- * 获取cdn文件名称
- * @param filename 文件名
- */
-export function getCdnRes (filename: string): string {
-  if (!filename) {
-    return filename
-  }
-  // 目录分隔符处理
-  return `${config.cdn}${filename.charAt(0) === '/' ? '' : '/'}${filename}`
-}
-
-/**
- * 使用process处理oss资源
- * @export
- * @param {string} filename
- * @param {(string | object)} process
- */
-export function getOssRes (filename: string, process: string | object) {
-  if (!filename || isHttp(filename) || isBase64(filename)) {
-    return filename
-  }
-  const res = getCdnRes(filename)
-  if (!process) {
-    return res
-  }
-  return res + '?x-oss-process=' + getImageProcess(process)
-}
-
-/**
- * @example
- * {resize: {w: 200, h: 100}} // image/resize,w_200,h_100
- */
-function getImageProcess(command: any): string {
-  if (!command || typeof command === 'string') {
-    return command
-  }
-  const keys = Object.keys
-  const process = keys(command).map(cmd => {
-    const item = command[cmd]
-    let value
-    if (typeof item === 'object') {
-      value = keys(item).map(key => `${key}_${item[key]}`).join(',')
-    } else {
-      value = item
-    }
-    return `${cmd},` + value
-  }).join('/')
-  return 'image/' + process
 }

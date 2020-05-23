@@ -27,14 +27,9 @@ export default class Auth {
   /** 实例 */
   private static _instance: Auth
   /** 获取应用实例 */
-  public static get instance() {
+  public static get instance(): Auth | null {
     return this._instance
   }
-  /** 是否有实例 */
-  public static get hasInstance(): boolean {
-    return !!this._instance
-  }
-  
   /** 创建默认实例（注意，重复创建将覆盖之前的默认实例） */
   public static createInstance(option: IAuthOption): Auth {
     if (this._instance) {

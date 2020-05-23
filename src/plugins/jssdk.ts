@@ -158,7 +158,7 @@ export function config (option?: IWxConfigOption): Promise<IConfigResponse> {
         emit('ready')
         const auth = Auth.instance
         // 尝试获取用户信息
-        if (auth.isAuthed) {
+        if (auth && auth.isAuthed) {
           auth.tasker.task.then(reslove)
         } else {
           reslove()
@@ -274,7 +274,7 @@ function _parseShareOption (option: IWxShareOption, platform: string) {
   // 相对路径
   if (!isHttp(link)) link = getCurrentPathFile(link)
   // link 追加用户来源，增加spm
-  const auth = Auth.hasInstance ? Auth.instance : null
+  const auth = Auth.instance
   if (auth && auth.isAuthed) {
     const [host, queryString] = link.split('?')
     const query = parse(queryString)

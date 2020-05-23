@@ -44,8 +44,9 @@ export default function createAppMini () {
 
   App.transformResponse = (response: WxRequestCallbackResult) => {
     const authorize = response.header['authorization'] || response.header['Authorization']
-    if (authorize) {
-      Auth.instance.saveToken(authorize)
+    const auth = Auth.instance
+    if (authorize && auth) {
+      auth.saveToken(authorize)
     }
     return response.data
   }

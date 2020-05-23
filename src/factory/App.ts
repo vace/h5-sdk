@@ -57,7 +57,7 @@ export default class App {
   public http: Http
   /** auth信息 */
   public get auth (): Auth | null {
-    return Auth.hasInstance ? Auth.instance : null
+    return Auth.instance
   }
   /** 用户信息 */
   public get user (): User | null {

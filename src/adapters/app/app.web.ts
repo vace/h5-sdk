@@ -48,8 +48,9 @@ export default function createAppWeb () {
 
   App.transformResponse = (response) => {
     const authorize = response.headers.get('authorization')
-    if (authorize) {
-      Auth.instance.saveToken(authorize)
+    const auth = Auth.instance
+    if (auth && authorize) {
+      auth.saveToken(authorize)
     }
     return response.json().then((response) => {
       // -100 ~ -90为登陆错误
@@ -62,7 +63,7 @@ export default function createAppWeb () {
             {
               label: '重新登陆',
               onClick() {
-                Auth.instance.logout()
+                auth && auth.logout()
                 location.reload()
               }
             }

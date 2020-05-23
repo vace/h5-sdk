@@ -28,9 +28,6 @@ export default class Auth {
   private static _instance: Auth
   /** 获取应用实例 */
   public static get instance() {
-    if (!this._instance) {
-      this._instance = new Auth()
-    }
     return this._instance
   }
   /** 是否有实例 */

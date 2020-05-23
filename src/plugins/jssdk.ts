@@ -1,4 +1,4 @@
-import '../polyfill/jweixin-1.5.0'
+import '../polyfill/jweixin-1.6.0'
 
 import { assign } from 'es6-object-assign'
 
@@ -13,7 +13,7 @@ import { commonResponseReslove } from '../utils/common'
 import { getwx, WeixinJSBridge } from '../utils/global';
 import { wait, noop } from '../functions/common';
 import { isHttp, isBase64 } from '../functions/is';
-import { event, EVENTS } from './analysis';
+import { event, EVENT_SHARE } from './analysis';
 import { each } from '../functions/underscore';
 import { parse, stringify } from '../functions/qs';
 import Auth from '../factory/Auth';
@@ -249,7 +249,7 @@ export function setMiniappShare (option: IWxShareOption) {
 
 function _sendShareLog (platform: string) {
   const setting = shareConfigCache.get(platform)
-  event(EVENTS.SHARE, 'wx.' + platform, setting && setting.logid || 0)
+  event(EVENT_SHARE, 'wx.' + platform, setting && setting.logid || 0)
 }
 
 function _parseShareOption (option: IWxShareOption, platform: string) {
@@ -274,8 +274,8 @@ function _parseShareOption (option: IWxShareOption, platform: string) {
   // 相对路径
   if (!isHttp(link)) link = getCurrentPathFile(link)
   // link 追加用户来源，增加spm
-  const auth = Auth.instance
-  if (auth.isAuthed) {
+  const auth = Auth.hasInstance ? Auth.instance : null
+  if (auth && auth.isAuthed) {
     const [host, queryString] = link.split('?')
     const query = parse(queryString)
     query.spm_uid = auth.id

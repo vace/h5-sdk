@@ -13,7 +13,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>Dev</title>
   <!-- 应用配置 -->
-  <meta name="sdk:app" plantform="wechat" appid="APP-JEk3TB2uSHzi" scope="snsapi_userinfo" wxappid="wx982f99be5f7073f0">
+  <meta name="sdk:app" appid="aqajy48lbe">
   <!-- jssdk 配置 -->
   <meta name="sdk:jssdk" debug="false" api="chooseImage,uploadImage,getLocalImgData,stopRecord,startRecord,uploadVoice">
   <meta name="sdk:share" title="shareTitle" desc="shareDesc">
@@ -46,12 +46,12 @@
   <!-- built files will be auto injected -->
   <!-- <script src="//5.5u55.cn/_lib/eruda/1.5.4/eruda.min.js"></script> -->
   <!-- <script>eruda.init()</script> -->
+  <script autocss src="sdk.dev.js"></script>
   <script>
     // Object.assign = undefined
     // window.fetch = undefined
     // window.Promise = undefined
     // window.Map = undefined
-    document.write(`<script src="../dist/sdk.js?${Date.now()}" autocss="true"></` + 'script>')
     
   var MediaId
   function onUploadImage () {

@@ -1,5 +1,6 @@
 import { getElementAttrs } from "../utils/shared";
 import { dirname } from "../functions/path";
+import { lib } from '../plugins/cdn'
 
 /**
  * 自动加载script
@@ -13,9 +14,9 @@ export default function initializeScript () {
   const { debug, autocss } = getElementAttrs(script, ['!debug', '!autocss'])
   const path = dirname(script.src) + '/'
   // debug 工具
-  if (debug) {
+  if (debug || /ShowDebug/i.test(location.search)) {
     var injectScript = doc.createElement('script')
-    injectScript.src = '//h5.ahmq.net/_lib/eruda/1.5.7/eruda.min.js'
+    injectScript.src = lib('eruda/2.3.3/eruda.min.js')
     doc.body.appendChild(injectScript)
     injectScript.onload = () => (window['eruda']).init()
   }

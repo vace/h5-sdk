@@ -18,31 +18,30 @@ const closeHelper = (modal: UiModal) => modal.close()
  * 包装的关闭任务函数，返回falsevalue不会关闭窗口
  * @example
  * ```js
- * sdk.ui.close((modal) => sdk.app.get('api'))
+ * sdk.ui.spinning((modal) => sdk.app.get('api'))
  * ```
- * @param {*} [fn]
+ * @param {*} [next]
  * @returns
  */
-export function close (fn?: any) {
-  return (modal:UiModal) => {
-    // 直接关闭弹窗
-    if (typeof fn === 'function') {
-      fn = fn(modal)
+export function spinning (next, message?: string) {
+  return (modal: UiModal) => {
+    if (typeof next === 'function') {
+      next = next(modal)
     }
-    // 是个Promise
-    if (isPromise(fn)) {
-      modal.showSpinning()
-      fn.then((value: any) => {
+    if (isPromise(next)) {
+      // show loading
+      modal.showSpinning(message)
+      return next.then(value => {
         modal.hideSpinning()
         modal.close()
         return value
-      }, (error: any) => {
+      }, err => {
         modal.hideSpinning()
-        return Promise.reject(error)
+        return Promise.reject(err)
       })
-    } else if (typeof fn === 'undefined' || fn) {
+    } else if (typeof next === 'undefined' || next) {
       modal.close()
-      return fn
+      return Promise.resolve(next)
     }
   }
 }

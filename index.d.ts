@@ -528,21 +528,14 @@ declare module 'h5-sdk/src/plugins/analysis' {
 	    unloadData: any;
 	};
 	export const config: AnalysisOption;
-	export const EVENTS: {
-	    'VIEW': string;
-	    'ERROR': string;
-	    'SHARE': string;
-	    'UNLOAD': string;
-	    'CLICK': string;
-	    'USER': string;
-	};
+	export const EVENT_SHARE = "SHARE";
 	export function start(): void;
 	export function stop(): void;
-	export function pv(e?: any): Promise<void>;
-	export function event(event: string, data?: any, value?: number): Promise<void>;
-	export function user(data?: any, value?: number): Promise<void>;
-	export function click(data?: any, value?: number): Promise<void>;
-	export function error(error: Error | string): false | Promise<void> | undefined;
+	export function pv(e?: any): Promise<void> | null;
+	export function event(event: string, data?: any, value?: number): Promise<void> | null;
+	export function user(data?: any, value?: number): Promise<void> | null;
+	export function click(data?: any, value?: number): Promise<void> | null;
+	export function error(error: Error | string): false | Promise<void> | null | undefined;
 
 }
 declare module 'h5-sdk/src/config' {
@@ -558,8 +551,6 @@ declare module 'h5-sdk/src/config' {
 	export default config;
 	export function getServiceUri(name: string): string;
 	export function getApiUri(name: string): string;
-	export function getCdnRes(filename: string): string;
-	export function getOssRes(filename: string, process: string | object): string;
 
 }
 declare module 'h5-sdk/src/factory/Emitter' {
@@ -626,7 +617,7 @@ declare module 'h5-sdk/src/functions/index' {
 
 }
 declare module 'h5-sdk/src/plugins/jssdk' {
-	import 'h5-sdk/src/polyfill/jweixin-1.5.0';
+	import 'h5-sdk/src/polyfill/jweixin-1.6.0';
 	import Emitter from 'h5-sdk/src/factory/Emitter';
 	export type IWxConfigOption = {
 	    url?: string;
@@ -678,7 +669,6 @@ declare module 'h5-sdk/src/plugins/jssdk' {
 
 }
 declare module 'h5-sdk/src/plugins/tool' {
-	export function onShake(callback: Function): false | (() => void);
 	export function readAsDataURL(inputer: File): Promise<string>;
 	export function chooseFile(accept?: string): Promise<File>;
 	export function chooseImageAsDataURL(option?: any): Promise<string>;
@@ -1223,7 +1213,7 @@ declare module 'h5-sdk/src/adapters/ui/ui.web' {
 	import UiView, { UiViewOption } from 'h5-sdk/src/factory/UiView';
 	import UiSheet, { IUiSheetOption } from 'h5-sdk/src/factory/UiSheet';
 	import { IUiAlertOption, IUiConfirmOption, IUiPromptOption, IUiUserboxOption } from 'h5-sdk/src/adapters/ui/interface';
-	export function close(fn?: any): (modal: UiModal) => any;
+	export function spinning(next: any, message?: string): (modal: UiModal) => any;
 	export function modal(option: UiModalOption): UiModal;
 	export function alert(option: IUiAlertOption | string): UiModal;
 	export function confirm(option: IUiConfirmOption): UiModal;
@@ -1265,6 +1255,15 @@ declare module 'h5-sdk/src/plugins/wechat' {
 	export function shorturl(url: string, appid?: string): Promise<string>;
 
 }
+declare module 'h5-sdk/src/plugins/cdn' {
+	export function res(filename: string, process?: string | object): string;
+	export function lib(libname: string): string;
+	export function info(filename: string): Promise<any>;
+	export function hue(filename: string): Promise<any>;
+	export function snapshot(filename: string, w?: number, h?: number, format?: string): string;
+	export function imm(filename: string, service: string): Promise<any>;
+
+}
 declare module 'h5-sdk/src/plugins/index' {
 	import * as jssdk from 'h5-sdk/src/plugins/jssdk';
 	import * as ui from 'h5-sdk/src/plugins/ui';
@@ -1273,8 +1272,9 @@ declare module 'h5-sdk/src/plugins/index' {
 	import * as cloud from 'h5-sdk/src/plugins/cloud.web';
 	import * as analysis from 'h5-sdk/src/plugins/analysis';
 	import * as wechat from 'h5-sdk/src/plugins/wechat';
+	import * as cdn from 'h5-sdk/src/plugins/cdn';
 	export { default as store } from 'h5-sdk/src/adapters/store/index';
-	export { jssdk, ui, safety, tool, cloud, analysis, wechat };
+	export { jssdk, ui, safety, tool, cloud, analysis, wechat, cdn };
 
 }
 declare module 'h5-sdk/src/adapters/app/app.web' {

@@ -32,4 +32,4 @@ import './es6-collections.js'
 // import './raf.js'
 
 // jweixin
-import './jweixin-1.5.0'
+import './jweixin-1.6.0'

@@ -4,59 +4,6 @@ import { addEventListener, removeEventListener, document } from "../utils/global
 import { atob } from "./safety";
 
 /**
- * 摇一摇
- * @param {Function} callback
- */
-export function onShake (callback: Function) {
-  if (!('ondevicemotion' in window)) {
-    return false
-  }
-  const threshold = 15
-  const timeout = 1000
-
-  let lastTime: number = 0,
-      lastX: number,
-      lastY: number,
-      lastZ: number,
-      isInited: boolean
-  const initClear = () => {
-    lastX = lastY = lastZ = 0
-    isInited = false
-  }
-  const onDevicemotion = (e: DeviceMotionEvent) => {
-    var {x, y, z}: any = e.accelerationIncludingGravity;
-    var deltaX = Math.abs(lastX - x)
-    var deltaY = Math.abs(lastY - y)
-    var deltaZ = Math.abs(lastZ - z)
-    // inited
-    if (!isInited) {
-      lastX = x
-      lastY = y
-      lastZ = z
-      isInited = true
-      return
-    }
-    if (
-      (deltaX > threshold && deltaY > threshold) ||
-      (deltaY > threshold && deltaZ > threshold) ||
-      (deltaZ > threshold && deltaX > threshold)
-    ) {
-      const difference = now() - lastTime
-      if (difference > timeout) {
-        initClear()
-        callback({ deltaX, deltaY, deltaZ })
-      }
-    }
-  }
-  // 设置默认值
-  initClear()
-  addEventListener('devicemotion', onDevicemotion, false)
-  return function unbind () {
-    removeEventListener('devicemotion', onDevicemotion, false)
-  }
-}
-
-/**
  * 读取文件的base64
  * @param {File} inputer
  */

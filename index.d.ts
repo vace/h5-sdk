@@ -293,8 +293,7 @@ declare module 'h5-sdk/src/factory/Auth' {
 	        remove: (key: string) => void;
 	    };
 	    private static _instance;
-	    static readonly instance: Auth;
-	    static readonly hasInstance: boolean;
+	    static readonly instance: Auth | null;
 	    static createInstance(option: IAuthOption): Auth;
 	    tasker: Tasker;
 	    isAuthed: boolean;

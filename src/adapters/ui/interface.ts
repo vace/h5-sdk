@@ -6,7 +6,7 @@ export interface IUiAlertOption extends UiModalOption {
   /** 点击链接可选 */
   href?: string
   /** 按钮名称 */
-  okText?: string
+  okText?: string | false
   /** 按钮点击回调事件 */
   ok?: Function
 }
@@ -17,7 +17,7 @@ export interface IUiConfirmOption extends IUiAlertOption {
   /** 表单验证失败提示文案 */
   formError?: Function | string
   /** 关闭按钮文字 */
-  noText?: string
+  noText?: string | false
   /** 关闭按钮回调 */
   no?: Function
 }

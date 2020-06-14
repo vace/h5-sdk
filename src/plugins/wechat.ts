@@ -13,11 +13,3 @@ import { getAppid } from "../plugins/jssdk";
 export function getQrcode (username: string): string {
   return `https://open.weixin.qq.com/qr/code?username=${username}`
 }
-
-/** 获取短连接，appid不提供则读取jsappid */
-export function shorturl (url: string, appid?: string): Promise<string> {
-  return service('wechat/shorturl', {
-    appid: appid || getAppid(),
-    url: url || location.href
-  })
-}

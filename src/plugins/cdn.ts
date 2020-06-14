@@ -66,6 +66,16 @@ export function imm (filename: string, service: string) {
 }
 
 /**
+ * 图片处理规则
+ * @see https://help.aliyun.com/document_detail/48884.html
+ * @param filename 文件名
+ * @param style 
+ */
+export function style (filename: string, style: string) {
+  return res(filename, `style/${style}`)
+}
+
+/**
  * @example
  * {resize: {w: 200, h: 100}} // image/resize,w_200,h_100
  */

@@ -21,12 +21,9 @@ export default class User {
   /** 当前用户 */
   private static cacher = cacher('@SdkUsers')
   /** 实例 */
-  private static _instance: User
+  private static _instance: User | null
   /** 获取用户实例 */
-  public static get instance() {
-    if (!this._instance) {
-      console.warn('[User.instance] 不存在，需先创建实例')      
-    }
+  public static get instance(): User | null {
     return this._instance
   }
   /** 是否有实例 */

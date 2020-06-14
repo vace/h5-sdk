@@ -25,13 +25,14 @@ const closeHelper = (modal: UiModal) => modal.close()
  */
 export function spinning (next, message?: string) {
   return (modal: UiModal) => {
+    let _next = next
     if (typeof next === 'function') {
-      next = next(modal)
+      _next = next(modal)
     }
-    if (isPromise(next)) {
+    if (isPromise(_next)) {
       // show loading
       modal.showSpinning(message)
-      return next.then(value => {
+      return _next.then(value => {
         modal.hideSpinning()
         modal.close()
         return value
@@ -39,9 +40,9 @@ export function spinning (next, message?: string) {
         modal.hideSpinning()
         return Promise.reject(err)
       })
-    } else if (typeof next === 'undefined' || next) {
+    } else if (typeof _next === 'undefined' || _next) {
       modal.close()
-      return Promise.resolve(next)
+      return Promise.resolve(_next)
     }
   }
 }
@@ -66,9 +67,12 @@ export function alert(option: IUiAlertOption | string): UiModal {
     option = { content: option }
   }
   const { okText: label = '确定', ok: onClick = closeHelper, href } = option
-  option.buttons = [
-    { label, onClick, key: 'ok', href, bold: true }
-  ]
+  // 支持无按钮模式
+  if (label !== false) {
+    option.buttons = [
+      { label, onClick, key: 'ok', href, bold: true }
+    ]
+  }
   return new UiModal(option).open()
 }
 
@@ -96,10 +100,13 @@ export function confirm(option: IUiConfirmOption): UiModal {
       return null
     }
   }
-  option.buttons = [
-    { label: noText, key: 'no', onClick: no || closeHelper, bold: true, color: 'dark' },
-    { label: okText, key: 'ok', onClick: wrapOkCallback || closeHelper, bold: true }
-  ]
+  const buttons: any[] = []
+  if (noText !== false) {
+    buttons.push({ label: noText, key: 'no', onClick: no || closeHelper, bold: true, color: 'dark' })
+  }
+  if (okText !== false) {
+    buttons.push({ label: okText, key: 'ok', onClick: wrapOkCallback || closeHelper, bold: true })
+  }
   return new UiModal(option).open()
 }
 

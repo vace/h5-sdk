@@ -61,7 +61,7 @@ export default class App {
   }
   /** 用户信息 */
   public get user (): User | null {
-    return User.hasInstance ? User.instance : null
+    return User.instance
   }
   /** 任务进度 */
   private tasker: Tasker = new Tasker
@@ -82,7 +82,7 @@ export default class App {
     this.analysisoff = analysisoff
     this.http = new Http({
       // 默认api路径
-      baseURL: config.api + '/',
+      baseURL: '',
       /** 请求时带上appid和authorization */
       transformRequest: App.transformRequest.bind(this),
       /** 处理header中的authorization */
@@ -214,7 +214,7 @@ export default class App {
     } else if (isHttp(actionName)) {
       api = actionName
     } else {
-      api = `app/${this.appid}/${actionName}`
+      api = `${config.api}/app/${this.appid}/${actionName}`
     }
     const response = this.http[method](api, param).then(response => {
       loading && loading.close()

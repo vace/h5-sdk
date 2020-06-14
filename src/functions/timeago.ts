@@ -49,7 +49,7 @@ const REPLACE_REGEX = /(Y|M|D|H|I|S|T)/ig
  * @param {string} [format='Y-M-D H:i:s'] 格式化格式
  */
 export function unixFormat (unixTime: number, format = 'Y-M-D H:i:s'): string {
-  var time = new Date(unixTime * 1000)
+  var time = new Date(unixTime && unixTime * 1000)
   var conf: any = {
     Y: time.getFullYear(),
     M: pad(time.getMonth() + 1), //月份 

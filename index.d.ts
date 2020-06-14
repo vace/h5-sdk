@@ -126,7 +126,7 @@ declare module 'h5-sdk/src/factory/User' {
 	export default class User {
 	    private static cacher;
 	    private static _instance;
-	    static readonly instance: User;
+	    static readonly instance: User | null;
 	    static readonly hasInstance: boolean;
 	    static createInstance(option: IUserOption): User;
 	    isLogin: boolean;
@@ -791,12 +791,12 @@ declare module 'h5-sdk/src/adapters/ui/interface' {
 	import { UiModalOption } from 'h5-sdk/src/factory/UiModal';
 	export interface IUiAlertOption extends UiModalOption {
 	    href?: string;
-	    okText?: string;
+	    okText?: string | false;
 	    ok?: Function;
 	}
 	export interface IUiConfirmOption extends IUiAlertOption {
 	    formError?: Function | string;
-	    noText?: string;
+	    noText?: string | false;
 	    no?: Function;
 	}
 	export interface IUiPromptOption extends IUiConfirmOption {
@@ -1251,7 +1251,6 @@ declare module 'h5-sdk/src/plugins/cloud.web' {
 }
 declare module 'h5-sdk/src/plugins/wechat' {
 	export function getQrcode(username: string): string;
-	export function shorturl(url: string, appid?: string): Promise<string>;
 
 }
 declare module 'h5-sdk/src/plugins/cdn' {
@@ -1261,6 +1260,7 @@ declare module 'h5-sdk/src/plugins/cdn' {
 	export function hue(filename: string): Promise<any>;
 	export function snapshot(filename: string, w?: number, h?: number, format?: string): string;
 	export function imm(filename: string, service: string): Promise<any>;
+	export function style(filename: string, style: string): string;
 
 }
 declare module 'h5-sdk/src/plugins/index' {

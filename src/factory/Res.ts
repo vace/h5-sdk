@@ -412,7 +412,7 @@ R_RES.forEach(type => {
       _option = { src: url }
     }
     const element = document.createElement(tagName)
-    element.onerror = reject
+    element.onerror = () => reject(new Error(`${type} res load error: ${url}`))
     each(assign(_option, option), (val: string, key: string) => element.setAttribute(key, val))
     // 绑定事件
     if (eventResolve) {

@@ -2,6 +2,16 @@ import { uid, isWechat, now } from "../functions/index";
 import { chooseImageBase64 } from "./jssdk";
 import { addEventListener, removeEventListener, document } from "../utils/global";
 import { atob } from "./safety";
+import { getApiUri } from "../config";
+
+/**
+ * 生成二维码
+ * @param text 二维码文本
+ * @param size 二维码尺寸
+ */
+export function qrcode (text: string, size = 400) {
+  return getApiUri(`/qrcode/build?text=${encodeURIComponent(text)}&size=${size}`)
+}
 
 /**
  * 读取文件的base64

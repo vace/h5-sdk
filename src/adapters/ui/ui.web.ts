@@ -15,39 +15,6 @@ import { regexMobile, regexChinese } from '../../functions/regex';
 const closeHelper = (modal: UiModal) => modal.close()
 
 /**
- * 包装的关闭任务函数，返回falsevalue不会关闭窗口
- * @example
- * ```js
- * sdk.ui.spinning((modal) => sdk.app.get('api'))
- * ```
- * @param {*} [next]
- * @returns
- */
-export function spinning (next, message?: string) {
-  return (modal: UiModal) => {
-    let _next = next
-    if (typeof next === 'function') {
-      _next = next(modal)
-    }
-    if (isPromise(_next)) {
-      // show loading
-      modal.showSpinning(message)
-      return _next.then(value => {
-        modal.hideSpinning()
-        modal.close()
-        return value
-      }, err => {
-        modal.hideSpinning()
-        return Promise.reject(err)
-      })
-    } else if (typeof _next === 'undefined' || _next) {
-      modal.close()
-      return Promise.resolve(_next)
-    }
-  }
-}
-
-/**
  * 打开一个Modal
  * @param {UiModalOption} option
  * @returns {UiModal}
@@ -100,7 +67,7 @@ export function confirm(option: IUiConfirmOption): UiModal {
       return null
     }
   }
-  const buttons: any[] = []
+  const buttons: any[] = option.buttons = []
   if (noText !== false) {
     buttons.push({ label: noText, key: 'no', onClick: no || closeHelper, bold: true, color: 'dark' })
   }

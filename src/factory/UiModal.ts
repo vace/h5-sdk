@@ -6,6 +6,7 @@ import { classPrefix, createClsElement, createSdkIcon } from '../utils/shared'
 import $ from '../venders/zepto'
 import { parse } from '../functions/qs';
 import UiBase, { UiBaseOption, UiButtonOption, UiInputOption } from './UiBase';
+import { isPromise } from '../functions/is'
 
 /** UIModal配置 */
 export interface UiModalOption extends UiBaseOption {
@@ -90,6 +91,33 @@ export default class UiModal extends UiBase{
     this.on('open', this._openHook.bind(this))
     this.on('closed', this._closedHook.bind(this))
   }
+
+  /**
+   * 关闭任务包装
+   */
+  public withClose (next, message?: string) {
+    const madal = this
+    let _next = next
+    if (typeof next === 'function') {
+      _next = next(madal)
+    }
+    if (isPromise(_next)) {
+      // show loading
+      madal.showSpinning(message)
+      return _next.then(value => {
+        madal.hideSpinning()
+        madal.close()
+        return value
+      }, err => {
+        madal.hideSpinning()
+        return Promise.reject(err)
+      })
+    } else if (typeof _next === 'undefined' || _next) {
+      madal.close()
+      return Promise.resolve(_next)
+    }
+  }
+
   /** 显示操作loading */
   public showSpinning (message?: string) {
     if (this.$spinning) {

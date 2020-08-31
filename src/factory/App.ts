@@ -36,7 +36,7 @@ export default class App {
   /** 创建默认实例（注意，重复创建将覆盖之前的默认实例） */
   public static createInstance (option: IAppOption): App {
     if (this._instance) {
-      console.warn('[App.instance] 已存在，此操作将覆盖默认实例')
+      console.warn('[App.instance] 已存在，此操作将覆盖默认App实例')
     }
     return this._instance = new App(option)
   }
@@ -100,10 +100,11 @@ export default class App {
    * 启动应用（只可调用一次）
    */
   public ready (fn?: any, err?: any): Promise<any> {
-    const preTaskList = [ this.tasker.task ]
+    const { tasker, auth } = this
+    const preTaskList = [ tasker.task ]
     // 需要获取用户信息
-    if (this.auth) {
-      preTaskList.push(this.auth.tasker.task)
+    if (auth) {
+      preTaskList.push(auth.tasker.task)
     }
     const task = Promise.all(preTaskList)
     if (typeof fn === 'function') {

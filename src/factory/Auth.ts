@@ -33,7 +33,7 @@ export default class Auth {
   /** 创建默认实例（注意，重复创建将覆盖之前的默认实例） */
   public static createInstance(option: IAuthOption): Auth {
     if (this._instance) {
-      console.warn('[App.instance] 已存在，此操作将覆盖默认实例')
+      console.warn('[Auth.instance] 已存在，此操作将覆盖默认Auth实例')
     }
     return this._instance = new Auth(option)
   }
@@ -121,7 +121,7 @@ export default class Auth {
    * @param token 完整的token值
    */
   public saveToken (token: string) {
-    if (token) {
+    if (token && this.accessToken !== token) {
       this.accessToken = token
       // cache
       if (this.isAccessTokenValid) {

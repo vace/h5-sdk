@@ -13,48 +13,48 @@ export function is (type: string): (arg: any) => arg is any {
 // (type: string) => (val: any) => Object.prototype.toString.call(val).toLowerCase() === `[object ${type}]`.toLowerCase()
 
 /** 判断目标值类型是否为数组 */
-export const isArray = Array.isArray || is('Array')
+export const isArray = Array.isArray
 
 /** 判断目标值类型是否为布尔值 */
-export const isBoolean = is('Boolean')
+export const isBoolean: (val: unknown) => val is Boolean = is('Boolean')
 
 /** 判断目标值类型是否为null */
-export const isNull = is('null')
+export const isNull: (val: unknown) => val is null = is('null')
 
 /** 判断目标值类型是否为null 或者 undefined */
-export const isNullOrUndefined = (arg: any) => arg == null
+export const isNullOrUndefined = (arg: unknown) => arg == null
 
 /** 判断目标值类型是否为number */
-export const isNumber = is('number')
+export const isNumber: (val: unknown) => val is number = is('number')
 
 /** 判断目标值类型是否为string */
-export const isString = is('string')
+export const isString: (val: unknown) => val is string = is('string')
 
 /** 判断目标值类型是否为symbol */
-export const isSymbol = is('symbol')
+export const isSymbol: (val: unknown) => val is symbol = is('symbol')
 
 /** 判断目标值类型是否为undefined */
-export const isUndefined = is('undefined')
+export const isUndefined: (val: unknown) => val is undefined = is('undefined')
 
 /** 判断目标值类型是否为正则表达式 */
-export const isRegExp = is('regexp')
+export const isRegExp: (val: unknown) => val is RegExp = is('regexp')
 
 /** 判断目标值类型是否为对象，排除null */
-export const isObject = (arg: any) => typeof arg === 'object' && arg !== null
+export const isObject = (val: unknown): val is Record<any, any> => typeof val === 'object' && val !== null
 
 /** 判断目标值类型是否为Date */
-export const isDate = is('date')
+export const isDate: (val: unknown) => val is Date = is('date')
 
 const _typeError = is('error')
 
 /** 判断目标值类型是否为Error */
-export const isError = (e: any) => (isObject(e) && _typeError(e)) || e instanceof Error
+export const isError = (e: unknown): e is Error => (isObject(e) && _typeError(e)) || e instanceof Error
 
 /** 判断目标值类型是否为Function */
-export const isFunction = is('function')
+export const isFunction: (val: unknown) => val is Function = is('function')
 
 /** 判断目标值类型是否为Primitive，包含（boolean,number,string,symbol,undefiend,null） */
-export function isPrimitive(arg: any): boolean {
+export function isPrimitive(arg: unknown): boolean {
   return arg === null ||
     typeof arg === 'boolean' ||
     typeof arg === 'number' ||
@@ -64,12 +64,12 @@ export function isPrimitive(arg: any): boolean {
 }
 
 /** hasOwnProperty的快速写法 */
-export function isHasOwn (obj: any, prop: string): boolean {
+export function isHasOwn (obj: unknown, prop: string): boolean {
   return Object.prototype.hasOwnProperty.call(obj, prop)
 }
 
 /** 值是否为空，空值为 null, undefined, false, '', [] */
-export function isEmpty (value: any): boolean {
+export function isEmpty (value: unknown): boolean {
   return isNullOrUndefined(value) || value === false || value === '' || (isArray(value) && !value.length)
 }
 
@@ -84,7 +84,7 @@ export function isBase64 (string: string): boolean {
 }
 
 /** 是否为原生类，用于判断一些原生的属性，如 isNative(window.fetch) */
-export function isNative (Ctor: any): boolean {
+export function isNative (Ctor: unknown): boolean {
   return typeof Ctor === 'function' && /native code/.test(Ctor.toString())
 }
 
@@ -110,7 +110,7 @@ export function isFormData(val: any): boolean {
 }
 
 /** 检测是否为File对象 */
-export const isFile = is('file')
+export const isFile: (val: unknown) => val is File = is('file')
 
 /** 检测是否为Bolb对象 */
-export const isBlob = is('blob')
+export const isBlob: (val: unknown) => val is Blob = is('blob')

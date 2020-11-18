@@ -17,10 +17,7 @@ debounce 策略的电梯。如果电梯里有人进来，等待15秒。如果又
 /**
  * 获取当前时间点的毫秒数
  */
-export const now: () => number = Date.now || function () {
-  return new Date().getTime()
-}
-
+export const now: () => number = Date.now
 
 /**
  * 频率控制 返回函数连续调用时，func 执行频率限定为 次 / wait
@@ -60,7 +57,7 @@ export function throttle(func: Function, wait: number) {
  * @param  {number}   wait        表示时间窗口的间隔
  * @param  {boolean}  immediate   设置为ture时，调用触发于开始边界而不是结束边界
  */
-export function debounce(func: Function, wait: number = 100, immediate: boolean = false) {
+export function debounce<T extends Function>(func: T, wait: number = 100, immediate: boolean = false): T {
   var timeout: any,
       args: any,
       context: any,
@@ -151,7 +148,7 @@ export function shuffle<T>(array: T[]): T[] {
  * @param {Function} iteratee 回调函数
  * @param {any} context 作用域
  */
-export function each(obj: any, iteratee: Function, context?: any) {
+export function each(obj: any, iteratee: (val: unknown, key: (number | string), _this: unknown) => void, context?: any) {
   // 作用域绑定
   if (context) {
     iteratee = iteratee.bind(context)
@@ -177,8 +174,8 @@ export function each(obj: any, iteratee: Function, context?: any) {
  * @param obj 对象
  * @param map 文本
  */
-export function pick (obj: object, map: string[] | object) {
-  const res = {}
+export function pick<T> (obj: T, map: string[] | Record<string, any>): T {
+  const res = Object.create(null)
   each(map, (value: any, key: any) => {
     res[value] = typeof key === 'string' ? obj[key] : obj[value]
   })
@@ -187,15 +184,16 @@ export function pick (obj: object, map: string[] | object) {
 
 
 /**
- * 创建一个会缓存 func 结果的函数。 如果提供了 hasher，就用 hasher 的返回值作为 key 缓存函数的结果。 默认情况下用第一个参数作为缓存的 key。 func 在调用时 this 会绑定在缓存函数上。
+ * 创建一个会缓存 func 结果的函数。 如果提供了 hashFn，就用 hashFn 的返回值作为 key 缓存函数的结果。 默认情况下用第一个参数作为缓存的 key。 func 在调用时 this 会绑定在缓存函数上。
  * @param {any} func 计算函数体
- * @param {any} hasher 可选的函数缓存key
+ * @param {any} hashFn 可选的函数缓存key
  */
-export function memoize(func: Function, hasher?: Function) {
+export function memoize<T>(func: Function, hashFn?: (...arg: any[]) => string): T {
   const memoized: any = function (this: any, key: string) {
-    let cache = memoized.cache
-    let address = '' + (hasher ? hasher.apply(this, arguments) : key)
-    if (!cache.has(address)) cache.set(address, func.apply(this, arguments))
+    const cache = memoized.cache
+    const arg: any = arguments
+    const address = '' + (hashFn ? hashFn.apply(this, arg) : key)
+    if (!cache.has(address)) cache.set(address, func.apply(this, arg))
     return cache.get(address)
   }
   memoized.cache = new Map()

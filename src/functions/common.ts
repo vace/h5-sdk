@@ -12,9 +12,7 @@ export function camelize (str: string): string {
 export function noop () {}
 
 /** 原样返回 */
-export function alway (val: any) {
-  return val
-}
+export function alway (val: any) { return val }
 
 /**
  * 将驼峰字符串转换为 dasherize格式

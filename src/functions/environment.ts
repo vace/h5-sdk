@@ -1,9 +1,5 @@
 import { navigator } from "../utils/global";
 
-/**
- * @module sdk
- */
-
 const ua = navigator.userAgent.toLowerCase()
 
 /** 是否为移动设备 */
@@ -24,21 +20,21 @@ export const isWechat = /micromessenger/i.test(ua)
 /** 是否在钉钉浏览器中 */
 export const isDingTalk: boolean = /DingTalk/i.test(ua)
 
-let WEBP_SUPPORT_PROMISE: any
+let WEBP_PROMISE: Promise<boolean>
 /**
  * 检测当前环境是否支持解析webp格式图片
  * @returns {Promise<boolean>}
  */
-export function checkSupportWebp(): Promise<boolean> {
-  if (!WEBP_SUPPORT_PROMISE) {
-    WEBP_SUPPORT_PROMISE = new Promise((resolve, reject) => {
+export function supportWebp(): Promise<boolean> {
+  if (!WEBP_PROMISE) {
+    WEBP_PROMISE = new Promise(resolve => {
       var webP = document.createElement('img')
       webP.src = 'data:image/webp;base64,UklGRi4AAABXRUJQVlA4TCEAAAAvAUAAEB8wA' + 'iMwAgSSNtse/cXjxyCCmrYNWPwmHRH9jwMA'
       webP.onload = webP.onerror = function () {
-        let WEBP_SUPPORT_FLAG = webP.height === 2
-        WEBP_SUPPORT_FLAG ? resolve() : reject()
+        let FLAG = webP.height === 2
+        FLAG ? resolve(true) : resolve(false)
       }
     })
   }
-  return WEBP_SUPPORT_PROMISE
+  return WEBP_PROMISE
 }

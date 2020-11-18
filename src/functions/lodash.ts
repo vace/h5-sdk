@@ -105,8 +105,8 @@ export function once(func: Function) {
  * console.log(evens)
  * // => [2, 4]
  */
-export function remove (array: any[], predicate: Function): any[] {
-  const result: any[] = []
+export function remove<T> (array: T[], predicate: (value: unknown, index: number, array: T[]) => boolean): T[] {
+  const result: T[] = []
   if (!(array != null && array.length)) {
     return result
   }

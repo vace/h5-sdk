@@ -1,5 +1,5 @@
 import Res from './Res'
-import { assign, each, isFunction } from '../functions/common'
+import { assign, each, isDef, isFunction } from '../functions/common'
 import { jsonp } from '../functions/web'
 
 const ResExtMaps = Res.extmaps
@@ -41,7 +41,7 @@ WebRES.forEach(wres => Res.registerLoader(wres[WebResAttr.LOADER], task => new P
     element[onerror] = DEF_VAL
     reject(error)
   }
-  each(options, (value, attr) => element.setAttribute(attr, value))
+  each(options, (value, attr) => isDef(value) && element.setAttribute(attr, value))
   if (wres[WebResAttr.INSERTED]) {
     const inserted = doc.head || doc.documentElement || doc.body
     inserted.insertAdjacentElement('beforeend', element)

@@ -30,7 +30,6 @@ class AbortSignal extends BaseEmitter {
 
 export default class AbortController {
   public signal = new AbortSignal
-
   abort() {
     const event = {
       type: 'abort',

@@ -1,0 +1,87 @@
+.video {
+  &, &-control, &-view, &-cover, &-el {
+    width: var(--vw, 100vw);
+    height: var(--vh, 100vh);
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    top: 0;
+  }
+  &-view {
+    z-index: 5;
+  }
+  &.isSkip {
+    animation: fadeOut 0.3s ease-in-out both;
+  }
+  &-el, &-cover-el {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+  }
+  &-el {
+    z-index: 9;
+  }
+  &-control {
+    z-index: 10;
+  }
+  &-cover {
+    z-index: 11;
+    .isPlayed & {
+      animation: fadeOut 0.34s ease-in both;
+    }
+    .isPaused & {
+      background-color: rgba(0, 0, 0, 0.5);
+      img {
+        display: none;
+      }
+    }
+  }
+  &-play {
+    position: absolute;
+    z-index: 12;
+    display: none;
+    top: 50%;
+    left: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    .isReady & {
+      display: block;
+      animation: fadeIn 0.3s ease-out both;
+    }
+    .isPlayed & {
+      pointer-events: none;
+      img {
+        animation: zoomOut 0.23s ease-in both;
+      }
+    }
+    .isSkip &, .isEnded & {
+      display: none;
+    }
+  }
+
+  &-skip {
+    position: absolute;
+    z-index: 13;
+    right: 0.8rem;
+    top: 0.6rem;
+    font-weight: bold;
+    color: #fff;
+    border-bottom: 1px solid;
+    padding: 0.2rem;
+    font-size: 0.8rem;
+    display: none;
+    .isShowSkip & {
+      display: block;
+      animation: zoomIn 0.3s both;
+    }
+  }
+
+  // 效果
+  &-blur {
+    filter: blur(4px);
+    transition: all 0.35s linear;
+    .isPlayed & {
+      filter: none;
+    }
+  }
+}

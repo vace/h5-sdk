@@ -13,22 +13,17 @@
  */
 
 /* eslint-disable */
-import {
-  isWindow,
-  isDocument,
-  isFunction,
-  isObject
-} from '../functions/is'
-import {
-  camelize,
-  dasherize
-} from '../functions/common'
+import { trim, noop, isArray, isWindow, isDocument, isFunction, isObject, camelize, dasherize, isNumeric, inArray } from '../functions/common'
 
 import installEvent from './zepto-event'
 import installForm from './zepto-form'
 import installFxMethod from './zepto-fx-method'
 import installFx from './zepto-fx'
-import installTouch from './zepto-touch'
+// import installTouch from './zepto-touch'
+
+function createElement (tag) {
+  return document.createElement(tag)
+}
 
 var undefined, key, $, classList, emptyArray = [], concat = emptyArray.concat, filter = emptyArray.filter, slice = emptyArray.slice,
   document = window.document,
@@ -44,20 +39,20 @@ var undefined, key, $, classList, emptyArray = [], concat = emptyArray.concat, f
   methodAttributes = ['val', 'css', 'html', 'text', 'data', 'width', 'height', 'offset'],
 
   adjacencyOperators = ['after', 'prepend', 'before', 'append'],
-  table = document.createElement('table'),
-  tableRow = document.createElement('tr'),
+  table = createElement('table'),
+  tableRow = createElement('tr'),
   containers = {
-    'tr': document.createElement('tbody'),
+    'tr': createElement('tbody'),
     'tbody': table, 'thead': table, 'tfoot': table,
     'td': tableRow, 'th': tableRow,
-    '*': document.createElement('div')
+    '*': createElement('div')
   },
   simpleSelectorRE = /^[\w-]*$/,
   class2type = {},
   toString = class2type.toString,
   zepto = {},
   uniq,
-  tempParent = document.createElement('div'),
+  tempParent = createElement('div'),
   propMap = {
     'tabindex': 'tabIndex',
     'readonly': 'readOnly',
@@ -71,9 +66,7 @@ var undefined, key, $, classList, emptyArray = [], concat = emptyArray.concat, f
     'usemap': 'useMap',
     'frameborder': 'frameBorder',
     'contenteditable': 'contentEditable'
-  },
-  isArray = Array.isArray ||
-    function (object) { return object instanceof Array }
+  }
 
 zepto.matches = function (element, selector) {
   if (!selector || !element || element.nodeType !== 1) return false
@@ -124,7 +117,7 @@ function maybeAddPx(name, value) {
 function defaultDisplay(nodeName) {
   var element, display
   if (!elementDisplay[nodeName]) {
-    element = document.createElement(nodeName)
+    element = createElement(nodeName)
     document.body.appendChild(element)
     display = getComputedStyle(element, '').getPropertyValue("display")
     element.parentNode.removeChild(element)
@@ -156,7 +149,7 @@ zepto.fragment = function (html, name, properties) {
   var dom, nodes, container
 
   // A special case optimization for a single tag
-  if (singleTagRE.test(html)) dom = $(document.createElement(RegExp.$1))
+  if (singleTagRE.test(html)) dom = $(createElement(RegExp.$1))
 
   if (!dom) {
     if (html.replace) html = html.replace(tagExpanderRE, "<$1></$2>")
@@ -350,34 +343,16 @@ $.isFunction = isFunction
 $.isWindow = isWindow
 $.isArray = isArray
 $.isPlainObject = isPlainObject
-
-$.isEmptyObject = function (obj) {
-  var name
-  for (name in obj) return false
-  return true
-}
-
-$.isNumeric = function (val) {
-  var num = Number(val), type = typeof val
-  return val != null && type != 'boolean' &&
-    (type != 'string' || val.length) &&
-    !isNaN(num) && isFinite(num) || false
-}
-
-$.inArray = function (elem, array, i) {
-  return emptyArray.indexOf.call(array, elem, i)
-}
-
+$.isNumeric = isNumeric
+$.inArray = inArray
 $.camelCase = camelize
-$.trim = function (str) {
-  return str == null ? "" : String.prototype.trim.call(str)
-}
+$.trim = trim
 
 // plugin compatibility
 $.uuid = 0
 $.support = {}
 $.expr = {}
-$.noop = function () { }
+$.noop = noop
 
 $.map = function (elements, callback) {
   var value, values = [], i, key
@@ -967,7 +942,7 @@ installEvent(Zepto)
 installForm(Zepto)
 installFxMethod(Zepto)
 installFx(Zepto)
-installTouch(Zepto)
+// installTouch(Zepto)
 
 // 安装到全局变量
 if (typeof jQuery === 'undefined' && typeof window !== 'undefined') {

@@ -1,49 +1,54 @@
 /**
  * 用法实例
- * ```javascript
- * var task = new Tasker()
- * 
- * task.then(() => console.log('task ok'))
- * 
- * task.resolve()
- * 
- * ```
  */
 
+const HandleSymbol = Symbol('tasker')
+const PromiseSymbol = Symbol('promise')
 
+type PromiseHandle = {
+  resolve: ITaskerResolve,
+  reject: ITaskerReject
+}
+
+type ITaskerResolve = <T>(value: T | PromiseLike<T>) => void
+type ITaskerReject = (reason?: Error | any) => void
+
+/**
+ * ! typescript extends Promise 解析到es5有bug，所以暂时用此方式实现
+ * ! _super.call(this, ...) || this
+ */
 export default class Tasker {
-  /** 是否已经执行 */
-  public isWorked: boolean = false
-  /** 已执行 */
-  public isDone: boolean = false
-  /** 任务实体 */
-  public task: Promise<any>
+  public [PromiseSymbol]: Promise<any>
+  public [HandleSymbol]: PromiseHandle
+  /** 是否已被resolved/reject */
+  public isResolved: boolean = false
 
-  private _nativeResolve!: Function
-  private _nativeReject!: Function
-
-  public constructor () {
-    this.task = new Promise((resolve, reject) => {
-      this._nativeReject = reject
-      this._nativeResolve = resolve
+  public constructor() {
+    const handle: any = {}
+    this[PromiseSymbol] = new Promise((resolve, reject) => {
+      handle.resolve = resolve
+      handle.reject = reject
     })
+    this[HandleSymbol] = handle as PromiseHandle
   }
 
-  public working () {
-    this.isWorked = true
+  public then (onfulfilled: ITaskerResolve, onrejected?: ITaskerReject ) {
+    return this[PromiseSymbol].then(onfulfilled, onrejected)
   }
-
+  public catch (onrejected: ITaskerReject) {
+    return this[PromiseSymbol].catch(onrejected)
+  }
+  public finally (onfinally: ITaskerReject) {
+    return this[PromiseSymbol].finally(onfinally)
+  }
   public resolve (val: any) {
-    this.isDone = true
-    this._nativeResolve(val)
-    return this.task
+    this.isResolved = true
+    this[HandleSymbol].resolve(val)
+    return this
   }
-  public reject (err: any) {
-    this.isDone = true
-    this._nativeReject(err)
-    return this.task
-  }
-  public then (onfulfilled: any, onrejected: any) {
-    return this.task.then(onfulfilled, onrejected)
+  public reject (err?: Error) {
+    this.isResolved = true
+    this[HandleSymbol].reject(err)
+    return this
   }
 }

@@ -1,34 +1,39 @@
-/**
- * 小程序SDK集成
- */
-
-import {
-  Http,
-  Auth,
-  User,
-  App
-} from './factory/index.mini'
-
-/**
- * 版本号
- */
+/** 版本号 */
 export const version = '__VERSION__'
 
-/**
- * 导出辅助函数类
- */
-export * from './config'
-export * from './functions/index.mini'
-export * from './factory/index.mini'
-export * from './plugins/index.mini'
-// export * from './factory/index'
+const define = (key: string, get: any) => Object.defineProperty(exports, key, { get })
 
+/** 导出类 */
+import App from './factory/App';
+import AuthUser from './factory/AuthUser';
+import Auth from './factory/Auth.mini';
+import Config from './factory/Config';
+import Emitter from './factory/Emitter';
+import Http from './factory/Http.mini';
+import Res from './factory/Res';
+import Tasker from './factory/Tasker'
+import AbortController from './factory/AbortController.mini'
 
+export { App, Auth, AuthUser, Config, Emitter, Http, Res, Tasker, AbortController }
 
-const exportGetter = (key: string, get: any) => {
-  Object.defineProperty(exports, key, { get })
-}
-exportGetter('http', () => Http.instance)
-exportGetter('auth', () => Auth.instance)
-exportGetter('user', () => User.instance)
-exportGetter('app', () => App.instance)
+define('app', () => App.instance)
+define('auth', () => Auth.instance)
+define('user', () => Auth.instance && Auth.instance.user)
+define('http', () => Http.instance)
+define('emitter', () => Emitter.instance)
+define('res', () => Res.instance)
+
+/* 导出辅助函数类 */
+export * from './functions/common'
+export * from './functions/mini'
+
+/** 导入插件模块类 */
+// import analysis from './plugins/analysis.web'
+import hotcache from './plugins/hotcache'
+import store from './plugins/store.mini'
+import * as cdn from './plugins/cdn'
+import * as cloud from './plugins/cloud'
+import * as safefy from './plugins/safety'
+import * as tool from './plugins/tool'
+
+export { cdn, store, cloud, hotcache, safefy, tool }

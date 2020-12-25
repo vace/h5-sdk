@@ -1,15 +1,18 @@
 const sdk = require('../dist/sdk.node')
 
+console.log(Headers)
+
 // sdk.http.get('https://httpbin.org/get').then(console.log)
 
-const app = sdk.App.createInstance({
+const app = new sdk.App({
   appid: 'apr79oyug6'
 })
 
-app.ready(() => {
+app.ready().then((app) => {
+  console.log(app)
   sdk.app.get({
-    api: 'Test.succ',
-    param: {ok: 1}, // TODO your params
+    api: 'https://api.ahmq.net/api/developer/httpbin',
+    param: { ok: 1 }, // TODO your params
     showSuccess: true,
     showError: true,
     showLoading: true

@@ -1,19 +1,16 @@
 import App from "../factory/App";
-import Http from "../factory/Http";
-
-import { getServiceUri } from "../config";
-import { commonResponseReslove } from "../utils/common";
+import Config from '../factory/Config'
 
 /**
- * 访问服务端的service
- * @param {string} serviceName
- * @param {*} opt
- * @param {('get' | 'post')} [method='get']
+ * 访问服务端的service，要求必须包含app实例
  */
 export function service (serviceName: string, opt: any, method: 'get' | 'post' = 'get'): Promise<any> {
-  const appid = App.hasInstance ? App.instance.appid : ''
-  const api = getServiceUri(`${serviceName}?appid=${appid}`)
-  return Http.instance[method](api, opt).then(commonResponseReslove)
+  const app = App.instance
+  if (!app) {
+    throw new TypeError('`App.instance` not found')
+  }
+  const api = Config.service(`${serviceName}?appid=${app.appid}`)
+  return app[method](api, opt)
 }
 
 /**

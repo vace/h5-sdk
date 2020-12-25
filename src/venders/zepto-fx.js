@@ -1,4 +1,5 @@
 /* eslint-disable */
+import { animationPrefix, transitionEnd, animationEnd, animationEnabled } from '../functions/web'
 
 /**
  * @function
@@ -9,46 +10,32 @@
  */
 export default function install ($) {
   // https://github.com/madrobby/zepto/blob/master/src/fx.js
-  var prefix = '', eventPrefix,
-    vendors = { Webkit: 'webkit', Moz: '', O: 'o' },
-    testEl = document.createElement('div'),
-    supportedTransforms = /^((translate|rotate|scale)(X|Y|Z|3d)?|matrix(3d)?|perspective|skew(X|Y)?)$/i,
+  var supportedTransforms = /^((translate|rotate|scale)(X|Y|Z|3d)?|matrix(3d)?|perspective|skew(X|Y)?)$/i,
     transform,
     transitionProperty, transitionDuration, transitionTiming, transitionDelay,
     animationName, animationDuration, animationTiming, animationDelay,
     cssReset = {}
 
-  function dasherize(str) { return str.replace(/([A-Z])/g, '-$1').toLowerCase() }
-  function normalizeEvent(name) { return eventPrefix ? eventPrefix + name : name.toLowerCase() }
-
-  if (testEl.style.transform === undefined) $.each(vendors, function (vendor, event) {
-    if (testEl.style[vendor + 'TransitionProperty'] !== undefined) {
-      prefix = '-' + vendor.toLowerCase() + '-'
-      eventPrefix = event
-      return false
-    }
-  })
-
   // small code
   var transition = 'transition'
   var animation = 'animation'
 
-  transform = prefix + 'transform'
-  cssReset[transitionProperty = prefix + transition + '-property'] =
-    cssReset[transitionDuration = prefix + transition + '-duration'] =
-    cssReset[transitionDelay = prefix + transition + '-delay'] =
-    cssReset[transitionTiming = prefix + transition + '-timing-function'] =
-    cssReset[animationName = prefix + animation + '-name'] =
-    cssReset[animationDuration = prefix + animation + '-duration'] =
-    cssReset[animationDelay = prefix + animation + '-delay'] =
-    cssReset[animationTiming = prefix + animation + '-timing-function'] = ''
+  transform = animationPrefix + 'transform'
+  cssReset[transitionProperty = animationPrefix + transition + '-property'] =
+    cssReset[transitionDuration = animationPrefix + transition + '-duration'] =
+    cssReset[transitionDelay = animationPrefix + transition + '-delay'] =
+    cssReset[transitionTiming = animationPrefix + transition + '-timing-function'] =
+    cssReset[animationName = animationPrefix + animation + '-name'] =
+    cssReset[animationDuration = animationPrefix + animation + '-duration'] =
+    cssReset[animationDelay = animationPrefix + animation + '-delay'] =
+    cssReset[animationTiming = animationPrefix + animation + '-timing-function'] = ''
 
   $.fx = {
-    off: (eventPrefix === undefined && testEl.style.transitionProperty === undefined),
+    off: !animationEnabled,
     speeds: { _default: 400, fast: 200, slow: 600 },
-    cssPrefix: prefix,
-    transitionEnd: normalizeEvent('TransitionEnd'),
-    animationEnd: normalizeEvent('AnimationEnd')
+    cssPrefix: animationPrefix,
+    transitionEnd: transitionEnd,
+    animationEnd: animationEnd
   }
 
   $.fn.animate = function (properties, duration, ease, callback, delay) {
@@ -128,7 +115,4 @@ export default function install ($) {
 
     return this
   }
-
-  testEl = null
-
 }

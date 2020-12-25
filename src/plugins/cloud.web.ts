@@ -1,5 +1,5 @@
 import { service, CloudResponse } from './cloud'
-import { getAppid } from "./jssdk";
+import jssdk from "./jssdk.web";
 
 export * from './cloud'
 
@@ -9,7 +9,7 @@ export * from './cloud'
  * @returns {Promise<CloudResponse>}
  */
 export function wxmedia(media_id: string): Promise<CloudResponse> {
-  return service('cloud/wxmedia', { jsappid: getAppid(), media_id })
+  return service('cloud/wxmedia', { jsappid: jssdk.appid, media_id })
 }
 
 /**
@@ -19,7 +19,6 @@ export function wxmedia(media_id: string): Promise<CloudResponse> {
  * @returns {Promise<CloudResponse>}
  */
 export function upfile(file: File, isTempFile?: boolean): Promise<CloudResponse> {
-
   const form = new FormData()
   form.append('file', file, file.name)
   return service('cloud/' + (isTempFile ? 'uptemp' : 'upfile'), form, 'post')

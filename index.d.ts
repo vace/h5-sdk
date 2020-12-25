@@ -1,6 +1,10 @@
 /// <reference types="zepto" />
 /// <reference types="store" />
 /// <reference types="blueimp-md5" />
+declare module 'h5-sdk/plugins/canvas-poster/src/index' {
+	export {};
+
+}
 declare module 'h5-sdk/types/es6-object-assign' {
 	export function assign(target: any, firstSource: any, ...args: any[]): any;
 	export function polyfill(): void;
@@ -668,6 +672,7 @@ declare module 'h5-sdk/src/plugins/jssdk' {
 
 }
 declare module 'h5-sdk/src/plugins/tool' {
+	export function qrcode(text: string, size?: number): string;
 	export function readAsDataURL(inputer: File): Promise<string>;
 	export function chooseFile(accept?: string): Promise<File>;
 	export function chooseImageAsDataURL(option?: any): Promise<string>;
@@ -776,6 +781,7 @@ declare module 'h5-sdk/src/factory/UiModal' {
 	    };
 	    readonly value: string;
 	    constructor(_option?: UiModalOption);
+	    withClose(next: any, message?: string): any;
 	    showSpinning(message?: string): this;
 	    hideSpinning(): this;
 	    validateForm(field?: string): boolean;
@@ -1212,7 +1218,6 @@ declare module 'h5-sdk/src/adapters/ui/ui.web' {
 	import UiView, { UiViewOption } from 'h5-sdk/src/factory/UiView';
 	import UiSheet, { IUiSheetOption } from 'h5-sdk/src/factory/UiSheet';
 	import { IUiAlertOption, IUiConfirmOption, IUiPromptOption, IUiUserboxOption } from 'h5-sdk/src/adapters/ui/interface';
-	export function spinning(next: any, message?: string): (modal: UiModal) => any;
 	export function modal(option: UiModalOption): UiModal;
 	export function alert(option: IUiAlertOption | string): UiModal;
 	export function confirm(option: IUiConfirmOption): UiModal;
@@ -1317,6 +1322,11 @@ declare module 'h5-sdk/src/adapters/app/index' {
 declare module 'h5-sdk/src/adapters/ui/ui.node' {
 	export function preloader(): void;
 	export function loading(): void;
+
+}
+declare module 'h5-sdk/src/plugins/plugin' {
+	export function define(): void;
+	export function use(): void;
 
 }
 declare module 'h5-sdk' {

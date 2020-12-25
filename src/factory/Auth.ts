@@ -1,62 +1,77 @@
-import { assign } from 'es6-object-assign'
-import User, { IUserState, IUserPlatform, IUserType } from "./User";
-import { jwtDecode } from "../plugins/safety";
-import { now } from "../functions/underscore";
-import Tasker from "./Tasker";
-import { auth } from '../adapters/auth/index'
-import { IAuthOption, IJwtDecodeRet, IAuth } from '../adapters/auth/interface';
-import cacher from './_cacher'
+import Http from './Http'
+import AuthUser from './AuthUser'
+import Config from './Config'
+import hotcache from '../plugins/hotcache'
+import { isString, isHasOwn, now, always } from '../functions/common'
+import { jwtDecode } from '../plugins/safety'
+import { Tasker } from 'h5-sdk'
 
-let ENV_platform = '__PLANTFORM__'
+const AuthStore = hotcache('@SdkTokens')
 
-export default class Auth {
-  /** 适配器 */
-  public static adapter: IAuth = auth
+/**
+ * 普通静默登录：`auth.login().then(...)
+ */
 
-  /** 默认配置 */
-  public static option: IAuthOption = {
-    // 小程序端自动识别
-    platform: ENV_platform === 'mini' ? 'mini' : 'wechat',
-    appid: '',
-    version: ''// '0.0.0'
+export enum AuthType { none = 'none', base = 'base', user = 'user' }
+export enum AuthErrorCode { OK, NO_CODE, LOGIN_FAILED }
+// 可使用此函数实现自定义登陆
+type AuthOnRedirectLogin = (url: string, reason: AuthError) => void
+
+// 授权错误
+export class AuthError extends Error {
+  public code: number
+  public data: any
+  constructor(code: number, message: string, data?: any) {
+    super(`登录失败：${message}`)
+    this.code = code
+    this.data = data
   }
+}
 
-  /** 缓存KEY */
-  public static cacher = cacher('@SdkTokens')
+export default class Auth extends Http {
+  // 导出用户类
+  static AuthUser = AuthUser
+  // 导出授权错误类
+  static AuthError = AuthError
 
-  /** 实例 */
-  private static _instance: Auth
-  /** 获取应用实例 */
-  public static get instance(): Auth | null {
-    return this._instance
-  }
-  /** 创建默认实例（注意，重复创建将覆盖之前的默认实例） */
-  public static createInstance(option: IAuthOption): Auth {
-    if (this._instance) {
-      console.warn('[Auth.instance] 已存在，此操作将覆盖默认Auth实例')
+  /** 用户Auth实例，使用时生成 */
+  // @ts-ignore
+  public static instance:Auth = null
+
+  /** 转换配置参数，子类可覆盖实现 */
+  static transformAuthOptions = always
+
+  /** 全局请求转换 */
+  static transformAuthRequest(auth: Auth, config: any) {
+    if (auth && auth.token) {
+      if (!isHasOwn(config, 'headers')) {
+        config.headers = {}
+      }
+      config.headers.Authorization = auth.token
     }
-    return this._instance = new Auth(option)
+    return config
+  }
+  /** 全局auth参数接收 */
+  static onAuthHeadersReceived(auth: Auth, header: Headers) {
+    const authorization = header.get('Authorization')
+    if (authorization) {
+      if (authorization === 'LogOut') auth.logout()
+      else auth.saveToken(authorization)
+    }
   }
 
-  public tasker: Tasker = new Tasker
-
-  /** 是否需要authed */
-  public isAuthed: boolean = false
-
-  /** 用户ID */
-  public id: number = 0
   /** 用户实例 */
-  public user!: User
-  /** Auth版本号 */
+  public user!: AuthUser
+  /** Auth版本号，可修改version强制重新授权 */
   public version!: string
   /** 用户角色 */
-  public state!: IUserState
+  public state!: string
   /** 授权种类 */
-  public type!: IUserType
+  public type!: string
   /** 授权配置 */
-  public option!: IAuthOption
+  public httpconf!: any
   /** 当前应用所在平台 */
-  public platform!: IUserPlatform
+  public platform!: string
   /** 当前应用appid */
   public appid!: string
   /** 当前应用scope */
@@ -65,158 +80,113 @@ export default class Auth {
   public env!: string
   /** 回调url */
   public url!: string
-  /** 读取accessToken */
-  public _accessToken!: string | null
-  /** accessToken 是否有效 */
-  public isAccessTokenValid: boolean = false
+  /** 自定义redirect方法 */
+  public onRedirectLogin!: AuthOnRedirectLogin
 
-  public constructor (options?: IAuthOption) {
-    if (options) {
-      this.setOption(options)
-      this.setup()
+  /** 读取当前缓存key */
+  get $key() {
+    return this.appid + '/' + this.type
+  }
+  /** 用户ID */
+  get id() {
+    return this.user.id
+  }
+  /** 用户是否登录 */
+  get isLogin() {
+    return this.user.isLogin
+  }
+  /** 读取当前的token */
+  get token(): string {
+    const token = AuthStore.get(this.$key)
+    // 兼容3.x版本授权
+    if (isString(token)) {
+      return token.includes('@') ? token.split('@').shift() as string : token
     }
-    // global instance
-    if (!Auth._instance) {
-      Auth._instance = this
+    return ''
+  }
+  // 读取token是否有效
+  get isTokenValid(): boolean {
+    const { token, appid, platform, type } = this
+    // 'Bearer '.length = 7
+    const jwt = token ? jwtDecode(token.slice(7)) : null
+    // jwt data not valid
+    if (jwt) {
+      const { exp, iss, id, sub, typ } = jwt
+      const isNotExp = !exp || exp > now() / 1000 + 7200
+      const isIss = iss === appid
+      const isSub = sub === platform
+      const isTpe = typ === type
+      return id && isNotExp && isIss && isSub && isTpe
     }
+    return false
   }
 
-  /** 设置accessToken */
-  public set accessToken(token: string | null) {
-    // debugger
-    if (!token || this._accessToken === token) return
-    const [tokenType, tokenValue] = token.split(' ')
-    if (tokenType !== 'Bearer') throw new TypeError('TokenType Must Be `Bearer`')
-    const jwt: IJwtDecodeRet = jwtDecode(tokenValue)
-    if (!jwt) return
-    const { exp, iss, id, state, sub, typ } = jwt
-    this.state = state
-    this.id = id
-    const isExp = !exp || exp > now() / 1000 + 3600
-    const isIss = iss === this.appid
-    const isSub = sub === this.platform
-    const isTpe = typ === this.type
-    
-    const checkRet = { isExp, isIss, isSub, isTpe }
-    const isValid = this.isAccessTokenValid = auth.checkToken(this, checkRet)
-    if (isValid) {
-      this._accessToken = token
-    } else {
-      console.warn('Auth授权校检失败：', checkRet)
-    }
-  }
-
-  /** 读取本地的accessToken */
-  public get accessToken(): string | null {
-    return this._accessToken
-  }
-
-  /** 缓存KEY：应用id/授权类型 */
-  public get cacheKey (): string {
-    return `${this.appid}/${this.type}`
-  }
-
-  /**
-   * 保存token值
-   * @param token 完整的token值
-   */
-  public saveToken (token: string) {
-    if (token && this.accessToken !== token) {
-      this.accessToken = token
-      // cache
-      if (this.isAccessTokenValid) {
-        // 使用@链接版本号，对比用户信息准确性
-        Auth.cacher.set(this.cacheKey, token + '@' + this.version)
-      }
-    }
-  }
-
-  /** 清除用户Token */
-  public clearToken () {
-    this._accessToken = ''
-    Auth.cacher.remove(this.cacheKey)
-  }
-
-  /** 设置配置 */
-  public setOption (option: IAuthOption) {
-    const { platform, appid, scope, env, url, type, version } = assign({}, Auth.option, option)
+  // 初始化
+  constructor(options: any) {
+    super({
+      baseURL: Config.API_AUTH,
+      transformRequest: config => Auth.transformAuthRequest(this, config),
+      onHeadersReceived: header => Auth.onAuthHeadersReceived(this, header)
+    })
+    const { platform, appid, type, scope, env, url, version, onRedirectLogin } = Auth.transformAuthOptions(options)
     this.platform = platform
     this.appid = appid
-    this.type = type || 'none'
-    this.scope = scope || ''
-    this.env = env || ''
-    this.url = url || ''
+    this.type = type
+    this.scope = scope
+    this.env = env
+    this.url = url
     this.version = version
-    this.user = User.createInstance({ appid: appid, userType: this.type })
-    return this
-  }
-
-  /** 运行oauth，获取用户信息 */
-  public async setup (): Promise<User | any> {
-    const { tasker } = this
-    if (tasker.isWorked) {
-      return tasker.task
+    this.onRedirectLogin = onRedirectLogin
+    this.user = new AuthUser(this)
+    if (!(Auth.instance instanceof Auth)) {
+      Auth.instance = this
     }
-    this.isAuthed = true
-    tasker.working()
-    if (this.accessToken == null) {
-      const token = Auth.cacher.get(this.cacheKey) || ''
-      let [accessToken, tokenVersion = ''] = token.split('@')
-      // 用户设置了版本，则需要检测版本是否正确
-      if (this.version && this.version !== tokenVersion) {
-        this.isAccessTokenValid = false
-      } else {
-        this.accessToken = accessToken
-      }
-    }
-    // 检测平台内部的token是否有效
-    if (this.isAccessTokenValid) {
-      const isValidPlantformToken = await this.checkLogin()
-      if (!isValidPlantformToken) {
-        this.isAccessTokenValid = false
-      }
-    }
-    // token 无效，重新获取token
-    if (!this.isAccessTokenValid) {
-      const isLogin = await this.login()
-      if (isLogin === false) {
-        return Promise.reject(new Error('登陆失败！'))
-      }
-    }
-    // 用户缓存是否有效
-    let user: any = this.user
-    // 用户信息不合法
-    if (!user.isLogin || user.platform !== this.platform || user.appid !== this.appid || user.userType !== this.type) {
-      if (this.accessToken) {
-        user = await this.refresh()
-      }
-    }
-    // 任务运行完成
-    return tasker.resolve(user)
   }
 
-  /** 使用token刷新用户信息 */
-  public refresh (): Promise<User | null> {
-    return auth.refresh(this)
+  // public tasker!: Tasker
+
+  public tasker!: Promise<AuthUser>
+  private $_loginResolve!: Function
+  private $_loginReject!: (err: Error) => void
+
+  public login (): Promise<AuthUser> {
+    if (this.tasker) return this.tasker
+    this.tasker = new Promise((resolve, reject) => {
+      this.$_loginResolve = resolve
+      this.$_loginReject = reject
+    })
+    // 尝试使用code 和 state 登陆用户
+    this._requestLogin()
+      .then(user => this.$_loginResolve(user))
+      // 登陆失败，跳转到登录页继续尝试
+      .catch(error => this._redirectLogin(error))
+      // 捕获上述错误
+      .catch(error => this.$_loginReject(error))
+    return this.tasker
   }
 
-  /** 检测是否登陆 */
-  public checkLogin () {
-    return auth.checkLogin(this)
+  public authorize (arg: any): Promise<AuthUser> {
+    throw new TypeError('authorize is undefined')
   }
 
-  /** 更新用户 */
-  public update (param: any) {
-    return auth.update(this, param)
+  // 更新用户token
+  public saveToken(token: string) {
+    AuthStore.set(this.$key, token)
   }
 
-  /** 登陆当前应用 */
-  public login () {
-    return auth.login(this)
-  }
-
-  /** 登出当前用户 */
+  // 要求用户登出
   public logout() {
-    return auth.logout(this)
+    AuthStore.remove(this.$key)
+    this.user.logout()
+  }
+
+  // 尝试使用现有参数登陆
+  public async _requestLogin(): Promise<AuthUser> {
+    throw new TypeError('_requestLogin is undefined')
+  }
+
+  // 跳转到登录页或自行处理逻辑
+  public _redirectLogin (reason: AuthError) {
+    throw reason
   }
 }

@@ -1,13 +1,16 @@
-/**
- * 安全
- */
 import _md5 from 'blueimp-md5'
-import { isObject } from '../functions/is';
-import { global } from '../utils/global'
+import { isObject, keys } from '../functions/common'
+
+let global: any = {}
+
+// @ts-ignore
+if ('__PLANTFORM__' === 'web') {
+  global = window
+}
 
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
 
-class InvalidCharacterError extends Error{}
+class InvalidCharacterError extends Error { }
 
 /** binary to assic */
 export const btoa = global.btoa || function (input: string) {
@@ -54,18 +57,16 @@ export const atob = global.atob || function (input: string) {
   return output;
 }
 
-
 /** md5 */
 export const md5: (str: string, key?: string) => string = _md5
 
 /** 对数据签名 */
 export function signature (object: Record<string, any>, action: string = ''): string {
   // 字典排序
-  const str = Object.keys(object).sort().map(key => {
+  const signstr = action + keys(object).sort().map(key => {
     const value = object[key]
     return `${key}=${isObject(value) ? JSON.stringify(value) : value}`
   }).join('&')
-  const signstr = action + str
   return md5(signstr)
 }
 

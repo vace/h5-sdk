@@ -1,21 +1,24 @@
-import config from '../config'
-import { isHttp, isBase64 } from '../functions/is'
+import { isHttp, isBase64, keys } from '../functions/common'
 import Http from '../factory/Http'
+import Config from '../factory/Config'
+
+const http = Http.instance
+
 /**
  * 获取cdn资源
  * @param filename 文件名
  * @param process 处理函数
  */
-export function res (filename: string, process?: string | object) {
+export function res (filename: string, process?: string) {
   if (!filename || isHttp(filename) || isBase64(filename)) {
     return filename
   }
-  const url = `${config.cdn}${filename.charAt(0) === '/' ? '' : '/'}${filename}`
+  const url = Config.cdn(filename)
   if (!process) {
     return url
   }
   // 目录分隔符处理
-  return url + '?x-oss-process=' + handleImageProcess(process)
+  return url + '?x-oss-process=' + String(process)
 }
 
 /**
@@ -32,7 +35,7 @@ export function lib (libname: string) {
  */
 export function info (filename: string) {
   const url = res(filename, 'image/info')
-  return Http.instance.get(url)
+  return http.get(url)
 }
 
 /**
@@ -41,7 +44,7 @@ export function info (filename: string) {
  */
 export function hue (filename: string) {
   const url = res(filename, 'image/average-hue')
-  return Http.instance.get(url)
+  return http.get(url)
 }
 
 /**
@@ -62,7 +65,7 @@ export function snapshot (filename: string, w: number = 0, h: number = 0, format
  */
 export function imm (filename: string, service: string) {
   const url = res(filename, `imm/${service}`)
-  return Http.instance.get(url)
+  return http.get(url)
 }
 
 /**
@@ -74,26 +77,3 @@ export function imm (filename: string, service: string) {
 export function style (filename: string, style: string) {
   return res(filename, `style/${style}`)
 }
-
-/**
- * @example
- * {resize: {w: 200, h: 100}} // image/resize,w_200,h_100
- */
-function handleImageProcess(command: any): string {
-  if (!command || typeof command === 'string') {
-    return command
-  }
-  const keys = Object.keys
-  const process = keys(command).map(cmd => {
-    const item = command[cmd]
-    let value
-    if (typeof item === 'object') {
-      value = keys(item).map(key => `${key}_${item[key]}`).join(',')
-    } else {
-      value = item
-    }
-    return `${cmd},` + value
-  }).join('/')
-  return 'image/' + process
-}
-

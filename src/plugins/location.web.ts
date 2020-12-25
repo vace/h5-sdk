@@ -1,0 +1,37 @@
+import { dirname, filterURL, isBase64, isHttp, parse, resolvePath } from '../functions/common'
+
+const lt = window.location
+
+/** 受保护的字段列表 */
+const PrivacyFileds = ['code', 'state', 'nonce', 'token', 'key', 'secret', 'signatue', 'spm_uid', 'spm_from']
+
+export default {
+  PrivacyFileds,
+  // 查询字符如
+  get querystring () {
+    return lt.search.slice(1)
+  },
+  // 查询字符串序列化
+  get query () {
+    return parse(this.querystring)
+  },
+  // 当前根路径
+  get rootpath () {
+    return lt.origin + dirname(lt.pathname) + '/'
+  },
+  // 当前路径url
+  get url (): string {
+    return lt.href.split('#').shift() || ''
+  },
+  // 脱敏链接
+  get safeurl (): string {
+    return filterURL(this.url, this.PrivacyFileds)
+  },
+
+  getRootFile (filename: string) {
+    if (isHttp(filename) || isBase64(filename)) {
+      return filename
+    }
+    return resolvePath(this.rootpath, filename)
+  }
+}

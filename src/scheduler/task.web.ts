@@ -27,14 +27,24 @@ function initializeScript() {
   autocss && loader.add(path + 'sdk.css')
   // debug 工具
   if (debug || /showdebug/i.test(location.search)) {
-    loader.add(lib('eruda/2.3.3/eruda.min.js')).then(() => (window['eruda']).init())
+    loader.add(lib('eruda/2.4.1/eruda.min.js')).then(() => {
+      (window['eruda']).init()
+      // TODO debug tools
+      // eruda.get('info').add('AppInfo', 'appid:xxxx')
+    })
   }
 }
 
 function initializeAuth() {
-  const props = ['platform', 'type', 'appid', 'scope', 'env']
+  const props = ['platform', 'type', 'appid', 'scope', 'env', '!autologin']
   const config = _queryElementAttr('meta[name="sdk:auth"]', props)
-  config && new Auth(config)
+  if (config) {
+    const auth = new Auth(config)
+    // 是否自动登陆
+    if (config.autologin) {
+      auth.login()
+    }
+  }
 }
 
 function initializeApp () {

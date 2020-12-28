@@ -1,7 +1,7 @@
 import Auth, { AuthError, AuthType, AuthErrorCode } from './Auth'
 import AuthUser from './AuthUser'
 import { alwaysTrue, alwaysFalse, isHasOwn, isDef } from '../functions/common'
-import { appid } from '../functions/mini'
+import { appid } from '../functions/utils.mini'
 
 declare var wx: any
 

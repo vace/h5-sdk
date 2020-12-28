@@ -228,6 +228,7 @@ export default class Res extends Emitter {
     return Res.get(keyOrTask, _default)
   }
 
+  /** 添加任务 */
   private _addTask (task: ResTask) {
     this._nofify(ResTaskStatus.ADDED)
     if (this.isWorked) {

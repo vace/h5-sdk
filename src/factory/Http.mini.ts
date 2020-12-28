@@ -1,8 +1,5 @@
 import Http, { HttpError, HttpMethod } from './Http'
-import Headers from './http/Headers'
-import Request from './http/Request'
-import Response from './http/Response'
-import DOMException from './http/DOMException'
+import { DOMException, Headers, Request, Response } from '../venders/http.mini'
 
 declare var wx: any
 

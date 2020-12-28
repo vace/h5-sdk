@@ -13,9 +13,6 @@ export const appid: string = miniProgram.appId
 /** 是否为调试模式 */
 export const isDev: boolean = miniProgram.envVersion === 'develop'
 
-// 下一渲染帧触发
-export const nextTick = () => new Promise(resolve => wx.nextTick(resolve))
-
 // 读取auth setting
 export const getAuthSetting = async (scope: string) => {
   const { authSetting } = await wx.getSetting()

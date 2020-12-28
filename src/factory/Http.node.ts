@@ -1,6 +1,8 @@
 import Http, { HttpError, HttpMethod } from './Http'
 
+// @ts-ignore
 const fetch = require('node-fetch')
+// @ts-ignore
 const { Headers, Request, Response } = require('node-fetch')
 
 Http.HttpHeaders = Headers

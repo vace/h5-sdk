@@ -12,7 +12,7 @@ import Emitter from './factory/Emitter';
 import Http from './factory/Http.mini';
 import Res from './factory/Res';
 import Tasker from './factory/Tasker'
-import AbortController from './factory/AbortController.mini'
+import AbortController from './factory/AbortController'
 
 export { App, Auth, AuthUser, Config, Emitter, Http, Res, Tasker, AbortController }
 
@@ -23,9 +23,11 @@ define('http', () => Http.instance)
 define('emitter', () => Emitter.instance)
 define('res', () => Res.instance)
 
+export { DOMException, Headers, Request, Response } from './venders/http.mini'
+
 /* 导出辅助函数类 */
 export * from './functions/common'
-export * from './functions/mini'
+export * from './functions/utils.mini'
 
 /** 导入插件模块类 */
 // import analysis from './plugins/analysis.web'

@@ -7,7 +7,7 @@ import Http, { HttpError } from "../factory/Http"
 import mlocation from './location.web'
 import analysis from './analysis.web'
 import { isString, isHasOwn, once, uniqueArray, noop, assign, alwaysTrue, createURL, isFunction } from "../functions/common"
-import { isWechat, document, isMiniapp } from "../functions/web"
+import { isWechat, document, isMiniapp } from "../functions/utils.web"
 
 const task = new Tasker()
 

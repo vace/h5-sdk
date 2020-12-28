@@ -1,6 +1,6 @@
 {
   "name": "mini-sdk",
-  "version": "3.6.5",
+  "version": "4.0.0",
   "description": "sdk.js 用于小程序的sdk",
   "main": "dist/sdk.js",
   "author": "Vace(ocdo@qq.com)",

@@ -30,11 +30,12 @@ export default class Config {
     return createURL(this.API_APP + '/' + service, query)
   }
 
-  // 获取service 地址
+  /** 获取service地址 */
   public static service (service: string, query?: CommonQuery): string {
     return createURL(this.API_SERVICE + '/' + service, query)
   }
-  // 获取cdn文件
+
+  /** 获取cdn文件 */
   public static cdn (filename: string) {
     return Config.CDN_ROOT + (isAbsolute(filename) ? '' : '/') + filename
   }

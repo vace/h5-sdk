@@ -1,6 +1,6 @@
 import Res from './Res'
 import { assign, each, isDef, isFunction } from '../functions/common'
-import { jsonp } from '../functions/web'
+import { jsonp } from '../functions/utils.web'
 
 const ResExtMaps = Res.extmaps
 const putExtLoader = (loader: string, exts: string[]) => exts.forEach(ext => ResExtMaps[ext] = loader || ext)

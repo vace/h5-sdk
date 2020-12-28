@@ -1,372 +1,124 @@
 /// <reference types="zepto" />
-/// <reference types="store" />
-/// <reference types="blueimp-md5" />
-declare module 'h5-sdk/plugins/canvas-poster/src/index' {
-	export {};
-
-}
-declare module 'h5-sdk/types/es6-object-assign' {
-	export function assign(target: any, firstSource: any, ...args: any[]): any;
-	export function polyfill(): void;
-
-}
-declare module 'h5-sdk/src/functions/regex' {
+declare module 'sdk/src/functions/common' {
 	export const regexHttp: RegExp;
 	export const regexBase64: RegExp;
 	export const regexNumber: RegExp;
 	export const regexMobile: RegExp;
 	export const regexChinese: RegExp;
 	export const regexSplitPath: RegExp;
-
-}
-declare module 'h5-sdk/src/functions/is' {
-	export function is(type: string): (arg: any) => arg is any;
-	export const isArray: (arg: any) => arg is any[];
-	export const isBoolean: (arg: any) => arg is any;
-	export const isNull: (arg: any) => arg is any;
-	export const isNullOrUndefined: (arg: any) => boolean;
-	export const isNumber: (arg: any) => arg is any;
-	export const isString: (arg: any) => arg is any;
-	export const isSymbol: (arg: any) => arg is any;
-	export const isUndefined: (arg: any) => arg is any;
-	export const isRegExp: (arg: any) => arg is any;
-	export const isObject: (arg: any) => boolean;
-	export const isDate: (arg: any) => arg is any;
-	export const isError: (e: any) => boolean;
-	export const isFunction: (arg: any) => arg is any;
-	export function isPrimitive(arg: any): boolean;
-	export function isHasOwn(obj: any, prop: string): boolean;
-	export function isEmpty(value: any): boolean;
-	export function isHttp(str: string): boolean;
-	export function isBase64(string: string): boolean;
-	export function isNative(Ctor: any): boolean;
-	export function isWindow(obj: any): boolean;
-	export function isDocument(obj: any): boolean;
-	export function isPromise(obj: any): boolean;
-	export function isFormData(val: any): boolean;
-	export const isFile: (arg: any) => arg is any;
-	export const isBlob: (arg: any) => arg is any;
-
-}
-declare module 'h5-sdk/src/functions/underscore' {
-	export const now: () => number;
-	export function throttle(func: Function, wait: number): (this: any) => any;
-	export function debounce(func: Function, wait?: number, immediate?: boolean): any;
-	export function random(min: number, max?: number): number;
-	export function shuffle<T>(array: T[]): T[];
-	export function each(obj: any, iteratee: Function, context?: any): any;
-	export function pick(obj: object, map: string[] | object): {};
-	export function memoize(func: Function, hasher?: Function): any;
-
-}
-declare module 'h5-sdk/src/adapters/store/interface' {
-	export interface IStore {
-	    read(key: string): any;
-	    write(key: string, val: any): any;
-	    remove(key: string): any;
-	    clearAll(): any;
-	    keys(): string[];
-	}
-
-}
-declare module 'h5-sdk/src/utils/global' {
-	export const isBrowserEnv: boolean;
-	export const global: any;
-	export const navigator: any;
-	export const location: any;
-	export const document: any;
-	export const getwx: () => any;
-	export const fetch: any;
-	export const WeixinJSBridge: any;
-	export const addEventListener: any;
-	export const removeEventListener: any;
-	export const performance: any;
-	export const localStorage: any;
-
-}
-declare module 'h5-sdk/src/adapters/store/store.web' {
-	import { IStore } from 'h5-sdk/src/adapters/store/interface';
-	export default function createStoreWeb(): IStore;
-
-}
-declare module 'h5-sdk/src/adapters/store/store.mini' {
-	import { IStore } from 'h5-sdk/src/adapters/store/interface';
-	export default function createStoreMini(): IStore;
-
-}
-declare module 'h5-sdk/src/adapters/store/store.node' {
-	import { IStore } from 'h5-sdk/src/adapters/store/interface';
-	export default function createStoreNode(): IStore;
-
-}
-declare module 'h5-sdk/src/adapters/store/index' {
-	import { IStore } from 'h5-sdk/src/adapters/store/interface'; const _default: {
-	    readonly store: IStore;
-	    get(key: string, _defaultValue?: any): any;
-	    set(key: string, value: any): any;
-	    remove(key: string): any;
-	    each(fn: (value: any, key: string) => void): void;
-	    clearAll(): any;
-	};
-	export default _default;
-
-}
-declare module 'h5-sdk/src/factory/_cacher' {
-	export default function cacher(cacheKey: string): {
-	    get: (key: string) => any;
-	    set: (key: string, value: any) => any;
-	    remove: (key: string) => void;
-	};
-
-}
-declare module 'h5-sdk/src/factory/User' {
-	export type IUserState = 'unknow' | 'normal' | 'black' | 'admin' | 'super' | 'developer';
-	export type IUserPlatform = 'unknow' | 'wechat' | 'qq' | 'taobao' | 'weibo' | 'douyin' | 'github' | 'google' | 'linkedin' | 'facebook' | 'open' | 'mini' | 'dingtalk';
-	export type IUserType = 'none' | 'base' | 'user';
-	export type IUserOption = {
-	    appid: string;
-	    userType: IUserType;
-	};
-	export default class User {
-	    private static cacher;
-	    private static _instance;
-	    static readonly instance: User | null;
-	    static readonly hasInstance: boolean;
-	    static createInstance(option: IUserOption): User;
-	    isLogin: boolean;
-	    id: number;
-	    platform: IUserPlatform;
-	    appid: string;
-	    nickname: string;
-	    avatar: string;
-	    openid: string;
-	    state: IUserState;
-	    gender: number;
-	    email: string;
-	    username: string;
-	    userType: IUserType;
-	    location: string;
-	    unionid: string;
-	    constructor(option: IUserOption);
-	    readonly cacheKey: string;
-	    login(user: any): this;
-	    logout(): void;
-	}
-
-}
-declare module 'h5-sdk/src/plugins/safety' {
-	export const btoa: any;
-	export const atob: any;
-	export const md5: (str: string, key?: string) => string;
-	export function signature(object: Record<string, any>, action?: string): string;
-	export function jwtDecode(token: string): any;
-
-}
-declare module 'h5-sdk/src/factory/Tasker' {
-	export default class Tasker {
-	    isWorked: boolean;
-	    isDone: boolean;
-	    task: Promise<any>;
-	    private _nativeResolve;
-	    private _nativeReject;
-	    constructor();
-	    working(): void;
-	    resolve(val: any): Promise<any>;
-	    reject(err: any): Promise<any>;
-	    then(onfulfilled: any, onrejected: any): Promise<any>;
-	}
-
-}
-declare module 'h5-sdk/src/adapters/auth/interface' {
-	import Auth from 'h5-sdk/src/factory/Auth';
-	import { IUserPlatform, IUserType, IUserState } from 'h5-sdk/src/factory/User';
-	export interface IAuth {
-	    checkToken(auth: Auth, checkRet: any): boolean;
-	    checkLogin(auth: Auth): Promise<boolean>;
-	    login(auth: Auth): Promise<any>;
-	    update(auth: Auth, param: any): Promise<any>;
-	    logout(auth: Auth): Promise<any>;
-	    refresh(auth: Auth): Promise<any>;
-	}
-	export interface IAuthOption {
-	    version?: string;
-	    platform: IUserPlatform;
-	    appid: string;
-	    type?: IUserType;
-	    url?: string;
-	    scope?: string;
-	    env?: string;
-	}
-	export interface IJwtDecodeRet {
-	    exp: number;
-	    iss: string;
-	    id: number;
-	    state: IUserState;
-	    sub: IUserPlatform;
-	    typ: IUserType;
-	}
-
-}
-declare module 'h5-sdk/src/functions/qs' {
-	export function stringify(obj?: any, sep?: string, eq?: string): string;
-	export function parse(qs: string, sep?: string, eq?: string): Record<string, any>;
-
-}
-declare module 'h5-sdk/src/functions/path' {
-	export function isAbsolute(path: string): boolean;
-	export function resolvePath(...args: string[]): string;
-	export function dirname(path: string): string;
-	export function basename(path: string, ext?: string): string;
-	export function extname(path: string): string;
-
-}
-declare module 'h5-sdk/src/functions/jsonp' {
-	interface IJsonpOption {
-	    callback?: string;
-	}
-	export function jsonp(url: string, options?: IJsonpOption | any): Promise<{}>;
-	export {};
-
-}
-declare module 'h5-sdk/src/adapters/request/request.web' {
-	import { IHttpOption, IHttpRequestOption } from 'h5-sdk/src/adapters/request/interface';
-	export default function createRequestWeb(): (config: IHttpOption & IHttpRequestOption) => Promise<any>;
-
-}
-declare module 'h5-sdk/src/adapters/request/request.mini' {
-	import { IHttpOption, IHttpRequestOption } from 'h5-sdk/src/adapters/request/interface';
-	export interface WxRequestCallbackResult {
-	    data: string | object | ArrayBuffer;
-	    header: object;
-	    statusCode: number;
-	}
-	export default function createRequestMini(): (config: IHttpOption & IHttpRequestOption) => Promise<{}>;
-
-}
-declare module 'h5-sdk/src/adapters/request/request.node' {
-	import { IHttpOption, IHttpRequestOption } from 'h5-sdk/src/adapters/request/interface';
-	export default function createRequestNode(): (config: IHttpOption & IHttpRequestOption) => any;
-
-}
-declare module 'h5-sdk/src/adapters/request/index' {
-	import { IRequest } from 'h5-sdk/src/adapters/request/interface'; let request: IRequest;
-	export { request };
-
-}
-declare module 'h5-sdk/src/adapters/auth/auth.mini' {
-	import { IAuth } from 'h5-sdk/src/adapters/auth/interface';
-	export default function createAuthMini(): IAuth;
-
-}
-declare module 'h5-sdk/src/utils/shared.web' {
+	export const noop: () => void;
+	export const always: <T>(val: T) => T;
+	export const alwaysTrue: () => boolean;
+	export const alwaysFalse: () => boolean;
 	export const assign: {
 	    <T, U>(target: T, source: U): T & U;
 	    <T, U, V>(target: T, source1: U, source2: V): T & U & V;
 	    <T, U, V, W>(target: T, source1: U, source2: V, source3: W): T & U & V & W;
 	    (target: object, ...sources: any[]): any;
 	};
-	export function getCurrentHref(isPrivacy?: boolean | string[]): string;
-	export function getCurrentPathFile(filename?: string): string;
+	export const keys: (o: {}) => string[];
+	export const isArray: (arg: any) => arg is any[];
+	export const isNaN: (number: number) => boolean;
+	export const isNumber: (arg: any) => arg is number;
+	export const isString: (arg: any) => arg is string;
+	export const isBoolean: (arg: any) => arg is boolean;
+	export const isArguments: (arg: any) => arg is any[];
+	export const isMap: (arg: any) => arg is Map<any, any>;
+	export const isError: (arg: any) => arg is Error;
+	export const isSet: (arg: any) => arg is Set<any>;
+	export const isRegExp: (arg: any) => arg is RegExp;
+	export const isSymbol: (arg: any) => arg is symbol;
+	export const isDate: (arg: any) => arg is Date;
+	export const isFile: (arg: any) => arg is File;
+	export const isBlob: (arg: any) => arg is Blob;
+	export const isObject: (obj: any) => boolean;
+	export const isHasOwn: (obj: any, prop: any) => boolean;
+	export const isFunction: (fun: any) => fun is Function;
+	export const isNull: (nul: any) => nul is null;
+	export const isUndefined: (val: any) => val is undefined;
+	export const isNullOrUndefined: (arg: unknown) => boolean;
+	export const isDef: <T>(val: T | null | undefined) => val is T;
+	export const isPlainObject: (val: any) => boolean;
+	export const isAbsolute: (path: any) => boolean;
+	export const isHttp: (path: any) => boolean;
+	export const isPromise: <T>(obj: any) => obj is Promise<T>;
+	export const isEmpty: typeof _isEmpty;
+	export const isBase64: (str: any) => boolean;
+	export const isNative: (Ctor: unknown) => boolean;
+	export const isWindow: (obj: any) => boolean;
+	export const isDocument: (obj: any) => boolean;
+	export const isFormData: (val: any) => boolean;
+	export const isNumeric: (val: any) => boolean;
+	export const range: (num: number, min: number, max: number) => number;
+	export const random: (min: number, max?: number | undefined) => number;
+	export const uid: (prefix?: string) => string;
+	export const uuid: typeof _uuid;
+	export const randomstr: typeof _randomstr;
+	export const camelize: (str: string) => string;
+	export const dasherize: (str: string) => string;
+	export const createURL: (base: string, query?: string | number | Record<any, any> | undefined) => string;
+	export const trim: (str: any) => string;
+	export const filterURL: typeof _filterURL;
+	export const classnames: typeof _classNames;
+	export const styles: typeof _styles;
+	export const css: typeof _css;
+	export const getLength: (obj: any) => number;
+	export const equal: typeof _equal;
+	export const remove: typeof _remove;
+	export const inArray: (val: any, arr: any, fromIndex?: number | undefined) => boolean;
+	export const uniqueArray: (arr: any[]) => any[];
+	export const map: typeof _map;
+	export const shuffle: typeof _shuffle;
+	export const pick: typeof _pick;
+	export const each: typeof _each;
+	export const makeMark: (arr: string[]) => Record<string, boolean>;
+	export const makeMap: (arr: string[]) => Record<string, string>;
+	export const once: (func: Function) => (this: any, ...args: any[]) => any;
+	export const before: typeof _before;
+	export const after: typeof _after;
+	export const throttle: typeof _throttle;
+	export const debounce: typeof _debounce;
+	export const memoize: typeof _memoize;
+	export const spread: (callback: Function) => (arr: any[]) => any;
+	export const wrapFn: (callback: any, context?: any) => any;
+	export const nextTick: (callback?: any, ctx?: any) => Promise<{}> | undefined;
+	export const stringify: (obj: any, sep?: string, eq?: string) => string;
+	export const parse: typeof _parse;
+	export const now: () => number;
+	export const unixtime: (unixtime?: number, format?: string | undefined) => string;
+	export const timestamp: (timestamp?: number, format?: string | undefined) => string;
+	export const wait: <T>(duration: number, arg?: T | undefined) => Promise<T>;
+	export const timeago: typeof _timeago;
+	export const splitPath: (filename: string) => string[];
+	export const resolvePath: typeof _resolvePath;
+	export const dirname: typeof _dirname;
+	export const basename: typeof _basename;
+	export const extname: typeof _extname; function _isEmpty(val: any): boolean; function _map<T>(obj: T[], iteratee: (val: any, key: string | number, obj: T[]) => any): any[]; function _shuffle<T>(array: T[]): T[]; function _parse(qs: string, sep?: string, eq?: string): Record<string, any>; function _throttle(func: Function, wait: number): (this: any) => any; function _debounce<T extends Function>(func: T, wait?: number, immediate?: boolean): T; function _each(obj: any, iteratee: (val: any, key: any, _this: unknown) => any, context?: any): any; function _pick<T>(obj: T, map: string[] | Record<string, any>): T; function _memoize<T>(func: Function, hashFn?: (...arg: any[]) => string): T; function _uuid(): string; function _randomstr(len?: number): string; function _before(n: number, func: Function | any): (this: any, ...args: any[]) => any; function _after(n: number, func: Function): (this: any, ...args: any[]) => any; function _remove<T>(array: T[], predicate: (value: unknown, index: number, array: T[]) => boolean): T[]; function _timeago(unixTime: Date | number): string; function _resolvePath(...args: string[]): string; function _dirname(path: string): string; function _basename(path: string, ext?: string): string; function _extname(path: string): string; function _filterURL(url: string, filters: string[]): string; function _classNames(...args: any[]): string; function _styles(...args: any[]): string; function _css(prop: string, value: any): string; function _equal(a: any, b: any): boolean;
+	export {};
 
 }
-declare module 'h5-sdk/src/adapters/auth/auth.web' {
-	import { IAuth } from 'h5-sdk/src/adapters/auth/interface';
-	export default function createAuthWeb(): IAuth;
-
-}
-declare module 'h5-sdk/src/adapters/auth/auth.node' {
-	import { IAuth } from 'h5-sdk/src/adapters/auth/interface';
-	export default function createAuthNode(): IAuth;
-
-}
-declare module 'h5-sdk/src/adapters/auth/index' {
-	import { IAuth } from 'h5-sdk/src/adapters/auth/interface'; let auth: IAuth;
-	export { auth };
-
-}
-declare module 'h5-sdk/src/factory/Auth' {
-	import User, { IUserState, IUserPlatform, IUserType } from 'h5-sdk/src/factory/User';
-	import Tasker from 'h5-sdk/src/factory/Tasker';
-	import { IAuthOption, IAuth } from 'h5-sdk/src/adapters/auth/interface';
-	export default class Auth {
-	    static adapter: IAuth;
-	    static option: IAuthOption;
-	    static cacher: {
-	        get: (key: string) => any;
-	        set: (key: string, value: any) => any;
-	        remove: (key: string) => void;
-	    };
-	    private static _instance;
-	    static readonly instance: Auth | null;
-	    static createInstance(option: IAuthOption): Auth;
-	    tasker: Tasker;
-	    isAuthed: boolean;
-	    id: number;
-	    user: User;
-	    version: string;
-	    state: IUserState;
-	    type: IUserType;
-	    option: IAuthOption;
-	    platform: IUserPlatform;
-	    appid: string;
-	    scope: string;
-	    env: string;
-	    url: string;
-	    _accessToken: string | null;
-	    isAccessTokenValid: boolean;
-	    constructor(options?: IAuthOption);
-	    accessToken: string | null;
-	    readonly cacheKey: string;
-	    saveToken(token: string): void;
-	    clearToken(): void;
-	    setOption(option: IAuthOption): this;
-	    setup(): Promise<User | any>;
-	    refresh(): Promise<User | null>;
-	    checkLogin(): Promise<boolean>;
-	    update(param: any): Promise<any>;
-	    login(): Promise<any>;
-	    logout(): Promise<any>;
-	}
-
-}
-declare module 'h5-sdk/src/adapters/request/interface' {
-	import Auth from 'h5-sdk/src/factory/Auth';
-	export type IRequest = (config: IHttpOption & IHttpRequestOption) => Promise<any>;
-	export type ICommonResponseData = {
-	    code: number;
-	    data: any;
-	    message: string;
-	    msg?: string;
-	};
-	export interface IHttpRequestBase {
-	    method?: 'GET' | 'DELETE' | 'HEAD' | 'OPTIONS' | 'POST' | 'PUT' | 'PATCH' | 'JSONP';
-	    headers?: HeadersInit;
-	    body?: any;
-	    mode?: 'cors' | 'no-cors' | 'same-origin';
-	    cache?: RequestCache;
-	    credentials?: RequestCredentials;
-	    redirect?: RequestRedirect;
-	    referrer?: ' no-referrer' | 'client';
-	}
-	export interface IHttpOption extends IHttpRequestBase {
-	    auth?: Auth;
+declare module 'sdk/src/factory/Http' {
+	export interface IHttpConfig {
 	    baseURL?: string;
-	    timeout?: number;
-	    transformRequest?: (arg: ITransformRequestOption) => any;
-	    transformResponse?: (res: Response) => any;
-	    responseType?: 'arrayBuffer' | 'blob' | 'formData' | 'json' | 'text';
-	    validateStatus?: (status: number) => boolean;
+	    validateStatus: (code: number) => boolean;
+	    transformRequest: (req: IHttpRequestOption) => IHttpRequestOption;
+	    transformResponse: (rsp: Response) => any;
+	    onHeadersReceived: (headers: Headers) => void;
 	}
-	export interface ITransformRequestOption extends RequestInit {
-	    url: string;
-	}
-	export interface IHttpRequestOption extends IHttpRequestBase {
-	    url: string;
+	export interface IHttpRequestOption {
+	    url?: string;
 	    query?: any;
-	    params?: any;
+	    body?: any;
+	    param?: any;
 	    data?: any;
-	}
-	export enum Method {
+	    headers?: HeadersInit;
+	    method?: HttpMethod;
+	    showLoading?: any;
+	    showError?: any;
+	    showSuccess?: any;
+	    [key: string]: any;
+	} type HttpRequestOption = string | IHttpRequestOption; type HttpNofifyCallback = (message: string, data: any) => any;
+	export enum HttpMethod {
 	    GET = "GET",
 	    DELETE = "DELETE",
 	    HEAD = "HEAD",
@@ -376,314 +128,426 @@ declare module 'h5-sdk/src/adapters/request/interface' {
 	    PATCH = "PATCH",
 	    JSONP = "JSONP"
 	}
-	export enum ContentType {
-	    UrlEncode = "application/x-www-form-urlencoded; charset=utf-8",
-	    JSON = "application/json; charset=utf-8"
+	export class HttpError extends Error {
+	    code: number;
+	    data: any;
+	    request?: Http;
+	    response?: Response;
+	    constructor(code: number, message: string, request?: Http, response?: Response);
 	}
-
-}
-declare module 'h5-sdk/src/utils/common' {
-	import { ICommonResponseData } from 'h5-sdk/src/adapters/request/interface';
-	export function commonResponseReslove(response: ICommonResponseData): Promise<Error> | Promise<any>;
-
-}
-declare module 'h5-sdk/src/factory/Http' {
-	import { IHttpOption, IHttpRequestOption } from 'h5-sdk/src/adapters/request/interface';
 	export default class Http {
-	    static option: IHttpOption;
-	    private static _instance;
-	    static readonly instance: Http;
-	    option: IHttpOption;
-	    constructor(_option?: IHttpOption);
-	    get(url: string, params?: any): Promise<any>;
-	    delete(url: string, params?: any): Promise<any>;
-	    head(url: string, params?: any): Promise<any>;
-	    options(url: string, params?: any): Promise<any>;
-	    post(url: string, data?: any): Promise<any>;
-	    put(url: string, data?: any): Promise<any>;
-	    patch(url: string, data?: any): Promise<any>;
-	    jsonp(url: string, params?: any): Promise<any>;
-	    request(option: IHttpRequestOption): Promise<any>;
-	}
-
-}
-declare module 'h5-sdk/src/functions/common' {
-	export function camelize(str: string): string;
-	export function noop(): void;
-	export function alway(val: any): any;
-	export function dasherize(str: string): string;
-	export function wait<T>(ms: number, arg?: T): Promise<T>;
-	export function uid(prefix?: string): string;
-	export function uuid(): string;
-	export function randomstr(len?: number): string;
-	export function spread(callback: Function): (arr: any[]) => any;
-
-}
-declare module 'h5-sdk/src/factory/App' {
-	import Http from 'h5-sdk/src/factory/Http';
-	import Auth from 'h5-sdk/src/factory/Auth';
-	import User from 'h5-sdk/src/factory/User';
-	export default class App {
-	    private static cacher;
-	    private static _instance;
-	    static readonly instance: App;
-	    static errorHandler: errorHandler;
-	    static readonly hasInstance: boolean;
-	    static createInstance(option: IAppOption): App;
-	    static transformRequest: any;
-	    static transformResponse: any;
-	    static showLoading: any;
-	    static showSuccess: any;
-	    static showError: any;
-	    readonly isLogin: boolean | null;
-	    http: Http;
-	    readonly auth: Auth | null;
-	    readonly user: User | null;
-	    private tasker;
-	    appid: string;
-	    config: IAppServerConfig;
-	    setting: IAppServerSetting;
-	    analysisoff?: boolean;
-	    constructor(app: IAppOption);
-	    ready(fn?: any, err?: any): Promise<any>;
-	    private setup;
-	    private setServer;
-	    post(action: string, data?: any): any;
-	    put(action: string, data?: any): any;
-	    get(action: string, query?: any): any;
-	    delete(action: string, query?: any): any;
-	    action(action: string | IActionStruct, param?: any, method?: string): any;
-	} type MessageCallback = (msg?: string, response?: any) => any; type MessageDialog = boolean | string | MessageCallback;
-	export interface IActionStruct {
-	    api: string;
-	    param: any;
-	    body: any;
-	    query: any;
-	    showError: MessageDialog;
-	    showLoading: MessageDialog;
-	    showSuccess: MessageDialog;
-	} type IAppServerConfig = {
-	    id: number;
-	    name: string;
-	    oauth: string;
-	    appid: string;
-	    endtime: number;
-	    starttime: number;
-	    status: string;
-	}; type IAppServerSetting = Record<string, any>;
-	export type IAppServerInit = {
-	    api: {
-	        [module: string]: string[];
+	    static HttpError: typeof HttpError;
+	    static HttpHeaders: typeof Headers;
+	    static HttpResponse: typeof Response;
+	    static HttpRequest: typeof Request;
+	    static ContentType: {
+	        JSON: string;
+	        FORMDATA: string;
 	    };
-	    config: IAppServerConfig;
-	    setting: IAppServerSetting;
-	    version: string;
+	    static showLoading: HttpNofifyCallback;
+	    static showError: HttpNofifyCallback;
+	    static showSuccess: HttpNofifyCallback;
+	    static Method: typeof HttpMethod;
+	    static HttpOption: IHttpConfig;
+	    static request(url: string, request: any): Promise<Response>;
+	    static instance: Http;
+	    httpconf: IHttpConfig;
+	    constructor(_option?: IHttpConfig | any);
+	    get(url: HttpRequestOption, query?: any): Promise<any>;
+	    delete(url: HttpRequestOption, query?: any): Promise<any>;
+	    head(url: HttpRequestOption, query?: any): Promise<any>;
+	    options(url: HttpRequestOption, query?: any): Promise<any>;
+	    post(url: HttpRequestOption, data?: any): Promise<any>;
+	    put(url: HttpRequestOption, data?: any): Promise<any>;
+	    patch(url: HttpRequestOption, data?: any): Promise<any>;
+	    jsonp(url: HttpRequestOption, query?: any): Promise<any>;
+	    action(url: HttpRequestOption, data?: any, method?: HttpMethod): Promise<any>;
+	    request(req: IHttpRequestOption): Promise<any>;
+	    private $messages;
+	    setHttpMessage(key: string, message: string): void;
+	}
+	export {};
+
+}
+declare module 'sdk/src/factory/Config' {
+	 type CommonQuery = string | number | Record<string, any>;
+	export default class Config {
+	    static isDev: boolean;
+	    static CDN_ROOT: string;
+	    static API_HTTP: string;
+	    static API_AUTH: string;
+	    static API_APP: string;
+	    static API_SERVICE: string;
+	    static api(service: string, query?: CommonQuery): string;
+	    static service(service: string, query?: CommonQuery): string;
+	    static cdn(filename: string): string;
+	}
+	export {};
+
+}
+declare module 'sdk/src/plugins/store' {
+	export interface IStoreUseProxy {
+	    get(key: string): any;
+	    set(key: string, val: any): any;
+	    keys(): string[];
+	    remove(key: string): void;
+	    clear(): void;
+	} const _default_1: {
+	    use(usestorage: IStoreUseProxy): {
+	        use(usestorage: IStoreUseProxy): any;
+	        get(key: string, _default?: any): any;
+	        set(key: string, data: any): any;
+	        keys(): string[];
+	        remove(key: string): void;
+	        clear(): void;
+	        each(fn: (value: any, key: string) => void): void;
+	    };
+	    get(key: string, _default?: any): any;
+	    set(key: string, data: any): any;
+	    keys(): string[];
+	    remove(key: string): void;
+	    clear(): void;
+	    each(fn: (value: any, key: string) => void): void;
 	};
-	export type IAppOption = {
+	export default _default_1;
+
+}
+declare module 'sdk/src/plugins/hotcache' {
+	export default function hotcache(cacheKey: string, maxLength?: number): {
+	    get: (key: string, _default?: any) => any;
+	    set: (key: string, value: any) => any;
+	    remove: (key: string) => void;
+	};
+
+}
+declare module 'sdk/src/factory/AuthUser' {
+	import Auth from 'sdk/src/factory/Auth'; const AuthSymbol: unique symbol;
+	export default class AuthUser {
+	    id: number;
+	    platform: string;
+	    appid: string;
+	    nickname: string;
+	    avatar: string;
+	    openid: string;
+	    state: string;
+	    gender: number;
+	    email: string;
+	    username: string;
+	    type: string;
+	    location: string;
+	    unionid: string;
+	    private [AuthSymbol];
+	    readonly $key: string;
+	    readonly isLogin: boolean;
+	    constructor(auth: Auth);
+	    reset(user: any): void;
+	    login(user: any): this;
+	    logout(): this;
+	}
+	export {};
+
+}
+declare module 'sdk/src/plugins/safety' {
+	export const btoa: any;
+	export const atob: any;
+	export const md5: (str: string, key?: string) => string;
+	export function signature(object: Record<string, any>, action?: string): string;
+	export function jwtDecode(token: string): any;
+
+}
+declare module 'sdk/src/factory/Auth' {
+	import Http from 'sdk/src/factory/Http';
+	import AuthUser from 'sdk/src/factory/AuthUser';
+	export enum AuthType {
+	    none = "none",
+	    base = "base",
+	    user = "user"
+	}
+	export enum AuthErrorCode {
+	    OK = 0,
+	    NO_CODE = 1,
+	    LOGIN_FAILED = 2
+	} type AuthOnRedirectLogin = (url: string, reason: AuthError) => void;
+	export class AuthError extends Error {
+	    code: number;
+	    data: any;
+	    constructor(code: number, message: string, data?: any);
+	}
+	export default class Auth extends Http {
+	    static AuthUser: typeof AuthUser;
+	    static AuthError: typeof AuthError;
+	    static instance: Auth;
+	    static transformAuthOptions: <T>(val: T) => T;
+	    static transformAuthRequest(auth: Auth, config: any): any;
+	    static onAuthHeadersReceived(auth: Auth, header: Headers): void;
+	    user: AuthUser;
+	    version: string;
+	    state: string;
+	    type: string;
+	    httpconf: any;
+	    platform: string;
+	    appid: string;
+	    scope: string;
+	    env: string;
+	    url: string;
+	    onRedirectLogin: AuthOnRedirectLogin;
+	    readonly $key: string;
+	    readonly id: number;
+	    readonly isLogin: boolean;
+	    readonly token: string;
+	    readonly isTokenValid: boolean;
+	    constructor(options: any);
+	    tasker: Promise<AuthUser>;
+	    private $_loginResolve;
+	    private $_loginReject;
+	    login(): Promise<AuthUser>;
+	    authorize(arg: any): Promise<AuthUser>;
+	    saveToken(token: string): void;
+	    logout(): void;
+	    _requestLogin(): Promise<AuthUser>;
+	    _redirectLogin(reason: AuthError): void;
+	}
+	export {};
+
+}
+declare module 'sdk/src/factory/Tasker' {
+	 const HandleSymbol: unique symbol; const PromiseSymbol: unique symbol; type PromiseHandle = {
+	    resolve: ITaskerResolve;
+	    reject: ITaskerReject;
+	}; type ITaskerResolve = <T>(value: T | PromiseLike<T>) => void; type ITaskerReject = (reason?: Error | any) => void;
+	export default class Tasker {
+	    [PromiseSymbol]: Promise<any>;
+	    [HandleSymbol]: PromiseHandle;
+	    isResolved: boolean;
+	    constructor();
+	    then(onfulfilled: ITaskerResolve, onrejected?: ITaskerReject): Promise<void>;
+	    catch(onrejected: ITaskerReject): Promise<any>;
+	    finally(onfinally: ITaskerReject): Promise<any>;
+	    resolve(val: any): this;
+	    reject(err?: Error): this;
+	}
+	export {};
+
+}
+declare module 'sdk/src/factory/App' {
+	import Http from 'sdk/src/factory/Http';
+	import Auth from 'sdk/src/factory/Auth';
+	import Tasker from 'sdk/src/factory/Tasker';
+	interface IAppOption {
 	    appid: string;
 	    analysisoff?: boolean;
-	}; type ITypeAction = {
-	    method: string;
-	    action: string;
-	    param: any;
-	}; type errorHandler = (err: Error, action: ITypeAction, vm: App) => void;
+	}
+	export class AppResponseError extends Error {
+	    code: number;
+	    data: number;
+	    app: App;
+	    constructor(code: number, message: string, data: any, app: App);
+	}
+	export default class App extends Http {
+	    static transformAppRequest(app: App, config: any): any;
+	    static transformAppResponse(app: App, response: Response): Promise<any>;
+	    static onAppHeadersReceived(app: App, headers: Headers): void;
+	    static instance: App;
+	    config: Record<string, any>;
+	    setting: Record<string, any>;
+	    appid: string;
+	    analysisoff: boolean;
+	    readonly auth: Auth;
+	    tasker: Tasker;
+	    constructor(option: IAppOption | string);
+	    ready(): Promise<T>;
+	}
 	export {};
 
 }
-declare module 'h5-sdk/src/adapters/analysis/interface' {
-	export interface IAnalysis {
-	    getCurrentUrl(privacy: any): string;
-	    getErrorStack(error: any): string;
-	    getUserAgent(): string;
-	    getCurrentParam(): Record<string, any>;
-	    send(target: string): Promise<any>;
-	    onShow(fn: EventListener): any;
-	    onError(fn: EventListener): any;
-	    onUnload(fn: EventListener): any;
-	}
-
-}
-declare module 'h5-sdk/src/adapters/analysis/analysis.mini' {
-	import { IAnalysis } from 'h5-sdk/src/adapters/analysis/interface';
-	export default function createAnalysisMini(): IAnalysis;
-
-}
-declare module 'h5-sdk/src/functions/helper' {
-	export function addListener(element: Window | HTMLElement | Document, event: string, callback: EventListener): Function;
-	export const domready: Promise<boolean>;
-
-}
-declare module 'h5-sdk/src/adapters/analysis/analysis.web' {
-	import { IAnalysis } from 'h5-sdk/src/adapters/analysis/interface';
-	export default function createAnalysisWeb(): IAnalysis;
-
-}
-declare module 'h5-sdk/src/adapters/analysis/index' {
-	import { IAnalysis } from 'h5-sdk/src/adapters/analysis/interface'; let analysis: IAnalysis;
-	export { analysis };
-
-}
-declare module 'h5-sdk/src/plugins/analysis' {
-	export type AnalysisOption = {
-	    disabled: boolean;
-	    maxReportError: number;
-	    beforeLoadTime: number;
-	    unloadData: any;
-	};
-	export const config: AnalysisOption;
-	export const EVENT_SHARE = "SHARE";
-	export function start(): void;
-	export function stop(): void;
-	export function pv(e?: any): Promise<void> | null;
-	export function event(event: string, data?: any, value?: number): Promise<void> | null;
-	export function user(data?: any, value?: number): Promise<void> | null;
-	export function click(data?: any, value?: number): Promise<void> | null;
-	export function error(error: Error | string): false | Promise<void> | null | undefined;
-
-}
-declare module 'h5-sdk/src/config' {
-	import { AnalysisOption } from 'h5-sdk/src/plugins/analysis';
-	export let isDev: boolean;
-	export type DefaultConfig = {
-	    api: string;
-	    analysis?: AnalysisOption;
-	    service: string;
-	    cdn: string;
-	};
-	export const config: DefaultConfig;
-	export default config;
-	export function getServiceUri(name: string): string;
-	export function getApiUri(name: string): string;
-
-}
-declare module 'h5-sdk/src/factory/Emitter' {
-	 type EventHandler = (event?: any, a1?: any, a2?: any) => void;
+declare module 'sdk/src/factory/Emitter' {
+	 type IEmitterEventHandler = (event?: any, a1?: any, a2?: any) => void;
+	export const EmitterSymbol: unique symbol;
 	export default class Emitter {
-	    protected static _instance: Emitter;
-	    static readonly instance: Emitter;
-	    private $emitters;
-	    on(type: string, handler: EventHandler): () => this;
-	    once(type: string, handler: EventHandler): () => this;
-	    off(type: string, handler: EventHandler): this;
-	    emit(type: string, a?: any, b?: any): this;
+	    static instance: Emitter;
+	    private [EmitterSymbol];
+	    on(event: string, handler: IEmitterEventHandler): () => this;
+	    addEventListener(event: string, handler: IEmitterEventHandler): () => this;
+	    once(event: string, handler: IEmitterEventHandler): () => this;
+	    off(event: string, handler: IEmitterEventHandler): this;
+	    removeEventListener(event: string, handler: IEmitterEventHandler): this;
+	    emit(event: string, a?: any, b?: any): this;
 	}
 	export {};
 
 }
-declare module 'h5-sdk/src/utils/shared' {
-	/// <reference types="zepto" />
-	export * from 'h5-sdk/src/utils/shared.web';
-	export function nextZIndex(): number;
-	export function classPrefix(className: string | any[]): string;
-	export function createSdkIcon(name: string): string;
-	export function createClsElement(className: string, content?: string | ZeptoCollection, tagName?: string): ZeptoCollection;
-	export function onceAnimationEnd($element: ZeptoCollection, callback: any): any;
-	export function getElementAttrs(element: HTMLElement | ZeptoCollection, attrs: string[]): {
-	    [key: string]: any;
+declare module 'sdk/src/factory/Res' {
+	import Tasker from 'sdk/src/factory/Tasker';
+	import Emitter from 'sdk/src/factory/Emitter';
+	export type IResItem = {
+	    url: string;
+	    key: string;
+	    type: string;
 	};
+	export type IResLoader = (res: ResTask) => Promise<any> | any;
+	export type IResOption = {
+	    baseURL?: string;
+	    autoStart?: boolean;
+	}; enum ResTaskStatus {
+	    ADDED = 0,
+	    LOADING = 1,
+	    LOADED = 2,
+	    FAILED = 3
+	} class ResTask extends Tasker {
+	    static STATUS_ADDED: ResTaskStatus;
+	    static STATUS_LOADING: ResTaskStatus;
+	    static STATUS_LOADED: ResTaskStatus;
+	    static STATUS_FAILED: ResTaskStatus;
+	    status: number;
+	    key: string;
+	    url: string;
+	    type: string;
+	    options: any;
+	    data: any;
+	    error: Error;
+	    constructor(config: IResItem, options: any);
+	    remove(): boolean;
+	    doExec(): any;
+	    onLoaded(data: any): this;
+	    onError(error: Error): this;
+	} class ResProgress {
+	    total: number;
+	    current: number;
+	    pending: number;
+	    loaded: number;
+	    failed: number;
+	    readonly isComplete: boolean;
+	    readonly percent: number;
+	}
+	export default class Res extends Emitter {
+	    static ResTask: typeof ResTask;
+	    static ResProgress: typeof ResProgress;
+	    static instance: Res;
+	    static loaders: Map<string, IResLoader>;
+	    static extmaps: {};
+	    static registerLoader(type: string, loader: IResLoader): typeof Res;
+	    static getLoader(type: string): IResLoader | undefined;
+	    private static $queue;
+	    private static $concurrency;
+	    private static $pending;
+	    private static $cache;
+	    static remove(res: ResTask): boolean;
+	    static get(keyOrTask: string | ResTask, _default?: any): any;
+	    private static _watchQueue;
+	    isWorked: boolean;
+	    baseURL: string;
+	    progress: ResProgress;
+	    protected $queue: ResTask[];
+	    protected $task: Tasker;
+	    constructor(options?: IResOption);
+	    start(): Tasker;
+	    add(item: string | string[] | IResItem | IResItem[], option?: any): ResTask | Promise<[{}, {}, {}, {}, {}, {}, {}, {}, {}, {}]>;
+	    remove(res: ResTask): boolean;
+	    get(keyOrTask: string | ResTask, _default?: any): any;
+	    private _addTask;
+	    private _putResQueue;
+	    private _watchTask;
+	    private _nofify;
+	}
+	export {};
 
 }
-declare module 'h5-sdk/src/functions/environment' {
+declare module 'sdk/src/plugins/cdn' {
+	export function res(filename: string, process?: string): string;
+	export function lib(libname: string): string;
+	export function info(filename: string): Promise<any>;
+	export function hue(filename: string): Promise<any>;
+	export function snapshot(filename: string, w?: number, h?: number, format?: string): string;
+	export function imm(filename: string, service: string): Promise<any>;
+	export function style(filename: string, style: string): string;
+
+}
+declare module 'sdk/src/plugins/cloud' {
+	export function service(serviceName: string, opt: any, method?: 'get' | 'post'): Promise<any>;
+	export function upbase64(base64: string): Promise<CloudResponse>;
+	export function syncurl(url: string): Promise<CloudResponse>;
+	export function tempurl(url: string): Promise<CloudResponse>;
+	export function hastemp(key: string): Promise<CloudResponse>;
+	export function syncimage(url: string): Promise<CloudResponse>;
+	export function headfile(key: string): Promise<CloudResponse>;
+	export function proxy(option: ProxyOption): Promise<any>;
+	export function amr2mp3(input: string, kbs?: number): Promise<CloudResponse>;
+	export type CloudResponse = {
+	    name: string;
+	    url: string;
+	    status: number;
+	    statusMessage: string;
+	    mime?: string;
+	};
+	interface ProxyOption extends Request {
+	    url: string;
+	    type: string;
+	}
+	export {};
+
+}
+declare module 'sdk/src/plugins/tool' {
+	export function qrcode(text: string, size?: number): string;
+
+}
+declare module 'sdk/src/functions/utils.web' {
+	 const navigator: Navigator, document: Document;
+	export { document, navigator };
 	export const isMobile: boolean;
 	export const isIos: boolean;
 	export const isAndroid: boolean;
 	export const isMiniapp: boolean;
 	export const isWechat: boolean;
 	export const isDingTalk: boolean;
-	export function checkSupportWebp(): Promise<boolean>;
+	export const animationPrefix: string;
+	export const transitionEnd: string;
+	export const animationEnd: string;
+	export const animationEnabled: boolean;
+	export function addListener(element: any, event: string, callback: EventListener): Function;
+	export function onAnimationEnd(element: HTMLElement, callback: EventListener): void | Function;
+	export function onTransitionEnd(element: HTMLElement, callback: EventListener): void | Function;
+	export const domready: Promise<boolean>;
+	export const webp: (this: any, ...args: any[]) => any;
+	export const jsonp: typeof _jsonp;
+	interface IJsonpOption {
+	    callback?: string;
+	    timeout?: number;
+	} function _jsonp(url: string, options?: IJsonpOption | any): Promise<{}>;
 
 }
-declare module 'h5-sdk/src/functions/lodash' {
-	export function before(n: number, func: Function | any): (this: any, ...args: any[]) => any;
-	export function after(n: number, func: Function): (this: any, ...args: any[]) => any;
-	export function once(func: Function): (this: any, ...args: any[]) => any;
-	export function remove(array: any[], predicate: Function): any[];
-
-}
-declare module 'h5-sdk/src/functions/timeago' {
-	export function timeago(unixTime: Date | number): string;
-	export function unixFormat(unixTime: number, format?: string): string;
-
-}
-declare module 'h5-sdk/src/functions/index' {
-	export * from 'h5-sdk/src/functions/common';
-	export * from 'h5-sdk/src/functions/environment';
-	export * from 'h5-sdk/src/functions/helper';
-	export * from 'h5-sdk/src/functions/is';
-	export * from 'h5-sdk/src/functions/lodash';
-	export * from 'h5-sdk/src/functions/path';
-	export * from 'h5-sdk/src/functions/qs';
-	export * from 'h5-sdk/src/functions/regex';
-	export * from 'h5-sdk/src/functions/timeago';
-	export * from 'h5-sdk/src/functions/underscore';
-	export * from 'h5-sdk/src/functions/jsonp';
-
-}
-declare module 'h5-sdk/src/plugins/jssdk' {
-	import 'h5-sdk/src/polyfill/jweixin-1.6.0';
-	import Emitter from 'h5-sdk/src/factory/Emitter';
-	export type IWxConfigOption = {
-	    url?: string;
-	    debug?: boolean;
-	    appid?: string;
-	    jsApiList?: any[];
-	};
-	export type IPostMessageStruct = {
-	    appid: string;
-	    title: string;
-	    desc: string;
-	    link: string;
-	    icon: string;
-	    banner: string;
-	};
-	export interface IConfigResponse extends IWxConfigOption {
-	    timestamp: string;
-	    nonceStr: string;
-	    signature: string;
-	}
-	export interface IWxShareOption {
-	    platform?: '*' | SharePlatform;
-	    title?: string;
-	    desc?: string;
-	    link?: string;
-	    img?: string;
-	    banner?: string;
-	    imgurl?: string;
-	    imgUrl?: string;
-	    logid?: number;
-	    config?: string;
-	    success?: Function;
-	    cancel?: Function;
-	}
-	export type IWxEventType = 'beforeConfig' | 'config' | 'share' | 'updateShare' | 'error' | 'ready';
-	export const defaultJsApiList: string[];
-	export const emitter: Emitter;
-	export const on: (type: IWxEventType, callback: EventHandlerNonNull) => () => Emitter;
-	export function ready(fn: Function): void;
-	export function config(option?: IWxConfigOption): Promise<IConfigResponse>;
-	export function fire(resolve: Function): void;
-	export function getAppid(): string; type SharePlatform = 'timeline' | 'app' | 'qq' | 'weibo' | 'qzone' | 'mini';
-	export function share(option?: IWxShareOption): any;
-	export function setMiniappShare(option: IWxShareOption): any;
-	export function chooseImageBase64(option: any): Promise<string>;
-	export function preview(url: string | string[], index?: number): void;
-	export function api(apiName: string, option?: any): Promise<any>;
-	export {};
-
-}
-declare module 'h5-sdk/src/plugins/tool' {
-	export function qrcode(text: string, size?: number): string;
-	export function readAsDataURL(inputer: File): Promise<string>;
-	export function chooseFile(accept?: string): Promise<File>;
-	export function chooseImageAsDataURL(option?: any): Promise<string>;
-	export function autoGetImageBase64(option?: any): Promise<string>;
-	export function scrollFix(_element?: HTMLElement): void;
-	export function base64toBlob(base64String: string, contentType?: string, sliceSize?: number): Blob;
-
-}
-declare module 'h5-sdk/src/factory/UiBase' {
+declare module 'sdk/src/venders/index.web' {
 	/// <reference types="zepto" />
-	import Emitter from 'h5-sdk/src/factory/Emitter';
+	import 'sdk/whatwg-fetch';
+	export const $: ZeptoStatic;
+	export const Zepto: ZeptoStatic;
+
+}
+declare module 'sdk/src/plugins/location.web' {
+	 const _default: {
+	    PrivacyFileds: string[];
+	    readonly querystring: string;
+	    readonly query: Record<string, any>;
+	    readonly rootpath: string;
+	    readonly url: string;
+	    readonly safeurl: string;
+	    getRootFile(filename: string): string;
+	};
+	export default _default;
+
+}
+declare module 'sdk/src/factory/Auth.web' {
+	import Auth from 'sdk/src/factory/Auth';
+	export default Auth;
+
+}
+declare module 'sdk/src/factory/Config.web' {
+	import Config from 'sdk/src/factory/Config';
+	export default Config;
+
+}
+declare module 'sdk/src/factory/UiBase.web' {
+	/// <reference types="zepto" />
+	import Emitter from 'sdk/src/factory/Emitter';
 	export type TypeColor = 'dark' | 'main' | 'primary' | 'warn' | 'info';
 	export type UiTheme = 'android' | 'ios' | 'half';
 	export type UiBaseOption = {
@@ -721,6 +585,8 @@ declare module 'h5-sdk/src/factory/UiBase' {
 	    [key: string]: any;
 	};
 	export default class UiBase extends Emitter {
+	    static nextZIndex: number;
+	    static readonly zIndex: number;
 	    static openInstances: UiBase[];
 	    static closeAll(): void;
 	    static option: any;
@@ -749,12 +615,16 @@ declare module 'h5-sdk/src/factory/UiBase' {
 	    private _onClosed;
 	    wait(duration: number): Promise<UiBase>;
 	}
+	export function classPrefix(className: string | any[]): string;
+	export function createClsElement(className: string, content?: string | ZeptoCollection, tagName?: string): ZeptoCollection;
+	export function onceAnimationEnd($element: ZeptoCollection, callback: any): any;
+	export function createSdkIcon(name: string): string;
 
 }
-declare module 'h5-sdk/src/factory/UiModal' {
+declare module 'sdk/src/factory/UiModal.web' {
 	/// <reference types="zepto" />
-	import 'h5-sdk/src/assets/ui-modal.less';
-	import UiBase, { UiBaseOption, UiButtonOption, UiInputOption } from 'h5-sdk/src/factory/UiBase';
+	import 'sdk/src/assets/ui-modal.less';
+	import UiBase, { UiBaseOption, UiButtonOption, UiInputOption } from 'sdk/src/factory/UiBase.web';
 	export interface UiModalOption extends UiBaseOption {
 	    title?: string;
 	    header?: string;
@@ -781,7 +651,7 @@ declare module 'h5-sdk/src/factory/UiModal' {
 	    };
 	    readonly value: string;
 	    constructor(_option?: UiModalOption);
-	    withClose(next: any, message?: string): any;
+	    withClose(next: any, message?: string): Promise<any> | undefined;
 	    showSpinning(message?: string): this;
 	    hideSpinning(): this;
 	    validateForm(field?: string): boolean;
@@ -792,272 +662,38 @@ declare module 'h5-sdk/src/factory/UiModal' {
 	}
 
 }
-declare module 'h5-sdk/src/adapters/ui/interface' {
-	import { UiInputType } from 'h5-sdk/src/factory/UiBase';
-	import { UiModalOption } from 'h5-sdk/src/factory/UiModal';
-	export interface IUiAlertOption extends UiModalOption {
-	    href?: string;
-	    okText?: string | false;
-	    ok?: Function;
-	}
-	export interface IUiConfirmOption extends IUiAlertOption {
-	    formError?: Function | string;
-	    noText?: string | false;
-	    no?: Function;
-	}
-	export interface IUiPromptOption extends IUiConfirmOption {
-	    type?: UiInputType;
-	    defaultValue?: string;
-	    placeholder?: string;
-	    validate?: (value: string) => any;
-	}
-	export type IUserProfileType = 'username' | 'mobile' | 'password' | 'address' | 'hidden';
-	export interface IUiUserboxOption extends IUiConfirmOption {
-	    title: string;
-	    profile: IUserProfileType[];
-	}
-
-}
-declare module 'h5-sdk/src/adapters/ui/ui.promise' {
-	import { UiModalOption } from 'h5-sdk/src/factory/UiModal';
-	import { IUiConfirmOption, IUiPromptOption, IUiUserboxOption, IUiAlertOption } from 'h5-sdk/src/adapters/ui/interface';
-	export function wrapModal(fun: Function, option: UiModalOption): Promise<string | undefined>;
-	export function wrapAlert(fun: Function, option: IUiAlertOption): Promise<true | undefined>;
-	export function wrapConfirm(fun: Function, option: IUiConfirmOption): Promise<boolean>;
-	export function wrapPrompt(fun: Function, option: IUiPromptOption): Promise<string | undefined>;
-	export function wrapUserbox(fun: Function, option: IUiUserboxOption): Promise<object | undefined>;
-
-}
-declare module 'h5-sdk/src/adapters/ui/ui.mini' {
-	import { IUiAlertOption, IUiConfirmOption } from 'h5-sdk/src/adapters/ui/interface';
-	export let uiAssetsPath: string;
-	export function alert(option: IUiAlertOption): Promise<boolean>;
-	export function confirm(option: IUiConfirmOption): Promise<boolean>;
-	export function prompt(): any;
-	export function userbox(): any;
-	export const toast: (message: any, duration?: number | undefined) => any;
-	export const tips: (message: any, duration?: number | undefined) => any;
-	export const success: (message: any, duration?: number | undefined) => any;
-	export const info: (message: any, duration?: number | undefined) => any;
-	export const warn: (message: any, duration?: number | undefined) => any;
-	export const error: (message: any, duration?: number | undefined) => any;
-	export const loading: (message: any, duration?: number | undefined) => any;
-	export const view: () => any;
-	export const image: () => any;
-	export const preloader: (content?: any) => {
-	    close(): void;
-	};
-	export const music: () => any;
-	export const $modal: (option: any) => any;
-	export const $alert: (option: IUiAlertOption) => Promise<true | undefined>;
-	export const $confirm: (option: IUiConfirmOption) => Promise<boolean>;
-	export const $prompt: (option: any) => any;
-	export const $userbox: (option: any) => any;
-
-}
-declare module 'h5-sdk/src/adapters/app/app.mini' {
-	export default function createAppMini(): void;
-
-}
-declare module 'h5-sdk/src/factory/index.mini' {
-	export { default as App } from 'h5-sdk/src/factory/App';
-	export { default as Auth } from 'h5-sdk/src/factory/Auth';
-	export { default as Emitter } from 'h5-sdk/src/factory/Emitter';
-	export { default as Http } from 'h5-sdk/src/factory/Http';
-	export { default as User } from 'h5-sdk/src/factory/User';
-
-}
-declare module 'h5-sdk/src/functions/index.mini' {
-	export * from 'h5-sdk/src/functions/common';
-	export * from 'h5-sdk/src/functions/is';
-	export * from 'h5-sdk/src/functions/path';
-	export * from 'h5-sdk/src/functions/qs';
-	export * from 'h5-sdk/src/functions/regex';
-	export * from 'h5-sdk/src/functions/timeago';
-	export * from 'h5-sdk/src/functions/underscore';
-
-}
-declare module 'h5-sdk/src/plugins/cloud' {
-	export function service(serviceName: string, opt: any, method?: 'get' | 'post'): Promise<any>;
-	export function upbase64(base64: string): Promise<CloudResponse>;
-	export function syncurl(url: string): Promise<CloudResponse>;
-	export function tempurl(url: string): Promise<CloudResponse>;
-	export function hastemp(key: string): Promise<CloudResponse>;
-	export function syncimage(url: string): Promise<CloudResponse>;
-	export function headfile(key: string): Promise<CloudResponse>;
-	export function proxy(option: ProxyOption): Promise<any>;
-	export function amr2mp3(input: string, kbs?: number): Promise<CloudResponse>;
-	export type CloudResponse = {
-	    name: string;
-	    url: string;
-	    status: number;
-	    statusMessage: string;
-	    mime?: string;
-	};
-	interface ProxyOption extends Request {
-	    url: string;
-	    type: string;
-	}
-	export {};
-
-}
-declare module 'h5-sdk/src/plugins/cloud.mini' {
-	export * from 'h5-sdk/src/plugins/cloud';
-	import { CloudResponse } from 'h5-sdk/src/plugins/cloud';
-	export function upfile(path: string, isTempFile?: boolean): any;
-	export function uptemp(path: string): Promise<CloudResponse>;
-
-}
-declare module 'h5-sdk/src/plugins/index.mini' {
-	import * as safety from 'h5-sdk/src/plugins/safety';
-	import store from 'h5-sdk/src/adapters/store/index';
-	import * as analysis from 'h5-sdk/src/plugins/analysis';
-	import * as ui from 'h5-sdk/src/adapters/ui/ui.mini';
-	import * as cloud from 'h5-sdk/src/plugins/cloud.mini';
-	export { cloud, safety, store, ui, analysis };
-
-}
-declare module 'h5-sdk/src/functions/index.node' {
-	export * from 'h5-sdk/src/functions/common';
-	export * from 'h5-sdk/src/functions/is';
-	export * from 'h5-sdk/src/functions/path';
-	export * from 'h5-sdk/src/functions/qs';
-	export * from 'h5-sdk/src/functions/regex';
-	export * from 'h5-sdk/src/functions/timeago';
-	export * from 'h5-sdk/src/functions/underscore';
-
-}
-declare module 'h5-sdk/src/adapters/app/app.node' {
-	export default function createAppMini(): void;
-
-}
-declare module 'h5-sdk/src/factory/index.node' {
-	export { default as App } from 'h5-sdk/src/factory/App';
-	export { default as Auth } from 'h5-sdk/src/factory/Auth';
-	export { default as Emitter } from 'h5-sdk/src/factory/Emitter';
-	export { default as Http } from 'h5-sdk/src/factory/Http';
-	export { default as User } from 'h5-sdk/src/factory/User';
-
-}
-declare module 'h5-sdk/src/plugins/index.node' {
-	import * as safety from 'h5-sdk/src/plugins/safety';
-	import store from 'h5-sdk/src/adapters/store/index';
-	export { safety, store };
-
-}
-declare module 'h5-sdk/src/factory/Res' {
-	import Emitter from 'h5-sdk/src/factory/Emitter';
-	export enum TYPE {
-	    UNKNOWN = "none",
-	    ARRAY_BUFFER = "arrayBuffer",
-	    BLOB = "blob",
-	    HEADERS = "headers",
-	    JSON = "json",
-	    JSONP = "jsonp",
-	    TEXT = "text",
-	    FORM_DATA = "formData",
-	    CSS = "css",
-	    JS = "js",
-	    IMG = "img",
-	    AUDIO = "audio",
-	    VIDEO = "video"
-	}
-	export enum STATUS {
-	    ADDED = 0,
-	    LOADING = 1,
-	    LOAEED = 2,
-	    FAILED = 3
-	}
-	export class ResProgress {
-	    total: number;
-	    current: number;
-	    pending: number;
-	    loaded: number;
-	    failed: number;
-	    $bus: Res;
-	    readonly isComplete: boolean;
-	    readonly percent: number;
-	    clear(): void;
-	    $notify(event: IResEvent): void;
-	    $added(): void;
-	    $pending(): void;
-	    $loaded(): void;
-	    $failed(): void;
-	}
-	export default class Res extends Emitter {
-	    static concurrency: number;
-	    private static pending;
-	    private static _taskList;
-	    static id: number;
-	    static Progress: typeof ResProgress;
-	    static config: IResConfig;
-	    static cache: Record<string, IResourceStruct>;
-	    protected static _instance: Res;
-	    static readonly instance: Res;
-	    static loaders: Map<string, LoaderHandle>;
-	    static registerLoader(this: any, type: string, handle: LoaderHandle): typeof Res;
-	    static getLoader(type: string): LoaderHandle;
-	    static get(key: string | number): IResourceStruct;
-	    config: IResConfig;
-	    isStart: boolean;
-	    isWorking: boolean;
-	    progress: ResProgress;
-	    isExecuted: boolean;
-	    tasks: IResourceStruct[];
-	    cache: Record<string, IResourceStruct>;
-	    private _onResLoaded;
-	    private _onResFailed;
-	    readonly isComplete: boolean;
-	    constructor(option?: IResConfig);
-	    start(): this;
-	    pause(): this;
-	    get(key: string | number): IResourceStruct;
-	    add(res: IResPushStruct, option?: any): IResourceTask;
-	    pushRes(res: IResourceStruct): void;
-	    clear(): void;
-	    private __resCb;
-	}
-	export type IResConfig = {
-	    root?: string;
-	    defaultType?: string;
-	    autoStart?: boolean;
-	};
-	export type IResPushStruct = {
-	    url: string;
-	    key?: string;
-	    type?: string;
-	}; type LoaderHandle = (url: string, option?: any) => Promise<any>;
-	export type IResourceStruct = {
-	    id: number;
-	    key: string;
-	    url: string;
-	    type: string;
-	    status: STATUS;
-	    data: any;
-	    readonly isLoading: boolean;
-	    readonly isLoaded: boolean;
-	    readonly isFailed: boolean;
-	    task: IResourceTask;
-	    option: any;
-	    error?: any;
-	};
-	export interface IResourceTask extends Promise<IResourceStruct> {
-	    id: number;
-	    exec: (a?: IResourceStruct) => void;
-	}
-	export type IResEvent = 'push' | 'pending' | 'success' | 'complete' | 'fail' | 'clear' | 'progress' | 'start' | 'paused';
-	export {};
-
-}
-declare module 'h5-sdk/src/assets/star-loading' {
-	 const _default: "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"64px\" height=\"64px\" viewBox=\"0 0 128 128\" x=\"64\" y=\"0\"><path d=\"M64 0L40.08 21.9a10.98 10.98 0 0 0-5.05 8.75C34.37 44.85 64 60.63 64 60.63V0z\" fill=\"#ffb118\"/><path d=\"M128 64l-21.88-23.9a10.97 10.97 0 0 0-8.75-5.05C83.17 34.4 67.4 64 67.4 64H128z\" fill=\"#80c141\"/><path d=\"M63.7 69.73a110.97 110.97 0 0 1-5.04-20.54c-1.16-8.7.68-14.17.68-14.17h38.03s-4.3-.86-14.47 10.1c-3.06 3.3-19.2 24.58-19.2 24.58z\" fill=\"#cadc28\"/><path d=\"M64 128l23.9-21.88a10.97 10.97 0 0 0 5.05-8.75C93.6 83.17 64 67.4 64 67.4V128z\" fill=\"#cf171f\"/><path d=\"M58.27 63.7a110.97 110.97 0 0 1 20.54-5.04c8.7-1.16 14.17.68 14.17.68v38.03s.86-4.3-10.1-14.47c-3.3-3.06-24.58-19.2-24.58-19.2z\" fill=\"#ec1b21\"/><path d=\"M0 64l21.88 23.9a10.97 10.97 0 0 0 8.75 5.05C44.83 93.6 60.6 64 60.6 64H0z\" fill=\"#018ed5\"/><path d=\"M64.3 58.27a110.97 110.97 0 0 1 5.04 20.54c1.16 8.7-.68 14.17-.68 14.17H30.63s4.3.86 14.47-10.1c3.06-3.3 19.2-24.58 19.2-24.58z\" fill=\"#00bbf2\"/><path d=\"M69.73 64.34a111.02 111.02 0 0 1-20.55 5.05c-8.7 1.14-14.15-.7-14.15-.7V30.65s-.86 4.3 10.1 14.5c3.3 3.05 24.6 19.2 24.6 19.2z\" fill=\"#f8f400\"/><circle cx=\"64\" cy=\"64\" r=\"2.03\"/></svg>";
-	export default _default;
-
-}
-declare module 'h5-sdk/src/factory/UiMusic' {
+declare module 'sdk/src/factory/UiToast.web' {
 	/// <reference types="zepto" />
-	import 'h5-sdk/src/assets/ui-music.less';
-	import Emitter from 'h5-sdk/src/factory/Emitter';
+	import 'sdk/src/assets/ui-toast.less';
+	import UiBase, { UiBaseOption } from 'sdk/src/factory/UiBase.web';
+	export type UiToastOption = UiBaseOption & {
+	    icon?: string;
+	    message?: string;
+	    clickClosed?: boolean;
+	    onClick?: (this: UiToast, instance: UiToast) => void;
+	};
+	export default class UiToast extends UiBase {
+	    static option: UiToastOption;
+	    $header?: ZeptoCollection;
+	    $body?: ZeptoCollection;
+	    $message: ZeptoCollection;
+	    constructor(_option: UiToastOption);
+	    setMessage(message: string): this;
+	    setIcon(icon: string): this;
+	    private _openHook;
+	    private _closedHook;
+	}
+
+}
+declare module 'sdk/src/assets/star-loading' {
+	export const SvgWindmill = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"64px\" height=\"64px\" viewBox=\"0 0 128 128\" x=\"64\" y=\"0\"><path d=\"M64 0L40.08 21.9a10.98 10.98 0 0 0-5.05 8.75C34.37 44.85 64 60.63 64 60.63V0z\" fill=\"#ffb118\"/><path d=\"M128 64l-21.88-23.9a10.97 10.97 0 0 0-8.75-5.05C83.17 34.4 67.4 64 67.4 64H128z\" fill=\"#80c141\"/><path d=\"M63.7 69.73a110.97 110.97 0 0 1-5.04-20.54c-1.16-8.7.68-14.17.68-14.17h38.03s-4.3-.86-14.47 10.1c-3.06 3.3-19.2 24.58-19.2 24.58z\" fill=\"#cadc28\"/><path d=\"M64 128l23.9-21.88a10.97 10.97 0 0 0 5.05-8.75C93.6 83.17 64 67.4 64 67.4V128z\" fill=\"#cf171f\"/><path d=\"M58.27 63.7a110.97 110.97 0 0 1 20.54-5.04c8.7-1.16 14.17.68 14.17.68v38.03s.86-4.3-10.1-14.47c-3.3-3.06-24.58-19.2-24.58-19.2z\" fill=\"#ec1b21\"/><path d=\"M0 64l21.88 23.9a10.97 10.97 0 0 0 8.75 5.05C44.83 93.6 60.6 64 60.6 64H0z\" fill=\"#018ed5\"/><path d=\"M64.3 58.27a110.97 110.97 0 0 1 5.04 20.54c1.16 8.7-.68 14.17-.68 14.17H30.63s4.3.86 14.47-10.1c3.06-3.3 19.2-24.58 19.2-24.58z\" fill=\"#00bbf2\"/><path d=\"M69.73 64.34a111.02 111.02 0 0 1-20.55 5.05c-8.7 1.14-14.15-.7-14.15-.7V30.65s-.86 4.3 10.1 14.5c3.3 3.05 24.6 19.2 24.6 19.2z\" fill=\"#f8f400\"/><circle cx=\"64\" cy=\"64\" r=\"2.03\"/></svg>";
+	export const SvgColorRing = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"64px\" height=\"64px\" viewBox=\"0 0 128 128\" x=\"0\" y=\"0\"><path d=\"M.6 57.54c5.73-6.23 17.33-15.5 33.66-12.35C55.4 48.5 64 63.95 64 63.95S42.42 65 30.28 83.63a38.63 38.63 0 0 0-3.4 32.15 64.47 64.47 0 0 1-5.52-4.44A63.64 63.64 0 0 1 .6 57.54z\" fill=\"#ffcb02\"/><path d=\"M65.32 29.05c7.65 19.98-1.44 35.18-1.44 35.18S52.2 46.05 30.03 44.85A38.6 38.6 0 0 0 .56 57.93 63.8 63.8 0 0 1 37.56 6c8.2 1.8 22.26 7.16 27.76 23.05z\" fill=\"#ff9e02\"/><path d=\"M94.92 47.7c-13.48 16.63-31.2 16.36-31.2 16.36s9.92-19.2-.13-39a38.6 38.6 0 0 0-26.18-19 63.78 63.78 0 0 1 63.52 6.03c2.56 8 4.98 22.85-6.05 35.6z\" fill=\"#ff4b42\"/><path d=\"M93.52 82.53C72.38 79.17 63.75 63.7 63.75 63.7s21.6-1.02 33.7-19.63a38.6 38.6 0 0 0 3.43-32.04 64.33 64.33 0 0 1 5.74 4.6 63.63 63.63 0 0 1 20.82 53.26c-5.62 6.2-17.34 15.8-33.94 12.6z\" fill=\"#c063d6\"/><path d=\"M62.5 99c-7.65-19.98 1.44-35.17 1.44-35.17S75.56 81.6 97.74 82.8a39.1 39.1 0 0 0 29.73-13.03 63.8 63.8 0 0 1-37.16 52.3c-8.2-1.8-22.25-7.15-27.8-23.06z\" fill=\"#17a4f6\"/><path d=\"M26.64 115.63C24 107.6 21.6 93.06 32.5 80.5c13.48-16.62 31.58-16.55 31.58-16.55s-9.6 19.06.44 38.86a38.82 38.82 0 0 0 26.05 19.17 63.78 63.78 0 0 1-63.93-6.3z\" fill=\"#4fca24\"/></svg>";
+
+}
+declare module 'sdk/src/factory/UiMusic.web' {
+	/// <reference types="zepto" />
+	import 'sdk/src/assets/ui-music.less';
+	import Emitter from 'sdk/src/factory/Emitter';
 	export interface IUiMusicOption {
 	    background?: boolean;
 	    target?: string;
@@ -1087,10 +723,7 @@ declare module 'h5-sdk/src/factory/UiMusic' {
 	    loop?: boolean;
 	}
 	export default class UiMusic extends Emitter {
-	    static _instance: UiMusic;
-	    static readonly instance: UiMusic;
-	    static readonly hasInstance: boolean;
-	    static createInstance(option: IUiMusicOption): UiMusic;
+	    static instance: UiMusic;
 	    static option: IUiMusicOption;
 	    static themes: Map<any, any>;
 	    static registerTheme(themeName: any, adapter: IUiMusicTheme | number[]): Map<string, IUiMusicTheme>;
@@ -1128,39 +761,10 @@ declare module 'h5-sdk/src/factory/UiMusic' {
 	export {};
 
 }
-declare module 'h5-sdk/src/venders/index' {
+declare module 'sdk/src/factory/UiView.web' {
 	/// <reference types="zepto" />
-	export const $: ZeptoStatic;
-	export const Zepto: ZeptoStatic;
-
-}
-declare module 'h5-sdk/src/factory/UiToast' {
-	/// <reference types="zepto" />
-	import 'h5-sdk/src/assets/ui-toast.less';
-	import UiBase, { UiBaseOption } from 'h5-sdk/src/factory/UiBase';
-	export type UiToastOption = UiBaseOption & {
-	    icon?: string;
-	    message?: string;
-	    clickClosed?: boolean;
-	    onClick?: (this: UiToast, instance: UiToast) => void;
-	};
-	export default class UiToast extends UiBase {
-	    static option: UiToastOption;
-	    $header?: ZeptoCollection;
-	    $body?: ZeptoCollection;
-	    $message: ZeptoCollection;
-	    constructor(_option: UiToastOption);
-	    setMessage(message: string): this;
-	    setIcon(icon: string): this;
-	    private _openHook;
-	    private _closedHook;
-	}
-
-}
-declare module 'h5-sdk/src/factory/UiView' {
-	/// <reference types="zepto" />
-	import 'h5-sdk/src/assets/ui-view.less';
-	import UiBase, { UiBaseOption } from 'h5-sdk/src/factory/UiBase';
+	import 'sdk/src/assets/ui-view.less';
+	import UiBase, { UiBaseOption } from 'sdk/src/factory/UiBase.web';
 	export interface UiViewOption extends UiBaseOption {
 	    type: 'image' | 'preloader' | 'curtain';
 	    isFullScreen?: boolean;
@@ -1186,9 +790,9 @@ declare module 'h5-sdk/src/factory/UiView' {
 	}
 
 }
-declare module 'h5-sdk/src/factory/UiSheet' {
+declare module 'sdk/src/factory/UiSheet.web' {
 	/// <reference types="zepto" />
-	import UiBase, { UiBaseOption, UiButtonOption } from 'h5-sdk/src/factory/UiBase';
+	import UiBase, { UiBaseOption, UiButtonOption } from 'sdk/src/factory/UiBase.web';
 	interface IUiSheetAction extends UiButtonOption {
 	}
 	export interface IUiSheetOption extends UiBaseOption {
@@ -1211,13 +815,34 @@ declare module 'h5-sdk/src/factory/UiSheet' {
 	export {};
 
 }
-declare module 'h5-sdk/src/adapters/ui/ui.web' {
-	import UiModal, { UiModalOption } from 'h5-sdk/src/factory/UiModal';
-	import UiToast from 'h5-sdk/src/factory/UiToast';
-	import UiMusic, { IUiMusicOption } from 'h5-sdk/src/factory/UiMusic';
-	import UiView, { UiViewOption } from 'h5-sdk/src/factory/UiView';
-	import UiSheet, { IUiSheetOption } from 'h5-sdk/src/factory/UiSheet';
-	import { IUiAlertOption, IUiConfirmOption, IUiPromptOption, IUiUserboxOption } from 'h5-sdk/src/adapters/ui/interface';
+declare module 'sdk/src/plugins/ui.web' {
+	import { UiInputType } from 'sdk/src/factory/UiBase.web';
+	import UiModal, { UiModalOption } from 'sdk/src/factory/UiModal.web';
+	import UiToast from 'sdk/src/factory/UiToast.web';
+	import UiMusic, { IUiMusicOption } from 'sdk/src/factory/UiMusic.web';
+	import UiView, { UiViewOption } from 'sdk/src/factory/UiView.web';
+	import UiSheet, { IUiSheetOption } from 'sdk/src/factory/UiSheet.web';
+	export interface IUiAlertOption extends UiModalOption {
+	    href?: string;
+	    okText?: string | false;
+	    ok?: Function;
+	}
+	export interface IUiConfirmOption extends IUiAlertOption {
+	    formError?: Function | string;
+	    noText?: string | false;
+	    no?: Function;
+	}
+	export interface IUiPromptOption extends IUiConfirmOption {
+	    type?: UiInputType;
+	    defaultValue?: string;
+	    placeholder?: string;
+	    validate?: (value: string) => any;
+	}
+	export type IUserProfileType = 'username' | 'mobile' | 'password' | 'address' | 'hidden';
+	export interface IUiUserboxOption extends IUiConfirmOption {
+	    title: string;
+	    profile: IUserProfileType[];
+	}
 	export function modal(option: UiModalOption): UiModal;
 	export function alert(option: IUiAlertOption | string): UiModal;
 	export function confirm(option: IUiConfirmOption): UiModal;
@@ -1242,94 +867,214 @@ declare module 'h5-sdk/src/adapters/ui/ui.web' {
 	export const $userbox: (option: IUiUserboxOption) => Promise<object | undefined>;
 
 }
-declare module 'h5-sdk/src/plugins/ui' {
-	export * from 'h5-sdk/src/adapters/ui/ui.web';
+declare module 'sdk/src/factory/Http.web' {
+	import Http from 'sdk/src/factory/Http';
+	export default Http;
 
 }
-declare module 'h5-sdk/src/plugins/cloud.web' {
-	import { CloudResponse } from 'h5-sdk/src/plugins/cloud';
-	export * from 'h5-sdk/src/plugins/cloud';
+declare module 'sdk/src/factory/Res.web' {
+	import Res from 'sdk/src/factory/Res';
+	export default Res;
+
+}
+declare module 'sdk/src/plugins/analysis' {
+	export interface IAnalysisProxy {
+	    installed?: boolean;
+	    install: (base: typeof baseAnalysis) => any;
+	    ready: () => Promise<any>;
+	    minVistedTime: number;
+	    minStayTime: number;
+	    maxReportError: number;
+	    readonly requestId: string;
+	    readonly requestTime: number;
+	    readonly pageurl: string;
+	    readonly userid: number;
+	    readonly useragent: string;
+	    unloadData: any;
+	    spm: {
+	        from: string;
+	        uid: number;
+	    };
+	    sendRequest: (url: string) => void;
+	    getErrorStack: (err: Error | string) => string;
+	} const baseAnalysis: {
+	    use: typeof use;
+	    send: typeof send;
+	    pv: typeof pv;
+	    share: typeof share;
+	    user: typeof user;
+	    click: typeof click;
+	    unload: typeof unload;
+	    error: typeof error;
+	};
+	export default baseAnalysis; function use(proxy: IAnalysisProxy): {
+	    use: typeof use;
+	    send: typeof send;
+	    pv: typeof pv;
+	    share: typeof share;
+	    user: typeof user;
+	    click: typeof click;
+	    unload: typeof unload;
+	    error: typeof error;
+	}; function send(event: string, data?: any, value?: number): void | null; function pv(): Promise<void | null>; function user(data?: any, value?: number): void | null; function share(platform?: any, logid?: number): void | null; function click(data?: any, value?: number): void | null; function unload(): void | null; function error(error: Error | string): false | void | null;
+
+}
+declare module 'sdk/src/plugins/analysis.web' {
+	import { IAnalysisProxy } from 'sdk/src/plugins/analysis'; const _default: {
+	    use: (proxy: IAnalysisProxy) => any;
+	    send: (event: string, data?: any, value?: number) => void | null;
+	    pv: () => Promise<void | null>;
+	    share: (platform?: any, logid?: number | undefined) => void | null;
+	    user: (data?: any, value?: number | undefined) => void | null;
+	    click: (data?: any, value?: number | undefined) => void | null;
+	    unload: () => void | null;
+	    error: (error: string | Error) => false | void | null;
+	};
+	export default _default;
+
+}
+declare module 'sdk/src/plugins/jssdk.web' {
+	import Tasker from 'sdk/src/factory/Tasker'; type IJssdkShareItem = {
+	    arg: null | IJssdkShareBase;
+	    platform: string;
+	    api: string;
+	    params?: any;
+	}; function share(opts?: string | IJssdkShare): Promise<void> | IJssdkShareItem | IJssdkShareItem[] | undefined; class JssdkError extends Error {
+	} const jssdk: {
+	    version: string;
+	    appid: string;
+	    shareLogid: number;
+	    task: Tasker;
+	    ready: (fn: EventListenerOrEventListenerObject) => void;
+	    config: (this: any, ...args: any[]) => any;
+	    share: typeof share;
+	    loadJssdk: (this: any, ...args: any[]) => any;
+	    JssdkError: typeof JssdkError;
+	};
+	export default jssdk;
+	export type IJssdkConfig = {
+	    url?: string;
+	    debug?: boolean;
+	    appid?: string;
+	    jsApiList?: string[];
+	};
+	export type IJssdkMessageMini = {
+	    appid: string;
+	    title: string;
+	    desc: string;
+	    link: string;
+	    icon: string;
+	    banner: string;
+	};
+	export interface IJssdkResponse extends IJssdkConfig {
+	    timestamp: string;
+	    nonceStr: string;
+	    signature: string;
+	}
+	export interface IJssdkShareBase {
+	    platform: string;
+	    title: string;
+	    desc: string;
+	    link: string;
+	    imgUrl: string;
+	    success: any;
+	    cancel: any;
+	}
+	export interface IJssdkShare {
+	    platform?: string;
+	    title?: string;
+	    desc?: string;
+	    link?: string;
+	    img?: string;
+	    banner?: string;
+	    imgurl?: string;
+	    imgUrl?: string;
+	    logid?: number;
+	    config?: string;
+	    success?: Function;
+	    cancel?: Function;
+	    type?: 'music' | 'video' | 'link';
+	    dataUrl?: string;
+	    dataurl?: string;
+	}
+	export type IJssdkShareMini = {
+	    appid: string;
+	    title: string;
+	    desc: string;
+	    link: string;
+	    icon: string;
+	    banner: string;
+	};
+
+}
+declare module 'sdk/src/plugins/store.web' {
+	import { IStoreUseProxy } from 'sdk/src/plugins/store'; const _default: {
+	    use(usestorage: IStoreUseProxy): any;
+	    get(key: string, _default?: any): any;
+	    set(key: string, data: any): any;
+	    keys(): string[];
+	    remove(key: string): void;
+	    clear(): void;
+	    each(fn: (value: any, key: string) => void): void;
+	};
+	export default _default;
+
+}
+declare module 'sdk/src/plugins/cloud.web' {
+	import { CloudResponse } from 'sdk/src/plugins/cloud';
+	export * from 'sdk/src/plugins/cloud';
 	export function wxmedia(media_id: string): Promise<CloudResponse>;
 	export function upfile(file: File, isTempFile?: boolean): Promise<CloudResponse>;
 	export function uptemp(file: File): Promise<CloudResponse>;
 
 }
-declare module 'h5-sdk/src/plugins/wechat' {
+declare module 'sdk/src/plugins/tool.web' {
+	export * from 'sdk/src/plugins/tool';
 	export function getQrcode(username: string): string;
+	export function getElementAttrs(element: Element, attrs: string[]): Record<string, any>;
+	export function readAsDataURL(inputer: File): Promise<string>;
+	export function chooseFile(accept?: string, multiple?: boolean): Promise<File | FileList>;
+	export function chooseImageAsDataURL(option?: any): Promise<string>;
+	export function base64toBlob(base64String: string, contentType?: string, sliceSize?: number): Blob;
 
 }
-declare module 'h5-sdk/src/plugins/cdn' {
-	export function res(filename: string, process?: string | object): string;
-	export function lib(libname: string): string;
-	export function info(filename: string): Promise<any>;
-	export function hue(filename: string): Promise<any>;
-	export function snapshot(filename: string, w?: number, h?: number, format?: string): string;
-	export function imm(filename: string, service: string): Promise<any>;
-	export function style(filename: string, style: string): string;
-
-}
-declare module 'h5-sdk/src/plugins/index' {
-	import * as jssdk from 'h5-sdk/src/plugins/jssdk';
-	import * as ui from 'h5-sdk/src/plugins/ui';
-	import * as safety from 'h5-sdk/src/plugins/safety';
-	import * as tool from 'h5-sdk/src/plugins/tool';
-	import * as cloud from 'h5-sdk/src/plugins/cloud.web';
-	import * as analysis from 'h5-sdk/src/plugins/analysis';
-	import * as wechat from 'h5-sdk/src/plugins/wechat';
-	import * as cdn from 'h5-sdk/src/plugins/cdn';
-	export { default as store } from 'h5-sdk/src/adapters/store/index';
-	export { jssdk, ui, safety, tool, cloud, analysis, wechat, cdn };
-
-}
-declare module 'h5-sdk/src/adapters/app/app.web' {
-	export default function createAppWeb(): void;
-
-}
-declare module 'h5-sdk/src/factory/index' {
-	export { default as App } from 'h5-sdk/src/factory/App';
-	export { default as Emitter } from 'h5-sdk/src/factory/Emitter';
-	export { default as Http } from 'h5-sdk/src/factory/Http';
-	export { default as Auth } from 'h5-sdk/src/factory/Auth';
-	export { default as Res } from 'h5-sdk/src/factory/Res';
-	export { default as Tasker } from 'h5-sdk/src/factory/Tasker';
-	export { default as UiBase } from 'h5-sdk/src/factory/UiBase';
-	export { default as UiMusic } from 'h5-sdk/src/factory/UiMusic';
-	export { default as UiSheet } from 'h5-sdk/src/factory/UiSheet';
-	export { default as UiModal } from 'h5-sdk/src/factory/UiModal';
-	export { default as UiToast } from 'h5-sdk/src/factory/UiToast';
-	export { default as UiView } from 'h5-sdk/src/factory/UiView';
-	export { default as User } from 'h5-sdk/src/factory/User';
-
-}
-declare module 'h5-sdk/src/web-entry' {
-	import 'h5-sdk/src/assets/common.less';
-	import 'h5-sdk/src/assets/icon.less';
-	import 'h5-sdk/src/polyfill/index';
+declare module 'sdk/src/entry.web' {
+	import 'sdk/src/assets/common.less';
+	import 'sdk/src/assets/icon.less';
+	import 'sdk/src/venders/index.web';
 	export const version = "__VERSION__";
-	export * from 'h5-sdk/src/config';
-	export * from 'h5-sdk/src/functions/index';
-	export * from 'h5-sdk/src/venders/index';
-	export * from 'h5-sdk/src/plugins/index';
-	export * from 'h5-sdk/src/factory/index';
-	import 'h5-sdk/src/scheduler/index';
+	import App from 'sdk/src/factory/App';
+	import Auth from 'sdk/src/factory/Auth.web';
+	import AuthUser from 'sdk/src/factory/AuthUser';
+	import Config from 'sdk/src/factory/Config.web';
+	import Emitter from 'sdk/src/factory/Emitter';
+	import Http from 'sdk/src/factory/Http.web';
+	import Res from 'sdk/src/factory/Res.web';
+	import Tasker from 'sdk/src/factory/Tasker';
+	import UiBase from 'sdk/src/factory/UiBase.web';
+	import UiModal from 'sdk/src/factory/UiModal.web';
+	import UiMusic from 'sdk/src/factory/UiMusic.web';
+	import UiSheet from 'sdk/src/factory/UiSheet.web';
+	import UiToast from 'sdk/src/factory/UiToast.web';
+	import UiView from 'sdk/src/factory/UiView.web';
+	export { App, Auth, AuthUser, Config, Emitter, Http, Res, Tasker, UiBase, UiModal, UiMusic, UiSheet, UiToast, UiView };
+	export * from 'sdk/src/functions/common';
+	export * from 'sdk/src/functions/utils.web';
+	import analysis from 'sdk/src/plugins/analysis.web';
+	import hotcache from 'sdk/src/plugins/hotcache';
+	import jssdk from 'sdk/src/plugins/jssdk.web';
+	import location from 'sdk/src/plugins/location.web';
+	import store from 'sdk/src/plugins/store.web';
+	import * as cdn from 'sdk/src/plugins/cdn';
+	import * as cloud from 'sdk/src/plugins/cloud.web';
+	import * as safefy from 'sdk/src/plugins/safety';
+	import * as tool from 'sdk/src/plugins/tool.web';
+	import * as ui from 'sdk/src/plugins/ui.web';
+	export { analysis, cdn, store, cloud, hotcache, jssdk, safefy, location, tool, ui };
+	import 'sdk/src/scheduler/task.web';
 
 }
-declare module 'h5-sdk/src/adapters/app/index' {
-	 const _default: {};
-	export default _default;
-
-}
-declare module 'h5-sdk/src/adapters/ui/ui.node' {
-	export function preloader(): void;
-	export function loading(): void;
-
-}
-declare module 'h5-sdk/src/plugins/plugin' {
-	export function define(): void;
-	export function use(): void;
-
-}
-declare module 'h5-sdk' {
-	import main = require('h5-sdk/src/web-entry');
+declare module 'sdk' {
+	import main = require('sdk/src/entry.web');
 	export = main;
 }

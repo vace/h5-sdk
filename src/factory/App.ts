@@ -27,6 +27,8 @@ export class AppResponseError extends Error {
 }
 
 export default class App extends Http {
+  // APP 响应错误
+  static AppResponseError = AppResponseError
   // 转换app的请求
   static transformAppRequest(app: App, config: any) {
     // 转换url
@@ -50,6 +52,8 @@ export default class App extends Http {
     }
     return json
   }
+
+  /** 接收到headers */
   static onAppHeadersReceived(app: App, headers: Headers) {
     const auth = app.auth
     return auth && Auth.onAuthHeadersReceived(auth, headers)

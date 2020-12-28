@@ -1,4 +1,4 @@
-import UiBase, { UiBaseOption, UiButtonOption, TypeColor, classPrefix, createClsElement } from "./UiBase.web";
+import UiBase, { UiBaseOption, UiButtonOption, classPrefix, createClsElement } from "./UiBase.web";
 import { noop, assign } from '../functions/common'
 
 interface IUiSheetAction extends UiButtonOption {}
@@ -59,7 +59,7 @@ export default class UiSheet extends UiBase {
 
   // 打开
   private _openHook() {
-    const { $root, $sheet, id } = this
+    const { $root, $sheet } = this
     // 渲染结构
     const { title, actions, menus } = this.option
     const sheetElements: ZeptoCollection[] = []

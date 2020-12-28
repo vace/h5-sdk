@@ -1,4 +1,6 @@
-import { always, assign, isString, isHttp, inArray, createURL, noop, isFunction, isObject } from "../functions/common"
+import { always, assign, isString, isHttp, inArray, createURL, noop, isFunction, isObject, isBoolean } from "../functions/common"
+
+const MessageKey = Symbol('$msg')
 
 export interface IHttpConfig {
   baseURL?: string
@@ -69,7 +71,7 @@ export default class Http {
   // 可用的编码
   public static ContentType  = {
     JSON: 'application/json; charset=utf-8',
-    FORMDATA: 'application/x-www-form-urlencoded; charset=utf-8'
+    FORM: 'application/x-www-form-urlencoded; charset=utf-8'
   }
   /** 全局加载中处理 */
   public static showLoading: HttpNofifyCallback = noop
@@ -175,15 +177,17 @@ export default class Http {
       if (isString(callback)) {
         message = callback
       }
+      // true 时使用默认文案
+      // if (isBoolean(callback)) {}
       if (!isFunction(callback)) {
         callback = Http[type]
       }
       return callback(message, data)
     }
-    const { $messages } = this
+    const $messages = this[MessageKey]
 
     // loading handle
-    const _loading = notify('showLoading', $messages.loading)
+    const _loading = notify('showLoading', $messages.loading || '请稍后...')
     const closeLoading = () => {
       _loading && isFunction(_loading.close) && _loading.close()
     }
@@ -217,7 +221,7 @@ export default class Http {
       })
       .then(data => {
         closeLoading()
-        notify('showSuccess', $messages.success, data)
+        notify('showSuccess', $messages.success || '完成', data)
         return data
       }).catch(error => {
         closeLoading()
@@ -227,13 +231,13 @@ export default class Http {
   }
 
   // 自定义文案
-  private $messages = {
+  private [MessageKey] = {
     success: '',
     error: '',
     loading: ''
   }
   // 用于设置响应中的提示内容
   public setHttpMessage (key: string, message: string) {
-    this.$messages[key] = message
+    this[MessageKey][key] = message
   }
 }

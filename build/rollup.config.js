@@ -1,3 +1,4 @@
+import {createDts, createMiniProgramPackage}  from './generator'
 import typescript from 'rollup-plugin-typescript2'
 import resolve from 'rollup-plugin-node-resolve'
 import commonjs from 'rollup-plugin-commonjs'
@@ -44,7 +45,7 @@ const createReplace = () => {
 // WEB 端
 if (Plantform === 'web') {
   Object.assign(configure, {
-    input: './src/web-entry.ts',
+    input: './src/entry.web.ts',
     plugins: [
       typescript(),
       json(),
@@ -89,7 +90,7 @@ if (Plantform === 'web') {
   })
 } else if (Plantform === 'mini') {
   Object.assign(configure, {
-    input: './src/mini-entry.ts',
+    input: './src/entry.mini.ts',
     plugins: [
       typescript(),
       json(),
@@ -112,7 +113,7 @@ if (Plantform === 'web') {
 } else if (Plantform === 'node') {
   // NodeJs端
   Object.assign(configure, {
-    input: './src/node-entry.ts',
+    input: './src/entry.node.ts',
     plugins: [
       typescript(),
       json(),
@@ -131,6 +132,15 @@ if (Plantform === 'web') {
       banner
     }
   })
+}
+
+if (isProduction) {
+  setTimeout(() => {
+    createDts(Plantform)
+  }, 10)
+  if (Plantform === 'mini') {
+    createMiniProgramPackage()
+  }
 }
 
 export default configure

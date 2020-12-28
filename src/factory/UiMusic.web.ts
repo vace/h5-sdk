@@ -3,8 +3,8 @@ import '../assets/ui-music.less'
 import { SvgWindmill } from '../assets/star-loading'
 import Emitter from "./Emitter";
 import { createClsElement, classPrefix } from "./UiBase.web";
-import { addListener, isWechat, isMobile, document } from '../functions/web';
-import { assign, each, pick, isDef, once, noop, wait } from "../functions/common";
+import { addListener, isWechat, document } from '../functions/utils.web';
+import { assign, each, pick, isDef, once } from "../functions/common";
 import Config from './Config'
 
 /** 配置项 */
@@ -73,7 +73,7 @@ const createCdnImage = (type: string, idx: number) => `<img src="${Config.cdn(`/
 /**
  * 音乐播放器
  */
-export default class UiMusic extends Emitter {
+export default class UiMusic {
   /** 获取默认实例 */
   public static instance: UiMusic
 
@@ -134,7 +134,6 @@ export default class UiMusic extends Emitter {
   // audio 元素
   public audio:HTMLAudioElement = document.createElement('audio')
   constructor (_option: IUiMusicOption) {
-    super()
     this.option = assign({}, UiMusic.option, _option)
     const { $root, $view, audio, option } = this
     const { className, position = '', style = {}, autoplay, size, offsetX, offsetY } = option
@@ -300,7 +299,6 @@ export default class UiMusic extends Emitter {
     this.$loading.html('')
     this.$playing.html('')
     this.$paused.html('')
-    this.emit('destory')
   }
   // 事件处理
   private _handleEvent (eventId: number, event?: any) {
@@ -341,7 +339,6 @@ export default class UiMusic extends Emitter {
     } else if (eventId === UiMusicEvent.timeupdate) {
 
     }
-    this.emit(eventName, event)
   }
 
   /**
@@ -372,7 +369,6 @@ export default class UiMusic extends Emitter {
       } else {
         this.pause()
         this._unbindTimeupdate()
-        this.emit('timelineend', name)
         if (typeof callback === 'function') {
           callback(timeline)
         }

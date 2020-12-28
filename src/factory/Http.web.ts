@@ -1,5 +1,7 @@
-import { jsonp } from '../functions/web'
+import { isBoolean } from '../functions/common'
+import { jsonp } from '../functions/utils.web'
 import Http, { HttpMethod } from './Http'
+import { loading, error, success } from '../plugins/ui.web'
 
 Http.HttpHeaders = Headers
 Http.HttpRequest = Request
@@ -11,5 +13,10 @@ Http.request = async (url: string, request: Request) => {
   }
   return fetch(url, request)
 }
+
+// 注册loading
+Http.showLoading = message => loading(message)
+Http.showError = message => error(message)
+Http.showSuccess = message => success(message)
 
 export default Http

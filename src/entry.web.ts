@@ -1,6 +1,6 @@
 import './assets/common.less'
 import './assets/icon.less'
-import './venders/index'
+import './venders/index.web'
 
 /** 版本号 */
 export const version = '__VERSION__'
@@ -35,7 +35,7 @@ define('res', () => Res.instance)
 
 /* 导出辅助函数类 */
 export * from './functions/common'
-export * from './functions/web'
+export * from './functions/utils.web'
 
 /** 导入插件模块类 */
 import analysis from './plugins/analysis.web'
@@ -46,10 +46,11 @@ import store from './plugins/store.web'
 import * as cdn from './plugins/cdn'
 import * as cloud from './plugins/cloud.web'
 import * as safefy from './plugins/safety'
+import * as plugin from './plugins/plugin.web'
 import * as tool from './plugins/tool.web'
 import * as ui from './plugins/ui.web'
 
-export { analysis, cdn, store, cloud, hotcache, jssdk, safefy, location, tool, ui }
+export { analysis, cdn, store, cloud, hotcache, jssdk, safefy, location, plugin, tool, ui }
 
 // 导出getter 模块
 

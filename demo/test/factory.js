@@ -186,6 +186,20 @@ describe('test factory Http', () => {
     }).catch(done)
   })
 
+  it('http request jsonp', (done) => {
+    http.jsonp({
+      url: HTTP_BIN,
+      query: { getarg: 'test' },
+      showLoading: '加载中...',
+      showError: true,
+      showSuccess: '请求成功'
+    }).then(reponse => {
+      should(reponse.method).is.equal('GET')
+      should(reponse.get.getarg).is.equal('test')
+      done()
+    }).catch(done)
+  })
+
   it('http request abort signal', (done) => {
     const controller = new AbortController()
     http.get({

@@ -1,8 +1,10 @@
-import analysis, { IAnalysisProxy } from './analysis'
-import { randomstr, once, now, isArray, isString } from '../functions/common'
-import { addListener, domready } from '../functions/web'
+import analysis from './analysis'
+import { randomstr, once, now, isArray, isString, assign } from '../functions/common'
+import { addListener, domready } from '../functions/utils.web'
 import mlocation from './location.web'
 import Auth from '../factory/Auth'
+
+const $img = document.createElement('img')
 
 const SpmFromMap = {
   timeline: 'tx.wx.tl', // 朋友圈
@@ -14,30 +16,15 @@ const SpmFromMap = {
   qzone: 'tx.wx.qzone',
 }
 
-const $img = document.createElement('img')
-
-const proxy: IAnalysisProxy= {
-  install (analysis) {
-    domready.then(() => analysis.pv())
-    addListener(window, 'unload', () => analysis.unload())
-    addListener(window, 'error', (e: any) => analysis.error(e.error))
-  },
-  ready: once(() => domready.then(() => Auth.instance && Auth.instance.tasker)),
-  minVistedTime: 3000,
-  minStayTime: 10000,
-  requestId: randomstr(6),
-  requestTime: now(),
-  get pageurl () {
+const webConfig = {
+  getURL () {
     return mlocation.rootpath
   },
-  get userid () {
-    return Auth.instance ? Auth.instance.id : 0
-  },
-  get useragent () {
+  getAgent () {
     return navigator.userAgent
   },
   // 用户溯源探针
-  get spm () {
+  getSpm() {
     const query = mlocation.query
     let from = query.from || query.spm_from
     // 可能存在参数重复的问题 如：&spm_from=url&spm_from=timeline
@@ -47,13 +34,11 @@ const proxy: IAnalysisProxy= {
     const uid = query.spm_uid || 0
     return { from: SpmFromMap[from] || from || 'url', uid }
   },
-  unloadData: '',
-  maxReportError: 3,
   // send
-  sendRequest (src: string) {
+  sendRequest(src: string) {
     $img.src = src
   },
-  getErrorStack (error: string | Error) {
+  getErrorStack(error: string | Error) {
     if (isString(error) || !(error instanceof Error)) {
       return String(error)
     }
@@ -67,4 +52,13 @@ const proxy: IAnalysisProxy= {
   }
 }
 
-export default analysis.use(proxy)
+assign(analysis.config, webConfig)
+
+// 页面就绪 & 用户登录后 开始发送分析数据
+domready.then(() => Auth.instance && Auth.instance.tasker).then(() => {
+  addListener(window, 'unload', () => analysis.unload())
+  addListener(window, 'error', (e: any) => analysis.error(e.error))
+  analysis.pv()
+})
+
+export default analysis

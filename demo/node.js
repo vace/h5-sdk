@@ -1,7 +1,5 @@
 const sdk = require('../dist/sdk.node')
 
-console.log(Headers)
-
 // sdk.http.get('https://httpbin.org/get').then(console.log)
 
 const app = new sdk.App({

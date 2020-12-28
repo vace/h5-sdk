@@ -6,7 +6,7 @@ import Auth from '../factory/Auth'
 import App from '../factory/App'
 import UiMusic from '../factory/UiMusic.web'
 import jssdk from '../plugins/jssdk.web'
-import { document } from '../functions/web'
+import { document } from '../functions/utils.web'
 
 initializeScript()
 initializeAuth()

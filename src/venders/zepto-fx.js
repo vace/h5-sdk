@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { animationPrefix, transitionEnd, animationEnd, animationEnabled } from '../functions/web'
+import { animationPrefix, transitionEnd, animationEnd, animationEnabled } from '../functions/utils.web'
 
 /**
  * @function

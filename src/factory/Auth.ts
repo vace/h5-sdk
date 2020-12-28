@@ -4,7 +4,6 @@ import Config from './Config'
 import hotcache from '../plugins/hotcache'
 import { isString, isHasOwn, now, always } from '../functions/common'
 import { jwtDecode } from '../plugins/safety'
-import { Tasker } from 'h5-sdk'
 
 const AuthStore = hotcache('@SdkTokens')
 

@@ -9,7 +9,7 @@ const define = (key: string, get: any) => Object.defineProperty(exports, key, { 
 
 /** 导出类 */
 import App from './factory/App';
-import Auth from './factory/Auth';
+import Auth from './factory/Auth.node';
 import AuthUser from './factory/AuthUser';
 import Config from './factory/Config';
 import Emitter from './factory/Emitter';

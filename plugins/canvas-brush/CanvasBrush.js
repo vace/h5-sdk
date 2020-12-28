@@ -41,3 +41,8 @@ class CanvasBrush {
 
   }
 }
+
+sdk.plugin.use('canvas-brush.js').then(CanvasBrush => {
+
+})
+sdk.plugin.define(CanvasBrush)

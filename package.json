@@ -12,7 +12,7 @@
     "production": "rollup --config build/rollup.config.js --environment BUILD:web.Production",
     "node": "rollup --config build/rollup.config.js --environment BUILD:node.Production",
     "mini": "rollup --config build/rollup.config.js --environment BUILD:mini.Production",
-    "prepare": "npm run development && npm run production && node build/dts-generator.js && npm run mini && npm run node",
+    "prepare": "npm run development && npm run production && npm run mini && npm run node",
     "test": "mocha --require ts-node/register --watch-extensions ts,tsx \"src/**/*.spec.ts\"",
     "docs": "typedoc --out docs --mode file --exclude \"**/*+(index.ts|.spec.ts|.e2e.ts|.js)\" --excludeNotExported src/web-entry.ts"
   },

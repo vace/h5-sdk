@@ -1,17 +1,23 @@
 import Http, { HttpError, HttpMethod } from './Http'
 import { DOMException, Headers, Request, Response } from '../venders/http.mini'
+import { loading, error, success } from '../plugins/ui.mini'
 
 declare var wx: any
+
+// 注册loading
+Http.showLoading = message => loading(message)
+Http.showError = message => error(message)
+Http.showSuccess = message => success(message)
 
 Http['DOMException'] = DOMException
 Http.HttpHeaders = Headers
 Http.HttpRequest = Request
 Http.HttpResponse = Response
-Http.request = async (url: string, request: Request) => {
-  if (request.method === HttpMethod.JSONP) {
-    throw new HttpError(-1, 'not support method: JSONP', request as any)
-  }
+Http.request = (url: string, request: Request) => {
   return new Promise((resolve, reject) => {
+    if (request.method === HttpMethod.JSONP) {
+      throw new HttpError(-1, 'not support method: JSONP', request as any)
+    }
     const signal = request.signal
     if (signal && signal.aborted) {
       return reject(new DOMException('Aborted', 'AbortError'))

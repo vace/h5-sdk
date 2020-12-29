@@ -1,4 +1,3 @@
-import { isBoolean } from '../functions/common'
 import { jsonp } from '../functions/utils.web'
 import Http, { HttpMethod } from './Http'
 import { loading, error, success } from '../plugins/ui.web'

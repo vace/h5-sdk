@@ -3,32 +3,19 @@ import jssdk from "./jssdk.web";
 
 export * from './cloud'
 
-/**
- * 同步微信资源文件
- * @param {string} media_id
- * @returns {Promise<CloudResponse>}
- */
+/** 同步微信资源文件 */
 export function wxmedia(media_id: string): Promise<CloudResponse> {
   return service('cloud/wxmedia', { jsappid: jssdk.appid, media_id })
 }
 
-/**
- * 上传一个文件（项目文件）
- * @param {File} file
- * @param {boolean} isTempFile 是否为临时文件
- * @returns {Promise<CloudResponse>}
- */
+/** 上传一个文件（项目文件） */
 export function upfile(file: File, isTempFile?: boolean): Promise<CloudResponse> {
   const form = new FormData()
   form.append('file', file, file.name)
   return service('cloud/' + (isTempFile ? 'uptemp' : 'upfile'), form, 'post')
 }
 
-/**
- * 上传文件（临时文件）
- * @param {File} file
- * @returns {Promise<CloudResponse>}
- */
+/** 上传文件（临时文件） */
 export function uptemp(file: File): Promise<CloudResponse> {
   return upfile(file, true)
 }

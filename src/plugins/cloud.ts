@@ -13,76 +13,43 @@ export function service (serviceName: string, opt: any, method: 'get' | 'post' =
   return app[method](api, opt)
 }
 
-/**
- * 上传base64文件（项目文件）
- * @param {string} base64
- * @returns {Promise<CloudResponse>}
- */
+/** 上传base64文件（项目文件）*/
 export function upbase64 (base64: string): Promise<CloudResponse> {
   return service('cloud/upbase64', { base64 }, 'post')
 }
 
-/**
- * 同步文件到cdn（项目文件）
- * @param {string} url
- * @returns {Promise<CloudResponse>}
- */
+/** 同步文件到cdn（项目文件）*/
 export function syncurl (url: string): Promise<CloudResponse> {
   return service('cloud/syncurl', { url })
 }
 
-/**
- * 同步文件到cdn（临时文件）
- * @param {string} url
- * @returns {Promise<CloudResponse>}
- */
+/** 同步文件到cdn（临时文件）*/
 export function tempurl(url: string): Promise<CloudResponse> {
   return service('cloud/tempurl', { url })
 }
 
-/**
- * 文件是否存在（临时文件）
- * @param {string} url
- * @returns {Promise<CloudResponse>}
- */
+/** 文件是否存在（临时文件）*/
 export function hastemp(key: string): Promise<CloudResponse> {
   return service('cloud/hastemp', { key })
 }
 
 
-/**
- * 同步远程图片
- * @param {string} url
- * @returns {Promise<CloudResponse>}
- */
+/** 同步远程图片 */
 export function syncimage (url: string): Promise<CloudResponse>  {
   return service('cloud/syncimage', { url })
 }
 
-/**
- * 获取文件信息
- * @param {string} key 应用文件存储的key，注意去除前缀
- * @returns {Promise<CloudResponse>}
- */
+/** 获取文件信息 */
 export function headfile (key: string): Promise<CloudResponse>  {
   return service('cloud/headfile', { key })
 }
 
-/**
- * 代理转发请求，解决各种跨域问题
- * @param {ProxyOption} option
- * @returns {Promise<any>}
- */
+/** 代理转发请求，解决各种跨域问题 */
 export function proxy (option: ProxyOption): Promise<any> {
   return service('cloud/proxy', option, 'post')
 }
 
-/**
- * 将微信的amr格式转换为Mp3格式
- * @param input 资源key（CloudResponse.key）
- * @param kbs 码率
- * @returns {Promise<CloudResponse>}
- */
+/** 将微信的amr格式转换为Mp3格式 */
 export function amr2mp3 (input: string, kbs?: number): Promise<CloudResponse> {
   return service('cloud/amr2mp3', {input, kbs}, 'get')  
 }

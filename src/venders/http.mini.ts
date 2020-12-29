@@ -61,7 +61,7 @@ class _Headers implements Headers {
 
 class _Body implements Body {
   public bodyUsed: boolean = false
-  public headers = new Headers()
+  public headers = new _Headers()
   public body!: any
 
   public _bodyInit: any
@@ -184,7 +184,7 @@ class _Request extends _Body implements Request {
   readonly credentials!: RequestCredentials
   readonly destination!: RequestDestination;
 
-  public headers!: Headers
+  public headers!: _Headers
   public integrity!: string
   public url: string = ''
   public method!: string
@@ -204,7 +204,7 @@ class _Request extends _Body implements Request {
       this.url = input.url
       this.credentials = input.credentials
       if (!options.headers) {
-        this.headers = new Headers(input.headers)
+        this.headers = new _Headers(input.headers)
       }
       this.method = input.method
       this.mode = input.mode
@@ -220,7 +220,7 @@ class _Request extends _Body implements Request {
 
     this.credentials = options.credentials || this.credentials || 'same-origin'
     if (options.headers || !this.headers) {
-      this.headers = new Headers(options.headers)
+      this.headers = new _Headers(options.headers)
     }
     this.method = normalizeMethod(options.method || this.method || 'GET')
     this.mode = options.mode || this.mode || null
@@ -283,7 +283,7 @@ class _Response extends _Body implements Response {
     this.status = options.status === undefined ? 200 : options.status
     this.ok = this.status >= 200 && this.status < 300
     this.statusText = 'statusText' in options ? options.statusText : ''
-    this.headers = new Headers(options.headers)
+    this.headers = new _Headers(options.headers)
     this.url = options.url || ''
     this._initBody(bodyInit)
   }
@@ -292,7 +292,7 @@ class _Response extends _Body implements Response {
     return new _Response(this._bodyInit, {
       status: this.status,
       statusText: this.statusText,
-      headers: new Headers(this.headers),
+      headers: new _Headers(this.headers),
       url: this.url
     })
   }

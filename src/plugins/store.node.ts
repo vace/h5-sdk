@@ -1,10 +1,10 @@
 import store, { IStoreUseProxy } from './store'
-import { isDef, isString } from "../functions/common"
+import { isDef } from "../functions/common"
 
 /**
  * Nodejs 中使用内存存储
  */
-let memocache = new Map()
+const memocache = new Map()
 
 const proxy: IStoreUseProxy = {
   get(key: string) {
@@ -12,7 +12,7 @@ const proxy: IStoreUseProxy = {
     return isDef(v) ? v : null
   },
   set(key: string, value: any) {
-    return memocache.set(key, value)
+    memocache.set(key, value)
   },
   remove(key: string) {
     memocache.delete(key)

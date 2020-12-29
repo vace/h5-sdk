@@ -2,13 +2,6 @@ import Res from './Res'
 import { assign, each, isDef, isFunction } from '../functions/common'
 import { jsonp } from '../functions/utils.web'
 
-const ResExtMaps = Res.extmaps
-const putExtLoader = (loader: string, exts: string[]) => exts.forEach(ext => ResExtMaps[ext] = loader || ext)
-putExtLoader('img', ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp'])
-putExtLoader('txt', ['html', 'md'])
-putExtLoader('video', ['mp4', 'mov', 'webm'])
-putExtLoader('audio', ['mp3', 'wav', 'ogg'])
-
 const WebFetch = ['arrayBuffer', 'blob', 'headers', 'json', 'text', 'formData']
 WebFetch.forEach(fc => Res.registerLoader(fc, res => fetch(res.url, res.options).then(resp => isFunction(resp[fc]) ? resp[fc]() : resp[fc])))
 
@@ -33,12 +26,15 @@ WebRES.forEach(wres => Res.registerLoader(wres[WebResAttr.LOADER], task => new P
   const options = assign({ [wres[WebResAttr.ATTR] || 'src']: task.url }, wres[WebResAttr.DEF], task.options)
   const onload = wres[WebResAttr.EVENT] || 'onload'
   const onerror = 'onerror'
+  const unbind = () => {
+    element[onload] = element[onerror] = DEF_VAL
+  }
   element[onload] = () => {
-    element[onload] = DEF_VAL
+    unbind()
     resolve(element)
   }
   element[onerror] = (error) => {
-    element[onerror] = DEF_VAL
+    unbind()
     reject(error)
   }
   each(options, (value, attr) => isDef(value) && element.setAttribute(attr, value))

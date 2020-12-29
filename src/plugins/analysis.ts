@@ -1,7 +1,7 @@
 import App from "../factory/App";
 import Config from "../factory/Config";
 import Auth from '../factory/Auth'
-import { randomstr, now, isNumber, isString, wait, noop, always } from "../functions/common";
+import { randomstr, now, isNumber, isString, wait, noop } from "../functions/common";
 import { signature } from "./safety";
 
 type IAnalysisConfig = {

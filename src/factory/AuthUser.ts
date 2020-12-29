@@ -36,6 +36,11 @@ export default class AuthUser {
 
   private [AuthSymbol]: Auth
 
+  /** 原始数据 */
+  public get data () {
+    return UserStore.get(this.$key)
+  }
+
   get $key() {
     return this[AuthSymbol].$key
   }

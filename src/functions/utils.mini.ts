@@ -1,6 +1,7 @@
 /**
  * 小程序函数集合
  */
+import { once } from './common'
 
 declare var wx: any
 declare var getCurrentPages: any
@@ -14,19 +15,10 @@ export const appid: string = miniProgram.appId
 export const isDev: boolean = miniProgram.envVersion === 'develop'
 
 // 读取auth setting
-export const getAuthSetting = async (scope: string) => {
-  const { authSetting } = await wx.getSetting()
-  return authSetting[`scope.${scope}`]
-}
+export const getAuthSetting = (scope: string) => new Promise((resolve, reject) => wx.getSetting().then(({ authSetting }) => resolve(authSetting[`scope.${scope}`])).catch(err => {throw new WxError(err)}))
 
-let systemInfo
 // 可缓存的读取系统信息
-export function getSystemInfoSync() {
-  if (systemInfo == null) {
-    systemInfo = wx.getSystemInfoSync()
-  }
-  return systemInfo;
-}
+export const getSystemInfoSync = once(() => wx.getSystemInfoSync())
 
 // @see https://github.com/youzan/vant-weapp/pull/3498/commits/df6fedfc39918855a2e96932bda4f623f540b615
 export function requestAnimationFrame(cb: Function) {
@@ -41,4 +33,17 @@ export function requestAnimationFrame(cb: Function) {
 export function getCurrentPage() {
   var pages = getCurrentPages();
   return pages[pages.length - 1]
+}
+
+export const getOffscreenCanvas = once(() => {
+  return wx.createOffscreenCanvas()
+})
+
+export class WxError extends Error {
+  public reason: any
+  constructor (err: any) {
+    const message = err && err.errMsg || err.message || 'wx api error'
+    super(message)
+    this.reason = err
+  }
 }

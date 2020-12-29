@@ -1,6 +1,6 @@
-import { once, uid, each, isDef } from './common'
+import { once, uid, each, isDef, global } from './common'
 
-const { navigator, document } = window
+const { navigator, document } = global
 
 export { document, navigator }
 
@@ -17,7 +17,7 @@ export const isIos: boolean = /\(i[^;]+;( U;)? CPU.+Mac OS X/i.test(ua)
 /** 是否为安卓设备 */
 export const isAndroid = /android/.test(ua)
 /** 是否为小程序 */
-export const isMiniapp = window['__wxjs_environment'] === 'miniprogram'
+export const isMiniapp = global['__wxjs_environment'] === 'miniprogram'
 /** 是否在微信浏览器中 */
 export const isWechat = /micromessenger/i.test(ua)
 /** 是否在钉钉浏览器中 */
@@ -85,9 +85,9 @@ function _jsonp(url: string, options: IJsonpOption | any = {}) {
     const name = uid('__sdkjsonp_')
     const timeId = timeout ? setTimeout(() => reject(new Error('jsonp timeout')), timeout) : null
     script.src = `${url}${/\?/.test(url) ? '&' : '?'}${callback}=${name}`
-    window[name] = function (data: any) {
+    global[name] = function (data: any) {
       root.removeChild(script)
-      delete window[name]
+      delete global[name]
       timeId !== null && clearTimeout(timeId)
       resolve(data)
     }

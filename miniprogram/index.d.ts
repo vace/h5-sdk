@@ -1,4 +1,6 @@
 declare module 'sdk/src/functions/common' {
+	 let EnvGlobal: any;
+	export { EnvGlobal as global };
 	export const regexHttp: RegExp;
 	export const regexBase64: RegExp;
 	export const regexNumber: RegExp;
@@ -93,10 +95,10 @@ declare module 'sdk/src/functions/common' {
 	export const dirname: typeof _dirname;
 	export const basename: typeof _basename;
 	export const extname: typeof _extname; function _isEmpty(val: any): boolean; function _map<T>(obj: T[], iteratee: (val: any, key: string | number, obj: T[]) => any): any[]; function _shuffle<T>(array: T[]): T[]; function _parse(qs: string, sep?: string, eq?: string): Record<string, any>; function _throttle(func: Function, wait: number): (this: any) => any; function _debounce<T extends Function>(func: T, wait?: number, immediate?: boolean): T; function _each(obj: any, iteratee: (val: any, key: any, _this: unknown) => any, context?: any): any; function _pick<T>(obj: T, map: string[] | Record<string, any>): T; function _memoize<T>(func: Function, hashFn?: (...arg: any[]) => string): T; function _uuid(): string; function _randomstr(len?: number): string; function _before(n: number, func: Function | any): (this: any, ...args: any[]) => any; function _after(n: number, func: Function): (this: any, ...args: any[]) => any; function _remove<T>(array: T[], predicate: (value: unknown, index: number, array: T[]) => boolean): T[]; function _timeago(unixTime: Date | number): string; function _resolvePath(...args: string[]): string; function _dirname(path: string): string; function _basename(path: string, ext?: string): string; function _extname(path: string): string; function _filterURL(url: string, filters: string[]): string; function _classNames(...args: any[]): string; function _styles(...args: any[]): string; function _css(prop: string, value: any): string; function _equal(a: any, b: any): boolean;
-	export {};
 
 }
 declare module 'sdk/src/factory/Http' {
+	 const MessageKey: unique symbol;
 	export interface IHttpConfig {
 	    baseURL?: string;
 	    validateStatus: (code: number) => boolean;
@@ -141,7 +143,7 @@ declare module 'sdk/src/factory/Http' {
 	    static HttpRequest: typeof Request;
 	    static ContentType: {
 	        JSON: string;
-	        FORMDATA: string;
+	        FORM: string;
 	    };
 	    static showLoading: HttpNofifyCallback;
 	    static showError: HttpNofifyCallback;
@@ -162,7 +164,7 @@ declare module 'sdk/src/factory/Http' {
 	    jsonp(url: HttpRequestOption, query?: any): Promise<any>;
 	    action(url: HttpRequestOption, data?: any, method?: HttpMethod): Promise<any>;
 	    request(req: IHttpRequestOption): Promise<any>;
-	    private $messages;
+	    private [MessageKey];
 	    setHttpMessage(key: string, message: string): void;
 	}
 	export {};
@@ -177,9 +179,10 @@ declare module 'sdk/src/factory/Config' {
 	    static API_AUTH: string;
 	    static API_APP: string;
 	    static API_SERVICE: string;
+	    static set(key: string | object, val?: any): void;
 	    static api(service: string, query?: CommonQuery): string;
 	    static service(service: string, query?: CommonQuery): string;
-	    static cdn(filename: string): string;
+	    static cdn(filename: string, process?: string): string;
 	}
 	export {};
 
@@ -187,7 +190,7 @@ declare module 'sdk/src/factory/Config' {
 declare module 'sdk/src/plugins/store' {
 	export interface IStoreUseProxy {
 	    get(key: string): any;
-	    set(key: string, val: any): any;
+	    set(key: string, val: any): void;
 	    keys(): string[];
 	    remove(key: string): void;
 	    clear(): void;
@@ -195,14 +198,14 @@ declare module 'sdk/src/plugins/store' {
 	    use(usestorage: IStoreUseProxy): {
 	        use(usestorage: IStoreUseProxy): any;
 	        get(key: string, _default?: any): any;
-	        set(key: string, data: any): any;
+	        set(key: string, data: any): void;
 	        keys(): string[];
 	        remove(key: string): void;
 	        clear(): void;
 	        each(fn: (value: any, key: string) => void): void;
 	    };
 	    get(key: string, _default?: any): any;
-	    set(key: string, data: any): any;
+	    set(key: string, data: any): void;
 	    keys(): string[];
 	    remove(key: string): void;
 	    clear(): void;
@@ -216,6 +219,7 @@ declare module 'sdk/src/plugins/hotcache' {
 	    get: (key: string, _default?: any) => any;
 	    set: (key: string, value: any) => any;
 	    remove: (key: string) => void;
+	    clearAll: () => void;
 	};
 
 }
@@ -236,6 +240,7 @@ declare module 'sdk/src/factory/AuthUser' {
 	    location: string;
 	    unionid: string;
 	    private [AuthSymbol];
+	    readonly data: any;
 	    readonly $key: string;
 	    readonly isLogin: boolean;
 	    constructor(auth: Auth);
@@ -343,6 +348,7 @@ declare module 'sdk/src/factory/App' {
 	    constructor(code: number, message: string, data: any, app: App);
 	}
 	export default class App extends Http {
+	    static AppResponseError: typeof AppResponseError;
 	    static transformAppRequest(app: App, config: any): any;
 	    static transformAppResponse(app: App, response: Response): Promise<any>;
 	    static onAppHeadersReceived(app: App, headers: Headers): void;
@@ -362,10 +368,15 @@ declare module 'sdk/src/factory/App' {
 declare module 'sdk/src/functions/utils.mini' {
 	export const appid: string;
 	export const isDev: boolean;
-	export const getAuthSetting: (scope: string) => Promise<any>;
-	export function getSystemInfoSync(): any;
+	export const getAuthSetting: (scope: string) => Promise<{}>;
+	export const getSystemInfoSync: (this: any, ...args: any[]) => any;
 	export function requestAnimationFrame(cb: Function): any;
 	export function getCurrentPage(): any;
+	export const getOffscreenCanvas: (this: any, ...args: any[]) => any;
+	export class WxError extends Error {
+	    reason: any;
+	    constructor(err: any);
+	}
 
 }
 declare module 'sdk/src/factory/Auth.mini' {
@@ -403,7 +414,7 @@ declare module 'sdk/src/venders/http.mini' {
 	    forEach(callback: any, thisArg?: this): void;
 	} class _Body implements Body {
 	    bodyUsed: boolean;
-	    headers: Headers;
+	    headers: _Headers;
 	    body: any;
 	    _bodyInit: any;
 	    _bodyText: any;
@@ -426,7 +437,7 @@ declare module 'sdk/src/venders/http.mini' {
 	    readonly cache: RequestCache;
 	    readonly credentials: RequestCredentials;
 	    readonly destination: RequestDestination;
-	    headers: Headers;
+	    headers: _Headers;
 	    integrity: string;
 	    url: string;
 	    method: string;
@@ -450,6 +461,42 @@ declare module 'sdk/src/venders/http.mini' {
 	    clone(this: any): _Response;
 	}
 	export { DOMException, _Headers as Headers, _Body as Body, _Request as Request, _Response as Response };
+
+}
+declare module 'sdk/src/plugins/ui.mini' {
+	export const closeAll: () => void;
+	export const loading: (title?: string, mask?: boolean) => {
+	    id: number;
+	    close: () => void;
+	};
+	export const success: (title?: string, mask?: boolean) => {
+	    id: number;
+	    close: () => void;
+	};
+	export const error: (title?: string, mask?: boolean) => {
+	    id: number;
+	    close: () => void;
+	};
+	export const preloader: (title?: string, mask?: boolean) => {
+	    id: number;
+	    close: () => void;
+	};
+	export const alert: (content: string | IShowModalOption) => Promise<{}>;
+	export const confirm: (content: string | IShowModalOption) => Promise<{}>;
+	interface IShowModalOption {
+	    content?: string;
+	    title?: string;
+	    okText?: string;
+	    showCancel?: boolean;
+	    confirmText?: string;
+	    noText?: string;
+	    cancelText?: string;
+	    ok?: (ret: boolean) => void;
+	    no?: (ret: boolean) => void;
+	    success?: any;
+	    fail?: any;
+	}
+	export {};
 
 }
 declare module 'sdk/src/factory/Http.mini' {
@@ -486,6 +533,7 @@ declare module 'sdk/src/factory/Res' {
 	    options: any;
 	    data: any;
 	    error: Error;
+	    task: any;
 	    constructor(config: IResItem, options: any);
 	    remove(): boolean;
 	    doExec(): any;
@@ -533,7 +581,12 @@ declare module 'sdk/src/factory/Res' {
 	export {};
 
 }
-declare module 'sdk/src/factory/AbortController.mini' {
+declare module 'sdk/src/factory/Res.mini' {
+	import Res from 'sdk/src/factory/Res';
+	export default Res;
+
+}
+declare module 'sdk/src/factory/AbortController' {
 	import BaseEmitter from 'sdk/src/factory/Emitter'; class AbortSignal extends BaseEmitter {
 	    aborted: boolean;
 	    onabort: any;
@@ -548,11 +601,47 @@ declare module 'sdk/src/factory/AbortController.mini' {
 	export {};
 
 }
+declare module 'sdk/src/plugins/analysis' {
+	 type IAnalysisConfig = {
+	    enabled: boolean;
+	    requestId: string;
+	    requestTime: number;
+	    minVistedTime: number;
+	    minStayTime: number;
+	    maxReportError: number;
+	    unloadData: any;
+	    userId: number;
+	    getURL(): void | string;
+	    getSpm(): {
+	        from: string;
+	        uid: number;
+	    };
+	    getAgent(): void | string;
+	    sendRequest: (url: string) => void;
+	    getErrorStack: (err: Error | string) => string;
+	}; const baseAnalysis: {
+	    config: IAnalysisConfig;
+	    send: typeof send;
+	    pv: typeof pv;
+	    share: typeof share;
+	    user: typeof user;
+	    click: typeof click;
+	    unload: typeof unload;
+	    error: typeof error;
+	};
+	export default baseAnalysis; function send(event: string, data?: any, value?: number): void | null; function pv(): Promise<void | null>; function user(data?: any, value?: number): void | null; function share(platform?: any, logid?: number): void | null; function click(data?: any, value?: number): void | null; function unload(): void | null; function error(error: Error | string): false | void | null;
+
+}
+declare module 'sdk/src/plugins/analysis.mini' {
+	import analysis from 'sdk/src/plugins/analysis';
+	export default analysis;
+
+}
 declare module 'sdk/src/plugins/store.mini' {
 	import { IStoreUseProxy } from 'sdk/src/plugins/store'; const _default: {
 	    use(usestorage: IStoreUseProxy): any;
 	    get(key: string, _default?: any): any;
-	    set(key: string, data: any): any;
+	    set(key: string, data: any): void;
 	    keys(): string[];
 	    remove(key: string): void;
 	    clear(): void;
@@ -607,20 +696,22 @@ declare module 'sdk/src/entry.mini' {
 	import Config from 'sdk/src/factory/Config';
 	import Emitter from 'sdk/src/factory/Emitter';
 	import Http from 'sdk/src/factory/Http.mini';
-	import Res from 'sdk/src/factory/Res';
+	import Res from 'sdk/src/factory/Res.mini';
 	import Tasker from 'sdk/src/factory/Tasker';
-	import AbortController from 'sdk/src/factory/AbortController.mini';
+	import AbortController from 'sdk/src/factory/AbortController';
 	export { App, Auth, AuthUser, Config, Emitter, Http, Res, Tasker, AbortController };
-	export { DOMException, Headers, Request, Response } from 'sdk/src/venders/http.mini';
+	export * from 'sdk/src/venders/http.mini';
 	export * from 'sdk/src/functions/common';
 	export * from 'sdk/src/functions/utils.mini';
-	import hotcache from 'sdk/src/plugins/hotcache';
-	import store from 'sdk/src/plugins/store.mini';
+	export { default as analysis } from 'sdk/src/plugins/analysis.mini';
+	export { default as hotcache } from 'sdk/src/plugins/hotcache';
+	export { default as store } from 'sdk/src/plugins/store.mini';
 	import * as cdn from 'sdk/src/plugins/cdn';
 	import * as cloud from 'sdk/src/plugins/cloud';
-	import * as safefy from 'sdk/src/plugins/safety';
+	import * as safety from 'sdk/src/plugins/safety';
 	import * as tool from 'sdk/src/plugins/tool';
-	export { cdn, store, cloud, hotcache, safefy, tool };
+	import * as ui from 'sdk/src/plugins/ui.mini';
+	export { cdn, cloud, safety, tool, ui };
 
 }
 declare module 'sdk/src/assets/star-loading' {
@@ -628,46 +719,9 @@ declare module 'sdk/src/assets/star-loading' {
 	export const SvgColorRing = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"64px\" height=\"64px\" viewBox=\"0 0 128 128\" x=\"0\" y=\"0\"><path d=\"M.6 57.54c5.73-6.23 17.33-15.5 33.66-12.35C55.4 48.5 64 63.95 64 63.95S42.42 65 30.28 83.63a38.63 38.63 0 0 0-3.4 32.15 64.47 64.47 0 0 1-5.52-4.44A63.64 63.64 0 0 1 .6 57.54z\" fill=\"#ffcb02\"/><path d=\"M65.32 29.05c7.65 19.98-1.44 35.18-1.44 35.18S52.2 46.05 30.03 44.85A38.6 38.6 0 0 0 .56 57.93 63.8 63.8 0 0 1 37.56 6c8.2 1.8 22.26 7.16 27.76 23.05z\" fill=\"#ff9e02\"/><path d=\"M94.92 47.7c-13.48 16.63-31.2 16.36-31.2 16.36s9.92-19.2-.13-39a38.6 38.6 0 0 0-26.18-19 63.78 63.78 0 0 1 63.52 6.03c2.56 8 4.98 22.85-6.05 35.6z\" fill=\"#ff4b42\"/><path d=\"M93.52 82.53C72.38 79.17 63.75 63.7 63.75 63.7s21.6-1.02 33.7-19.63a38.6 38.6 0 0 0 3.43-32.04 64.33 64.33 0 0 1 5.74 4.6 63.63 63.63 0 0 1 20.82 53.26c-5.62 6.2-17.34 15.8-33.94 12.6z\" fill=\"#c063d6\"/><path d=\"M62.5 99c-7.65-19.98 1.44-35.17 1.44-35.17S75.56 81.6 97.74 82.8a39.1 39.1 0 0 0 29.73-13.03 63.8 63.8 0 0 1-37.16 52.3c-8.2-1.8-22.25-7.15-27.8-23.06z\" fill=\"#17a4f6\"/><path d=\"M26.64 115.63C24 107.6 21.6 93.06 32.5 80.5c13.48-16.62 31.58-16.55 31.58-16.55s-9.6 19.06.44 38.86a38.82 38.82 0 0 0 26.05 19.17 63.78 63.78 0 0 1-63.93-6.3z\" fill=\"#4fca24\"/></svg>";
 
 }
-declare module 'sdk/src/plugins/analysis' {
-	export interface IAnalysisProxy {
-	    installed?: boolean;
-	    install: (base: typeof baseAnalysis) => any;
-	    ready: () => Promise<any>;
-	    minVistedTime: number;
-	    minStayTime: number;
-	    maxReportError: number;
-	    readonly requestId: string;
-	    readonly requestTime: number;
-	    readonly pageurl: string;
-	    readonly userid: number;
-	    readonly useragent: string;
-	    unloadData: any;
-	    spm: {
-	        from: string;
-	        uid: number;
-	    };
-	    sendRequest: (url: string) => void;
-	    getErrorStack: (err: Error | string) => string;
-	} const baseAnalysis: {
-	    use: typeof use;
-	    send: typeof send;
-	    pv: typeof pv;
-	    share: typeof share;
-	    user: typeof user;
-	    click: typeof click;
-	    unload: typeof unload;
-	    error: typeof error;
-	};
-	export default baseAnalysis; function use(proxy: IAnalysisProxy): {
-	    use: typeof use;
-	    send: typeof send;
-	    pv: typeof pv;
-	    share: typeof share;
-	    user: typeof user;
-	    click: typeof click;
-	    unload: typeof unload;
-	    error: typeof error;
-	}; function send(event: string, data?: any, value?: number): void | null; function pv(): Promise<void | null>; function user(data?: any, value?: number): void | null; function share(platform?: any, logid?: number): void | null; function click(data?: any, value?: number): void | null; function unload(): void | null; function error(error: Error | string): false | void | null;
+declare module 'sdk/src/factory/Config.mini' {
+	import Config from 'sdk/src/factory/Config';
+	export default Config;
 
 }
 declare module 'sdk' {

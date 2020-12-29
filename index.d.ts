@@ -1,5 +1,7 @@
 /// <reference types="zepto" />
 declare module 'sdk/src/functions/common' {
+	 let EnvGlobal: any;
+	export { EnvGlobal as global };
 	export const regexHttp: RegExp;
 	export const regexBase64: RegExp;
 	export const regexNumber: RegExp;
@@ -94,10 +96,10 @@ declare module 'sdk/src/functions/common' {
 	export const dirname: typeof _dirname;
 	export const basename: typeof _basename;
 	export const extname: typeof _extname; function _isEmpty(val: any): boolean; function _map<T>(obj: T[], iteratee: (val: any, key: string | number, obj: T[]) => any): any[]; function _shuffle<T>(array: T[]): T[]; function _parse(qs: string, sep?: string, eq?: string): Record<string, any>; function _throttle(func: Function, wait: number): (this: any) => any; function _debounce<T extends Function>(func: T, wait?: number, immediate?: boolean): T; function _each(obj: any, iteratee: (val: any, key: any, _this: unknown) => any, context?: any): any; function _pick<T>(obj: T, map: string[] | Record<string, any>): T; function _memoize<T>(func: Function, hashFn?: (...arg: any[]) => string): T; function _uuid(): string; function _randomstr(len?: number): string; function _before(n: number, func: Function | any): (this: any, ...args: any[]) => any; function _after(n: number, func: Function): (this: any, ...args: any[]) => any; function _remove<T>(array: T[], predicate: (value: unknown, index: number, array: T[]) => boolean): T[]; function _timeago(unixTime: Date | number): string; function _resolvePath(...args: string[]): string; function _dirname(path: string): string; function _basename(path: string, ext?: string): string; function _extname(path: string): string; function _filterURL(url: string, filters: string[]): string; function _classNames(...args: any[]): string; function _styles(...args: any[]): string; function _css(prop: string, value: any): string; function _equal(a: any, b: any): boolean;
-	export {};
 
 }
 declare module 'sdk/src/factory/Http' {
+	 const MessageKey: unique symbol;
 	export interface IHttpConfig {
 	    baseURL?: string;
 	    validateStatus: (code: number) => boolean;
@@ -142,7 +144,7 @@ declare module 'sdk/src/factory/Http' {
 	    static HttpRequest: typeof Request;
 	    static ContentType: {
 	        JSON: string;
-	        FORMDATA: string;
+	        FORM: string;
 	    };
 	    static showLoading: HttpNofifyCallback;
 	    static showError: HttpNofifyCallback;
@@ -163,7 +165,7 @@ declare module 'sdk/src/factory/Http' {
 	    jsonp(url: HttpRequestOption, query?: any): Promise<any>;
 	    action(url: HttpRequestOption, data?: any, method?: HttpMethod): Promise<any>;
 	    request(req: IHttpRequestOption): Promise<any>;
-	    private $messages;
+	    private [MessageKey];
 	    setHttpMessage(key: string, message: string): void;
 	}
 	export {};
@@ -178,9 +180,10 @@ declare module 'sdk/src/factory/Config' {
 	    static API_AUTH: string;
 	    static API_APP: string;
 	    static API_SERVICE: string;
+	    static set(key: string | object, val?: any): void;
 	    static api(service: string, query?: CommonQuery): string;
 	    static service(service: string, query?: CommonQuery): string;
-	    static cdn(filename: string): string;
+	    static cdn(filename: string, process?: string): string;
 	}
 	export {};
 
@@ -188,7 +191,7 @@ declare module 'sdk/src/factory/Config' {
 declare module 'sdk/src/plugins/store' {
 	export interface IStoreUseProxy {
 	    get(key: string): any;
-	    set(key: string, val: any): any;
+	    set(key: string, val: any): void;
 	    keys(): string[];
 	    remove(key: string): void;
 	    clear(): void;
@@ -196,14 +199,14 @@ declare module 'sdk/src/plugins/store' {
 	    use(usestorage: IStoreUseProxy): {
 	        use(usestorage: IStoreUseProxy): any;
 	        get(key: string, _default?: any): any;
-	        set(key: string, data: any): any;
+	        set(key: string, data: any): void;
 	        keys(): string[];
 	        remove(key: string): void;
 	        clear(): void;
 	        each(fn: (value: any, key: string) => void): void;
 	    };
 	    get(key: string, _default?: any): any;
-	    set(key: string, data: any): any;
+	    set(key: string, data: any): void;
 	    keys(): string[];
 	    remove(key: string): void;
 	    clear(): void;
@@ -217,6 +220,7 @@ declare module 'sdk/src/plugins/hotcache' {
 	    get: (key: string, _default?: any) => any;
 	    set: (key: string, value: any) => any;
 	    remove: (key: string) => void;
+	    clearAll: () => void;
 	};
 
 }
@@ -237,6 +241,7 @@ declare module 'sdk/src/factory/AuthUser' {
 	    location: string;
 	    unionid: string;
 	    private [AuthSymbol];
+	    readonly data: any;
 	    readonly $key: string;
 	    readonly isLogin: boolean;
 	    constructor(auth: Auth);
@@ -344,6 +349,7 @@ declare module 'sdk/src/factory/App' {
 	    constructor(code: number, message: string, data: any, app: App);
 	}
 	export default class App extends Http {
+	    static AppResponseError: typeof AppResponseError;
 	    static transformAppRequest(app: App, config: any): any;
 	    static transformAppResponse(app: App, response: Response): Promise<any>;
 	    static onAppHeadersReceived(app: App, headers: Headers): void;
@@ -405,6 +411,7 @@ declare module 'sdk/src/factory/Res' {
 	    options: any;
 	    data: any;
 	    error: Error;
+	    task: any;
 	    constructor(config: IResItem, options: any);
 	    remove(): boolean;
 	    doExec(): any;
@@ -452,6 +459,52 @@ declare module 'sdk/src/factory/Res' {
 	export {};
 
 }
+declare module 'sdk/src/factory/AbortController' {
+	import BaseEmitter from 'sdk/src/factory/Emitter'; class AbortSignal extends BaseEmitter {
+	    aborted: boolean;
+	    onabort: any;
+	    dispatchEvent(event: any): boolean | undefined;
+	    toString(): string;
+	}
+	export default class AbortController {
+	    signal: AbortSignal;
+	    abort(): void;
+	    toString(): string;
+	}
+	export {};
+
+}
+declare module 'sdk/src/plugins/analysis' {
+	 type IAnalysisConfig = {
+	    enabled: boolean;
+	    requestId: string;
+	    requestTime: number;
+	    minVistedTime: number;
+	    minStayTime: number;
+	    maxReportError: number;
+	    unloadData: any;
+	    userId: number;
+	    getURL(): void | string;
+	    getSpm(): {
+	        from: string;
+	        uid: number;
+	    };
+	    getAgent(): void | string;
+	    sendRequest: (url: string) => void;
+	    getErrorStack: (err: Error | string) => string;
+	}; const baseAnalysis: {
+	    config: IAnalysisConfig;
+	    send: typeof send;
+	    pv: typeof pv;
+	    share: typeof share;
+	    user: typeof user;
+	    click: typeof click;
+	    unload: typeof unload;
+	    error: typeof error;
+	};
+	export default baseAnalysis; function send(event: string, data?: any, value?: number): void | null; function pv(): Promise<void | null>; function user(data?: any, value?: number): void | null; function share(platform?: any, logid?: number): void | null; function click(data?: any, value?: number): void | null; function unload(): void | null; function error(error: Error | string): false | void | null;
+
+}
 declare module 'sdk/src/plugins/cdn' {
 	export function res(filename: string, process?: string): string;
 	export function lib(libname: string): string;
@@ -491,7 +544,7 @@ declare module 'sdk/src/plugins/tool' {
 
 }
 declare module 'sdk/src/functions/utils.web' {
-	 const navigator: Navigator, document: Document;
+	 const navigator: any, document: any;
 	export { document, navigator };
 	export const isMobile: boolean;
 	export const isIos: boolean;
@@ -693,7 +746,6 @@ declare module 'sdk/src/assets/star-loading' {
 declare module 'sdk/src/factory/UiMusic.web' {
 	/// <reference types="zepto" />
 	import 'sdk/src/assets/ui-music.less';
-	import Emitter from 'sdk/src/factory/Emitter';
 	export interface IUiMusicOption {
 	    background?: boolean;
 	    target?: string;
@@ -722,7 +774,7 @@ declare module 'sdk/src/factory/UiMusic.web' {
 	    end: number;
 	    loop?: boolean;
 	}
-	export default class UiMusic extends Emitter {
+	export default class UiMusic {
 	    static instance: UiMusic;
 	    static option: IUiMusicOption;
 	    static themes: Map<any, any>;
@@ -877,60 +929,9 @@ declare module 'sdk/src/factory/Res.web' {
 	export default Res;
 
 }
-declare module 'sdk/src/plugins/analysis' {
-	export interface IAnalysisProxy {
-	    installed?: boolean;
-	    install: (base: typeof baseAnalysis) => any;
-	    ready: () => Promise<any>;
-	    minVistedTime: number;
-	    minStayTime: number;
-	    maxReportError: number;
-	    readonly requestId: string;
-	    readonly requestTime: number;
-	    readonly pageurl: string;
-	    readonly userid: number;
-	    readonly useragent: string;
-	    unloadData: any;
-	    spm: {
-	        from: string;
-	        uid: number;
-	    };
-	    sendRequest: (url: string) => void;
-	    getErrorStack: (err: Error | string) => string;
-	} const baseAnalysis: {
-	    use: typeof use;
-	    send: typeof send;
-	    pv: typeof pv;
-	    share: typeof share;
-	    user: typeof user;
-	    click: typeof click;
-	    unload: typeof unload;
-	    error: typeof error;
-	};
-	export default baseAnalysis; function use(proxy: IAnalysisProxy): {
-	    use: typeof use;
-	    send: typeof send;
-	    pv: typeof pv;
-	    share: typeof share;
-	    user: typeof user;
-	    click: typeof click;
-	    unload: typeof unload;
-	    error: typeof error;
-	}; function send(event: string, data?: any, value?: number): void | null; function pv(): Promise<void | null>; function user(data?: any, value?: number): void | null; function share(platform?: any, logid?: number): void | null; function click(data?: any, value?: number): void | null; function unload(): void | null; function error(error: Error | string): false | void | null;
-
-}
 declare module 'sdk/src/plugins/analysis.web' {
-	import { IAnalysisProxy } from 'sdk/src/plugins/analysis'; const _default: {
-	    use: (proxy: IAnalysisProxy) => any;
-	    send: (event: string, data?: any, value?: number) => void | null;
-	    pv: () => Promise<void | null>;
-	    share: (platform?: any, logid?: number | undefined) => void | null;
-	    user: (data?: any, value?: number | undefined) => void | null;
-	    click: (data?: any, value?: number | undefined) => void | null;
-	    unload: () => void | null;
-	    error: (error: string | Error) => false | void | null;
-	};
-	export default _default;
+	import analysis from 'sdk/src/plugins/analysis';
+	export default analysis;
 
 }
 declare module 'sdk/src/plugins/jssdk.web' {
@@ -945,7 +946,7 @@ declare module 'sdk/src/plugins/jssdk.web' {
 	    appid: string;
 	    shareLogid: number;
 	    task: Tasker;
-	    ready: (fn: EventListenerOrEventListenerObject) => void;
+	    ready: (fn: EventListenerOrEventListenerObject) => any;
 	    config: (this: any, ...args: any[]) => any;
 	    share: typeof share;
 	    loadJssdk: (this: any, ...args: any[]) => any;
@@ -1011,7 +1012,7 @@ declare module 'sdk/src/plugins/store.web' {
 	import { IStoreUseProxy } from 'sdk/src/plugins/store'; const _default: {
 	    use(usestorage: IStoreUseProxy): any;
 	    get(key: string, _default?: any): any;
-	    set(key: string, data: any): any;
+	    set(key: string, data: any): void;
 	    keys(): string[];
 	    remove(key: string): void;
 	    clear(): void;
@@ -1026,6 +1027,19 @@ declare module 'sdk/src/plugins/cloud.web' {
 	export function wxmedia(media_id: string): Promise<CloudResponse>;
 	export function upfile(file: File, isTempFile?: boolean): Promise<CloudResponse>;
 	export function uptemp(file: File): Promise<CloudResponse>;
+
+}
+declare module 'sdk/src/plugins/plugin.web' {
+	export const store: Map<any, any>; type IUsePlugin = {
+	    name: string;
+	    version?: string;
+	} | string;
+	export const config: {
+	    rootPath: string;
+	};
+	export function define(plugin: string, anything: any): any;
+	export function use(plugin: IUsePlugin): Promise<any>;
+	export {};
 
 }
 declare module 'sdk/src/plugins/tool.web' {
@@ -1060,17 +1074,18 @@ declare module 'sdk/src/entry.web' {
 	export { App, Auth, AuthUser, Config, Emitter, Http, Res, Tasker, UiBase, UiModal, UiMusic, UiSheet, UiToast, UiView };
 	export * from 'sdk/src/functions/common';
 	export * from 'sdk/src/functions/utils.web';
-	import analysis from 'sdk/src/plugins/analysis.web';
-	import hotcache from 'sdk/src/plugins/hotcache';
-	import jssdk from 'sdk/src/plugins/jssdk.web';
-	import location from 'sdk/src/plugins/location.web';
-	import store from 'sdk/src/plugins/store.web';
+	export { default as analysis } from 'sdk/src/plugins/analysis.web';
+	export { default as hotcache } from 'sdk/src/plugins/hotcache';
+	export { default as jssdk } from 'sdk/src/plugins/jssdk.web';
+	export { default as location } from 'sdk/src/plugins/location.web';
+	export { default as store } from 'sdk/src/plugins/store.web';
 	import * as cdn from 'sdk/src/plugins/cdn';
 	import * as cloud from 'sdk/src/plugins/cloud.web';
 	import * as safefy from 'sdk/src/plugins/safety';
+	import * as plugin from 'sdk/src/plugins/plugin.web';
 	import * as tool from 'sdk/src/plugins/tool.web';
 	import * as ui from 'sdk/src/plugins/ui.web';
-	export { analysis, cdn, store, cloud, hotcache, jssdk, safefy, location, tool, ui };
+	export { cdn, cloud, safefy, plugin, tool, ui };
 	import 'sdk/src/scheduler/task.web';
 
 }

@@ -1,4 +1,4 @@
-import { createURL, isAbsolute } from "../functions/common"
+import { assign, createURL, isAbsolute, isBase64, isHttp, isString } from "../functions/common"
 
 const host = (api: string) => `https://${api}.ahmq.net`
 
@@ -25,6 +25,15 @@ export default class Config {
   /** service 相关服务 */
   static API_SERVICE = host('h5-service')
 
+  /** 设置配置 */
+  public static set (key: string | object, val?: any) {
+    if (isString(key)) {
+      Config[key] = val
+    } else {
+      assign(Config, key)
+    }
+  }
+
   /** 普通API接口服务 */
   public static api (service: string, query?: CommonQuery) {
     return createURL(this.API_APP + '/' + service, query)
@@ -36,7 +45,10 @@ export default class Config {
   }
 
   /** 获取cdn文件 */
-  public static cdn (filename: string) {
-    return Config.CDN_ROOT + (isAbsolute(filename) ? '' : '/') + filename
+  public static cdn (filename: string, process?: string) {
+    if (!filename || isHttp(filename) || isBase64(filename)) {
+      return filename
+    }
+    return Config.CDN_ROOT + (isAbsolute(filename) ? '' : '/') + filename + (process ? `?x-oss-process=${process}` : '')
   }
 }

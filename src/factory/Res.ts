@@ -40,6 +40,8 @@ class ResTask extends Tasker{
 
   public data!: any
   public error!: Error
+  // 可赋值的task，用户取消、监听进度等
+  public task!: any
 
   public constructor (config: IResItem, options: any) {
     super()
@@ -284,8 +286,12 @@ export default class Res extends Emitter {
   }
 }
 
-// 需要容器自行实现
-// Res.registerLoader(RES_TYPE_AUTO, res => res)
+// 默认的格式映射，具体实现由各种平台子类控制
+const putExtLoader = (loader: string, exts: string[]) => exts.forEach(ext => Res.extmaps[ext] = loader || ext)
+putExtLoader('img', ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'bmp'])
+putExtLoader('txt', ['html', 'md'])
+putExtLoader('video', ['mp4', 'mov', 'webm'])
+putExtLoader('audio', ['mp3', 'wav', 'ogg'])
 
 // 注册快捷方式路由
 function _bindLoaderMethod (type: string, useContext?: boolean) {

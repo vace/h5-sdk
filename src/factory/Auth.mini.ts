@@ -8,6 +8,7 @@ declare var wx: any
 Auth.transformAuthOptions = (_opts) => {
   const options: any = _opts || {}
   options.platform = 'mini'
+  // 默认只读取base授权
   if (!isDef(options.type)) {
     options.type = AuthType.base
   }
@@ -43,10 +44,18 @@ Auth.prototype._requestLogin = async function _requestLogin (): Promise<AuthUser
 
 Auth.prototype.authorize = async function authorize (userinfo?: any) {
   const { appid, user } = this
-  this.type = AuthType.user // 设置自动登陆
   if (!userinfo) {
-    return await this.login()
+    const user = await this.login()
+    if (!user) {
+      throw new AuthError(AuthErrorCode.LOGIN_FAILED, 'authorize login fail', user)
+    }
+    if (user.type !== AuthType.user) {
+      throw new AuthError(AuthErrorCode.LOGIN_FAILED, 'authorize userinfo empty', user)
+    }
+    this.type = AuthType.user
+    return user
   }
+
   const { encryptedData, iv, signature, errMsg } = userinfo
   if (!encryptedData) {
     throw new AuthError(AuthErrorCode.LOGIN_FAILED, errMsg, userinfo)
@@ -56,6 +65,7 @@ Auth.prototype.authorize = async function authorize (userinfo?: any) {
   const response = await this.get('/wx/mini/loginuser', param)
   // logined
   if (isHasOwn(response, 'code') && response.code === 0 && response.data) {
+    this.type = AuthType.user
     return user.login(response.data)
   }
   throw new AuthError(AuthErrorCode.LOGIN_FAILED, response.message, response)

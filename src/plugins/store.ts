@@ -2,7 +2,7 @@ import { isDef } from "../functions/common"
 
 export interface IStoreUseProxy {
   get (key: string): any
-  set (key: string, val: any): any
+  set (key: string, val: any): void
   keys (): string[]
   remove (key: string): void
   clear (): void
@@ -24,7 +24,7 @@ export default {
     if (data === null) {
       return storage.remove(key)
     }
-    return storage.set(key, data)
+    storage.set(key, data)
   },
   keys() {
     return storage.keys()

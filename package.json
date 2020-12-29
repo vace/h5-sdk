@@ -10,6 +10,7 @@
     "dev": "rollup --config build/rollup.config.js --watch --environment BUILD:web.Development",
     "development": "rollup --config build/rollup.config.js --environment BUILD:web.Development",
     "production": "rollup --config build/rollup.config.js --environment BUILD:web.Production",
+    "web": "rollup --config build/rollup.config.js --environment BUILD:web.Production",
     "node": "rollup --config build/rollup.config.js --environment BUILD:node.Production",
     "mini": "rollup --config build/rollup.config.js --environment BUILD:mini.Production",
     "prepare": "npm run development && npm run production && npm run mini && npm run node",

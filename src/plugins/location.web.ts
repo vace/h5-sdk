@@ -1,6 +1,6 @@
-import { dirname, filterURL, isBase64, isHttp, parse, resolvePath } from '../functions/common'
+import { dirname, filterURL, isBase64, isHttp, parse, resolvePath, global } from '../functions/common'
 
-const lt = window.location
+const lt = global.location
 
 /** 受保护的字段列表 */
 const PrivacyFileds = ['code', 'state', 'nonce', 'token', 'key', 'secret', 'signatue', 'spm_uid', 'spm_from']

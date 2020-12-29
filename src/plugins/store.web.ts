@@ -1,7 +1,7 @@
 import store, { IStoreUseProxy } from './store'
-import { isDef, isString } from "../functions/common"
+import { isDef, isString, global } from "../functions/common"
 
-const webstore = window.localStorage
+const webstore = global.localStorage
 
 const proxy: IStoreUseProxy = {
   get (key: string) {
@@ -16,7 +16,7 @@ const proxy: IStoreUseProxy = {
     return v
   },
   set (key: string, value: any) {
-    return webstore.setItem(key, JSON.stringify(value))
+    webstore.setItem(key, JSON.stringify(value))
   },
   remove (key: string) {
     webstore.removeItem(key)

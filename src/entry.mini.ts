@@ -2,15 +2,15 @@
 export const version = '__VERSION__'
 
 /** 导出类 */
-import App               from './factory/App';
-import AuthUser          from './factory/AuthUser';
-import Auth              from './factory/Auth.mini';
-import Config            from './factory/Config';
-import Emitter           from './factory/Emitter';
-import Http              from './factory/Http.mini';
-import Res               from './factory/Res.mini';
-import Tasker            from './factory/Tasker'
-import AbortController   from './factory/AbortController'
+import App                     from './factory/App';
+import AuthUser                from './factory/AuthUser';
+import Auth                    from './factory/Auth.mini';
+import Config                  from './factory/Config';
+import Emitter                 from './factory/Emitter';
+import Http                    from './factory/Http.mini';
+import Res                     from './factory/Res.mini';
+import Tasker                  from './factory/Tasker'
+import AbortController         from './factory/AbortController'
 
 export { App, Auth, AuthUser, Config, Emitter, Http, Res, Tasker, AbortController }
 

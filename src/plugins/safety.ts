@@ -1,12 +1,5 @@
 import _md5 from 'blueimp-md5'
-import { isObject, keys } from '../functions/common'
-
-let global: any = {}
-
-// @ts-ignore
-if ('__PLANTFORM__' === 'web') {
-  global = window
-}
+import { isObject, keys, global } from '../functions/common'
 
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
 

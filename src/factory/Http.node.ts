@@ -8,7 +8,7 @@ const { Headers, Request, Response } = require('node-fetch')
 Http.HttpHeaders = Headers
 Http.HttpRequest = Request
 Http.HttpResponse = Response
-Http.request = async (url: string, request: Request) => {
+Http.request = (url: string, request: Request) => {
   if (request.method === HttpMethod.JSONP) {
     throw new HttpError(-1, 'not support method: JSONP', request as any)
   }

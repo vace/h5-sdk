@@ -1,5 +1,5 @@
 import store, { IStoreUseProxy } from './store'
-import { isDef, isString } from "../functions/common"
+import { isDef } from "../functions/common"
 
 /**
  * 小程序中加入了中间缓存，减少io操作
@@ -21,7 +21,7 @@ const proxy: IStoreUseProxy = {
   },
   set(key: string, value: any) {
     wx.setStorage({ key, data: value })
-    return memocache.set(key, value)
+    memocache.set(key, value)
   },
   remove(key: string) {
     memocache.delete(key)

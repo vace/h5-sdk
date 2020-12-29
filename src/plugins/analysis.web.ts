@@ -1,5 +1,5 @@
 import analysis from './analysis'
-import { randomstr, once, now, isArray, isString, assign } from '../functions/common'
+import { isArray, isString, assign, global } from '../functions/common'
 import { addListener, domready } from '../functions/utils.web'
 import mlocation from './location.web'
 import Auth from '../factory/Auth'
@@ -56,8 +56,8 @@ assign(analysis.config, webConfig)
 
 // 页面就绪 & 用户登录后 开始发送分析数据
 domready.then(() => Auth.instance && Auth.instance.tasker).then(() => {
-  addListener(window, 'unload', () => analysis.unload())
-  addListener(window, 'error', (e: any) => analysis.error(e.error))
+  addListener(global, 'unload', () => analysis.unload())
+  addListener(global, 'error', (e: any) => analysis.error(e.error))
   analysis.pv()
 })
 

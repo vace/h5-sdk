@@ -8,6 +8,25 @@ const ObjProto = Object.prototype
 const ArrProto = Array.prototype
 const toString = ObjProto.toString
 
+/** 当前环境全局变量 */
+let EnvGlobal: any = {}
+declare var wx: any
+
+// @ts-ignore
+if ('__PLANTFORM__' === 'web') {
+  EnvGlobal = typeof window === 'undefined' ? {} : window
+}
+// @ts-ignore
+if ('__PLANTFORM__' === 'mini') {
+  EnvGlobal = typeof wx === 'undefined' ? {} : wx
+}
+// @ts-ignore
+if ('__PLANTFORM__' === 'node') {
+  EnvGlobal = typeof global === 'undefined' ? {} : global
+}
+
+export { EnvGlobal as global }
+
 /**
  * 常用正则
  */

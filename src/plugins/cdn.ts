@@ -10,15 +10,7 @@ const http = Http.instance
  * @param process 处理函数
  */
 export function res (filename: string, process?: string) {
-  if (!filename || isHttp(filename) || isBase64(filename)) {
-    return filename
-  }
-  const url = Config.cdn(filename)
-  if (!process) {
-    return url
-  }
-  // 目录分隔符处理
-  return url + '?x-oss-process=' + String(process)
+  return Config.cdn(filename, process)
 }
 
 /**

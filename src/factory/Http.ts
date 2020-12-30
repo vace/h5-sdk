@@ -208,7 +208,7 @@ export default class Http {
         if (requestMethod === HttpMethod.OPTIONS || requestMethod === HttpMethod.HEAD) {
           return response
         }
-        return transformResponse(response)
+        return transformResponse(response, request)
       })
       .then(data => {
         closeLoading()
@@ -242,7 +242,7 @@ export interface IHttpConfig {
   baseURL?: string
   validateStatus: (code: number) => boolean
   transformRequest: (req: IHttpRequestOption) => IHttpRequestOption
-  transformResponse: (rsp: Response) => any
+  transformResponse: (rsp: Response, req: IHttpRequestOption) => any
   onHeadersReceived: (headers: Headers) => void
   // onCookiesReceived: (cookies: Headers) => void
 }

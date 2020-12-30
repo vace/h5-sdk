@@ -38,10 +38,10 @@ export default class Auth extends Http {
   public static instance:Auth = null
 
   /** 转换配置参数，子类可覆盖实现 */
-  static transformAuthOptions = always
+  public static transformAuthOptions = always
 
   /** 全局请求转换 */
-  static transformAuthRequest(auth: Auth, config: any) {
+  public static transformAuthRequest(auth: Auth, config: any) {
     if (auth && auth.token) {
       if (!isHasOwn(config, 'headers')) {
         config.headers = {}
@@ -51,12 +51,20 @@ export default class Auth extends Http {
     return config
   }
   /** 全局auth参数接收 */
-  static onAuthHeadersReceived(auth: Auth, header: Headers) {
+  public static onAuthHeadersReceived(auth: Auth, header: Headers) {
     const authorization = header.get('Authorization')
     if (authorization) {
       if (authorization === 'LogOut') auth.logout()
       else auth.saveToken(authorization)
     }
+  }
+
+  /** 转换用户登陆请求 */
+  public static transformAuthResponse (auth: Auth, response: any): AuthUser {
+    if (isHasOwn(response, 'code') && response.code === 0 && response.data) {
+      return auth.user.login(response.data)
+    }
+    throw new AuthError(AuthErrorCode.LOGIN_FAILED, 'login failed', response)
   }
 
   /** 用户实例 */
@@ -103,11 +111,17 @@ export default class Auth extends Http {
     }
     return ''
   }
-  // 读取token是否有效
-  get isTokenValid(): boolean {
-    const { token, appid, platform, type } = this
+
+  /** 读取jwt信息 */
+  get jwt () {
+    const { token } = this
     // 'Bearer '.length = 7
-    const jwt = token ? jwtDecode(token.slice(7)) : null
+    return token ? jwtDecode(token.slice(7)) : null
+  }
+
+  /** 读取token是否有效 */
+  get isTokenValid(): boolean {
+    const { jwt, appid, platform, type } = this
     // jwt data not valid
     if (jwt) {
       const { exp, iss, id, sub, typ } = jwt
@@ -142,12 +156,12 @@ export default class Auth extends Http {
     }
   }
 
-  // public tasker!: Tasker
-
+  /** 登陆任务 */
   public tasker!: Promise<AuthUser>
   private $_loginResolve!: Function
   private $_loginReject!: (err: Error) => void
 
+  /** 登陆用户 */
   public login (): Promise<AuthUser> {
     if (this.tasker) return this.tasker
     this.tasker = new Promise((resolve, reject) => {
@@ -164,27 +178,34 @@ export default class Auth extends Http {
     return this.tasker
   }
 
+  /** 授权用户 */
   public authorize (arg: any): Promise<AuthUser> {
     throw new TypeError('authorize is undefined')
   }
 
-  // 更新用户token
+  /** 刷新用户资料 */
+  public async refresh () {
+    const response = await this.get('/api/oauth/refresh')
+    return Auth.transformAuthResponse(this, response)
+  }
+
+  /** 更新用户token */
   public saveToken(token: string) {
     AuthStore.set(this.$key, token)
   }
 
-  // 要求用户登出
+  /** 要求用户登出 */
   public logout() {
     AuthStore.remove(this.$key)
     this.user.logout()
   }
 
-  // 尝试使用现有参数登陆
+  /** 尝试使用现有参数登陆 */
   public async _requestLogin(): Promise<AuthUser> {
     throw new TypeError('_requestLogin is undefined')
   }
 
-  // 跳转到登录页或自行处理逻辑
+  /** 跳转到登录页或自行处理逻辑 */
   public _redirectLogin (reason: AuthError) {
     throw reason
   }

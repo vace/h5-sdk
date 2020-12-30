@@ -1,4 +1,5 @@
 /* eslint-disable */
+import { dasherize } from '../functions/common'
 import { animationPrefix, transitionEnd, animationEnd, animationEnabled } from '../functions/utils.web'
 
 /**

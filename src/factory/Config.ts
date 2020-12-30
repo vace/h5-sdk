@@ -26,10 +26,13 @@ export default class Config {
   static API_SERVICE = host('h5-service')
 
   /** 设置配置 */
-  public static set (key: string | object, val?: any) {
+  public static set (key: string | Record<string, any>, val?: any) {
     if (isString(key)) {
       Config[key] = val
     } else {
+      if (key.api) {
+        Config.API_HTTP = Config.API_APP = Config.API_AUTH = key.api
+      }
       assign(Config, key)
     }
   }

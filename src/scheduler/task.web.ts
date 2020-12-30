@@ -36,12 +36,12 @@ function initializeScript() {
 }
 
 function initializeAuth() {
-  const props = ['platform', 'type', 'appid', 'scope', 'env', '!autologin']
+  const props = ['platform', 'type', 'appid', 'scope', 'env', '!offlogin']
   const config = _queryElementAttr('meta[name="sdk:auth"]', props)
   if (config) {
     const auth = new Auth(config)
-    // 是否自动登陆
-    if (config.autologin) {
+    // 是否关闭自动登陆
+    if (!config.offlogin) {
       auth.login()
     }
   }

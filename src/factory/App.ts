@@ -1,4 +1,4 @@
-import { isAbsolute, isHasOwn, isString, isHttp, isDef } from '../functions/common'
+import { isAbsolute, isHasOwn, isString, isHttp, isDef, isFunction } from '../functions/common'
 import Http from './Http'
 import Config from './Config'
 import Auth from './Auth'
@@ -7,8 +7,10 @@ import hotcache from '../plugins/hotcache'
 
 interface IAppOption {
   baseURL?: string,
-  appid: string
+  appid?: string
   analysisoff?: boolean
+  // 初始化api，可放置json等静态文件
+  readyapi?: string
 }
 
 const AppStore = hotcache('@SdkApps')
@@ -68,6 +70,8 @@ export default class App extends Http {
 
   // 应用appid
   public appid: string
+  // 初始化接口
+  public readyapi: string
   // 应用分析
   public analysisoff!: boolean
   // 应用授权
@@ -78,12 +82,16 @@ export default class App extends Http {
   public tasker!: Tasker
 
   constructor (option: IAppOption | string) {
-    const appid = isString(option) ? option : option.appid
-    // @ts-ignore
-    const baseURL = isDef(option.baseURL) ? option.baseURL : Config.API_APP
+    let appid: string, baseURL: string = '', readyapi: string = 'init'
+    if (isString(option)) {
+      appid = option
+    } else {
+      appid = option.appid || ''
+      baseURL = option.baseURL || ''
+    }
     super({
       // set app base api
-      baseURL: baseURL,
+      baseURL: baseURL || Config.API_APP,
       // set token
       transformRequest: (request) => App.transformAppRequest(this, request),
       // transform data
@@ -92,6 +100,7 @@ export default class App extends Http {
       onHeadersReceived: (header) => App.onAppHeadersReceived(this, header),
     })
     this.appid = appid
+    this.readyapi = readyapi
     if (isHasOwn(option, 'analysisoff')) {
       this.analysisoff = !!option['analysisoff']
     }
@@ -103,13 +112,13 @@ export default class App extends Http {
   }
 
   // 应用初始化
-  public async ready (): Promise<App> {
+  public async ready (fn: any): Promise<App> {
     if (this.tasker) return this.tasker
     this.tasker = new Tasker()
     const { appid } = this
     let { version, config, setting } = AppStore.get(appid, {}) as any
     try {
-      const server = await this.get('init', { version })
+      const server = await this.get(this.readyapi, { version })
       if (version !== server.version) {
         config = server.config
         setting = server.setting
@@ -117,6 +126,7 @@ export default class App extends Http {
       }
       this.config = config
       this.setting = setting
+      if (isFunction(fn)) fn(this)
       return await this.tasker.resolve(this)
     } catch (err) {
       return await this.tasker.reject(err)

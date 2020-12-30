@@ -48,7 +48,7 @@ function initializeAuth() {
 }
 
 function initializeApp () {
-  const props = ['appid', '!analysisoff']
+  const props = ['appid', 'readyapi', '!analysisoff']
   const config = _queryElementAttr('meta[name="sdk:app"]', props)
   config && new App(config)
 }

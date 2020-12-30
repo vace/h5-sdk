@@ -5,18 +5,18 @@ const rootPath = path.resolve(projectPath, './src')
 
 const dts = {
   web: _mergeDTS({
-    main: 'sdk/src/entry.web',
+    main: 'h5-sdk/src/entry.web',
     out: 'index.d.ts',
     types: ['zepto'],
     exclude: ['**/*.node.ts', '**/*.mini.ts']
   }),
   mini: _mergeDTS({
-    main: 'sdk/src/entry.mini',
+    main: 'h5-sdk/src/entry.mini',
     out: 'miniprogram/index.d.ts',
     exclude: ['**/*.web.ts', '**/*.node.ts']
   }),
   node: _mergeDTS({
-    main: 'sdk/src/entry.node',
+    main: 'h5-sdk/src/entry.node',
     out: 'dist/node.d.ts',
     exclude: ['**/*.web.ts', '**/*.mini.ts']
   })
@@ -55,8 +55,8 @@ function _mergeDTS (config) {
   const def = {
     baseDir: rootPath,
     project: projectPath,
-    name: 'sdk',
-    prefix: 'sdk',
+    name: 'h5-sdk',
+    prefix: 'h5-sdk',
     out: 'index.d.ts',
     // sendMessage: console.log,
     exclude: [

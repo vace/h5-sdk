@@ -1,4 +1,4 @@
-import { isAbsolute, isHasOwn, isString, isHttp } from '../functions/common'
+import { isAbsolute, isHasOwn, isString, isHttp, isDef } from '../functions/common'
 import Http from './Http'
 import Config from './Config'
 import Auth from './Auth'
@@ -6,6 +6,7 @@ import Tasker from './Tasker'
 import hotcache from '../plugins/hotcache'
 
 interface IAppOption {
+  baseURL?: string,
   appid: string
   analysisoff?: boolean
 }
@@ -78,9 +79,11 @@ export default class App extends Http {
 
   constructor (option: IAppOption | string) {
     const appid = isString(option) ? option : option.appid
+    // @ts-ignore
+    const baseURL = isDef(option.baseURL) ? option.baseURL : Config.API_APP
     super({
       // set app base api
-      baseURL: Config.API_APP,
+      baseURL: baseURL,
       // set token
       transformRequest: (request) => App.transformAppRequest(this, request),
       // transform data
@@ -100,7 +103,7 @@ export default class App extends Http {
   }
 
   // 应用初始化
-  public async ready () {
+  public async ready (): Promise<App> {
     if (this.tasker) return this.tasker
     this.tasker = new Tasker()
     const { appid } = this

@@ -10,12 +10,12 @@ import Emitter                 from './factory/Emitter';
 import Http                    from './factory/Http.mini';
 import Res                     from './factory/Res.mini';
 import Tasker                  from './factory/Tasker'
-import AbortController         from './factory/AbortController'
 
-export { App, Auth, AuthUser, Config, Emitter, Http, Res, Tasker, AbortController }
+export { App, Auth, AuthUser, Config, Emitter, Http, Res, Tasker }
 
 /* 导出辅助函数类 */
 export *                       from './venders/http.mini'
+export *                       from './venders/AbortController'
 export *                       from './functions/common'
 export *                       from './functions/utils.mini'
 
@@ -33,9 +33,9 @@ export { cdn, cloud, safety, tool, ui }
 
 /** 导出动态加载 */
 const define = (key: string, get: any) => Object.defineProperty(exports, key, { get })
-define('app',     () => App.instance)
-define('auth',    () => Auth.instance)
-define('user',    () => Auth.instance && Auth.instance.user)
-define('http',    () => Http.instance)
-define('emitter', () => Emitter.instance)
-define('res',     () => Res.instance)
+define('app',                  () => App.instance)
+define('auth',                 () => Auth.instance)
+define('user',                 () => Auth.instance && Auth.instance.user)
+define('http',                 () => Http.instance)
+define('emitter',              () => Emitter.instance)
+define('res',                  () => Res.instance)

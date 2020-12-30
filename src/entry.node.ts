@@ -31,9 +31,9 @@ export { cdn, cloud, safefy }
 
 /** 导出动态加载 */
 const define = (key: string, get: any) => Object.defineProperty(exports, key, { get })
-define('app',     () => App.instance)
-define('auth',    () => Auth.instance)
-define('user',    () => Auth.instance && Auth.instance.user)
-define('http',    () => Http.instance)
-define('emitter', () => Emitter.instance)
-define('res',     () => Res.instance)
+define('app',                 () => App.instance)
+define('auth',                () => Auth.instance)
+define('user',                () => Auth.instance && Auth.instance.user)
+define('http',                () => Http.instance)
+define('emitter',             () => Emitter.instance)
+define('res',                 () => Res.instance)

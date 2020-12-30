@@ -1,6 +1,6 @@
 import Auth, { AuthError, AuthType, AuthErrorCode } from './Auth'
 import AuthUser from './AuthUser'
-import { alwaysTrue, alwaysFalse, isHasOwn, isDef } from '../functions/common'
+import { alwaysTrue, alwaysFalse, isHasOwn, isDef, isFunction } from '../functions/common'
 import { appid } from '../functions/utils.mini'
 
 declare var wx: any
@@ -33,13 +33,20 @@ Auth.prototype._requestLogin = async function _requestLogin (): Promise<AuthUser
       throw new AuthError(AuthErrorCode.NO_CODE, err.errMsg)
     })
     const response = await this.get('/wx/mini/login', { code, appid, type })
-    // logined
-    if (isHasOwn(response, 'code') && response.code === 0 && response.data) {
-      return user.login(response.data)
+    return Auth.transformAuthResponse(this, response)
+  } else {
+    if (user.needRefreshed) {
+      return await this.refresh()
     }
-    throw new AuthError(AuthErrorCode.LOGIN_FAILED, 'login failed', response)
   }
   return user
+}
+
+Auth.prototype._redirectLogin = function (reason: AuthError) {
+  if (isFunction(this.onRedirectLogin)) {
+    return this.onRedirectLogin('', reason)
+  }
+  throw reason
 }
 
 Auth.prototype.authorize = async function authorize (userinfo?: any) {
@@ -63,12 +70,9 @@ Auth.prototype.authorize = async function authorize (userinfo?: any) {
   await this.login()
   const param = { iv, data: encryptedData, signature, appid }
   const response = await this.get('/wx/mini/loginuser', param)
-  // logined
-  if (isHasOwn(response, 'code') && response.code === 0 && response.data) {
-    this.type = AuthType.user
-    return user.login(response.data)
-  }
-  throw new AuthError(AuthErrorCode.LOGIN_FAILED, response.message, response)
+  const authuser = Auth.transformAuthResponse(this, response)
+  this.type = AuthType.user
+  return authuser
 }
 
 export default Auth

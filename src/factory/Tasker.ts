@@ -10,7 +10,7 @@ type PromiseHandle = {
   reject: ITaskerReject
 }
 
-type ITaskerResolve = <T>(value: T | PromiseLike<T>) => void
+type ITaskerResolve = (value: any | PromiseLike<any>) => void
 type ITaskerReject = (reason?: Error | any) => void
 
 /**

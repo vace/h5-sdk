@@ -161,11 +161,13 @@ export const parse = _parse
 /**
  * 时间相关
  */
-export const now: () => number = Date.now
+export const now = Date.now
+export const timestamp = () => Math.floor(Date.now() / 1000)
 export const unixtime = (unixtime: number = now() / 1000, format?: string) => _formatTime(new Date(unixtime * 1000), format)
-export const timestamp = (timestamp: number = now(), format?: string) => _formatTime(new Date(timestamp), format)
 export const wait = <T>(duration: number, arg?: T): Promise<T> => new Promise(resolve => setTimeout(resolve, duration, arg))
 export const timeago = _timeago
+// v3.0别名
+export const unixFormat = unixtime
 
 /**
  * 路径操作
@@ -807,8 +809,7 @@ function _equal (a: any, b: any): boolean {
   }
 }
 
-
-function _makeNextTick () {
+function _makeNextTick() {
   const callbacks: any[] = []
   let pending = false
   function flushCallbacks() {
@@ -819,7 +820,7 @@ function _makeNextTick () {
       copies[i]()
     }
   }
-  return function _nextTick (callback?: any, ctx?: any) {
+  return function _nextTick (callback?: any, ctx?: any): Promise<void> {
     let _resolve: any
     callbacks.push(() => {
       if (callback) {
@@ -835,5 +836,6 @@ function _makeNextTick () {
     if (!callback) {
       return new Promise(resolve => { _resolve = resolve })
     }
+    return Promise.resolve()
   }
 }

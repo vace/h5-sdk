@@ -42,9 +42,7 @@ Http.request = (url: string, request: Request) => {
         })
         resolve(response)
       },
-      fail: err => {
-        reject(new HttpError(-1, err.errMsg))
-      },
+      fail: (err: any) => reject(new HttpError(-1, err.errMsg)),
       complete: () => signal && signal.removeEventListener('abort', abort)
     })
     // 取消此请求

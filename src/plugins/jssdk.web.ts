@@ -6,7 +6,7 @@ import Res from '../factory/Res.web'
 import Http, { HttpError } from "../factory/Http"
 import mlocation from './location.web'
 import analysis from './analysis.web'
-import { isString, isHasOwn, once, uniqueArray, noop, assign, alwaysTrue, createURL, isFunction } from "../functions/common"
+import { isString, isHasOwn, once, uniqueArray, noop, assign, alwaysTrue, createURL, isFunction, now } from "../functions/common"
 import { isWechat, document, isMiniapp } from "../functions/utils.web"
 
 const task = new Tasker()
@@ -63,10 +63,12 @@ const config = once(async (config: IJssdkConfig) => {
   const { url, debug, appid, jsApiList = [] } = config
   const http = Http.instance
   const wx = await loadJssdk()
-  const response = await http.get(url || Config.service('wechat/signature'), {
+  const currentURL = mlocation.url
+  // 在微信中请求签名，其他环境中使用适配器模式
+  const response = isWechat ? await http.get(url || Config.service('wechat/signature'), {
     appid,
-    url: mlocation.url
-  })
+    url: currentURL
+  }) : { code: 0, appId: appid, url: currentURL, timestamp: now(), signature: 'mock value' }
   if (!isHasOwn(response, 'code')) {
     throw new HttpError(-1, 'response empty', http, response)
   }
@@ -77,6 +79,9 @@ const config = once(async (config: IJssdkConfig) => {
   const signature = { ...data, debug, jsApiList: uniqueArray([...DefaultJssdkApi, ...jsApiList]) }
   wx.ready(() => task.resolve(true))
   wx.error((err: any) => task.reject(new JssdkError(err.errMsg)))
+  if (debug) {
+    console.log(`sdk:jssdk.config`, signature)
+  }
   wx.config(signature)
   return task
 })

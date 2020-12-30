@@ -1,6 +1,6 @@
-import BaseEmitter, { EmitterSymbol } from './Emitter'
+import BaseEmitter, { EmitterSymbol } from '../factory/Emitter'
 
-class AbortSignal extends BaseEmitter {
+export class AbortSignal extends BaseEmitter {
   public aborted: boolean = false
   public onabort!: any
 
@@ -28,7 +28,7 @@ class AbortSignal extends BaseEmitter {
   }
 }
 
-export default class AbortController {
+export class AbortController {
   public signal = new AbortSignal
   abort() {
     const event = {

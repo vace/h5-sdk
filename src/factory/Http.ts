@@ -1,32 +1,8 @@
-import { always, assign, isString, isHttp, inArray, createURL, noop, isFunction, isObject, isBoolean } from "../functions/common"
+import { always, assign, isString, isPromise, isHttp, inArray, createURL, noop, isFunction, isObject, now, isDef, isNumber } from "../functions/common"
 
-const MessageKey = Symbol('$msg')
-
-export interface IHttpConfig {
-  baseURL?: string
-  validateStatus: (code: number) => boolean
-  transformRequest: (req: IHttpRequestOption) => IHttpRequestOption
-  transformResponse: (rsp: Response) => any
-  onHeadersReceived: (headers: Headers) => void
-  // onCookiesReceived: (cookies: Headers) => void
-}
-
-export interface IHttpRequestOption {
-  url?: string
-  query?: any
-  body?: any
-  param?: any
-  data?: any
-
-  headers?: HeadersInit
-  method?: HttpMethod
-
-  showLoading?: any
-  showError?: any
-  showSuccess?: any
-  // 任意继承Request的配置，由实现体完成
-  [key: string]: any
-}
+const HttpMessage = Symbol('$message')
+const HttpConfig  = Symbol('$config')
+const HttpCache   = Symbol('$cache')
 
 type HttpRequestOption = string | IHttpRequestOption
 type HttpNofifyCallback = (message: string, data: any) => any
@@ -42,7 +18,6 @@ export enum HttpMethod {
   PATCH = 'PATCH',
   JSONP = 'JSONP'
 }
-
 
 /** http抛出的错误类 */
 export class HttpError extends Error {
@@ -67,8 +42,7 @@ export default class Http {
   public static HttpResponse: typeof Response
   /** 内部使用的request */
   public static HttpRequest: typeof Request
-
-  // 可用的编码
+  /** 可用的编码 */
   public static ContentType  = {
     JSON: 'application/json; charset=utf-8',
     FORM: 'application/x-www-form-urlencoded; charset=utf-8'
@@ -89,18 +63,21 @@ export default class Http {
     transformResponse: response => response.json(),
     onHeadersReceived: noop,
   }
-
+  /** 发送请求，具体实现由所在平台实现 */
   public static request (url: string, request: any): Promise<Response> {
     return Promise.resolve(new Response(''))
   }
-
   /** 默认全局实例 */
   public static instance: Http = new Http()
   /** 实例配置 */
-  public httpconf: IHttpConfig
+  public [HttpConfig]: IHttpConfig
+  /** 请求缓存 */
+  public [HttpCache]: Map<string, IHttpCache> = new Map()
+  /** 自定义文案 */
+  public [HttpMessage] = { success: '', error: '', loading: '' }
   /** 实例化 */
   public constructor (_option?: IHttpConfig | any) {
-    this.httpconf = assign({}, Http.HttpOption, _option)
+    this[HttpConfig] = assign({}, Http.HttpOption, _option)
   }
   /** GET 请求 */
   public get (url: HttpRequestOption, query?: any): Promise<any> {
@@ -134,7 +111,7 @@ export default class Http {
   public jsonp (url: HttpRequestOption, query?: any) {
     return this.action(url, query, HttpMethod.JSONP)
   }
-  // 执行指定action
+  /** 执行指定action */
   public action (url: HttpRequestOption, data?: any, method?: HttpMethod): Promise<any> {
     let req: IHttpRequestOption = { data, method }
     if (isString(url)) {
@@ -144,32 +121,49 @@ export default class Http {
     }
     return this.request(req)
   }
-
   /** 发送request */
   public request(req: IHttpRequestOption): Promise<any> {
     const HttpHeaders = Http.HttpHeaders
-    const { baseURL,
-      validateStatus,
-      transformRequest,
-      transformResponse,
-      onHeadersReceived} = this.httpconf
+    const httpcache = this[HttpCache]
+    const { baseURL, validateStatus, transformRequest, transformResponse, onHeadersReceived } = this[HttpConfig]
     const request = transformRequest(req) || req
-    const { url, query, body, param, data, method = HttpMethod.GET, headers, ...reqOptions } = request
+    const { cache, url, query, body, param, data, method, headers, ...reqOptions } = request
 
     let requestURL: string = url || ''
     let requestQuery = query
     let requestBody = body
+    let requestHeader = headers
+    let requestMethod = isString(method) ? method.toUpperCase() : HttpMethod.GET
     // 追加请求根路径
     if (baseURL && !isHttp(url)) {
       requestURL = baseURL + url
     }
     // 参数以及别名处理
-    if (inArray(method, [HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH])) {
+    if (inArray(requestMethod, [HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH])) {
       requestBody = param || body || data
     } else {
       requestQuery = query || param || body || data
     }
     requestURL = createURL(requestURL, requestQuery)
+
+    /** 缓存处理 */
+    let cacheKey: null | string = null
+    if (isString(cache)) cacheKey = cache
+    else if (isFunction(cache)) cacheKey = cache(requestURL)
+    else if (cache) cacheKey = `${requestMethod}:${requestURL}`
+    if (cacheKey) {
+      if (HttpMethod.GET !== requestMethod) {
+        console.error(new TypeError(`Http cache only support method: ${HttpMethod.GET}`))
+        cacheKey = null
+      } else if (httpcache.has(cacheKey)) {
+        const cache = httpcache.get(cacheKey) as IHttpCache
+        if (cache.expiretime < now()) {
+          httpcache.delete(cacheKey)
+        } else {
+          return isPromise(cache.data) ? cache.data : Promise.resolve(cache.data)
+        }
+      }
+    }
 
     const notify = (type: string, message: string, data?: any): any => {
       let callback = request[type]
@@ -177,30 +171,27 @@ export default class Http {
       if (isString(callback)) {
         message = callback
       }
-      // true 时使用默认文案
-      // if (isBoolean(callback)) {}
       if (!isFunction(callback)) {
         callback = Http[type]
       }
       return callback(message, data)
     }
-    const $messages = this[MessageKey]
 
-    // loading handle
-    const _loading = notify('showLoading', $messages.loading || '请稍后...')
-    const closeLoading = () => {
-      _loading && isFunction(_loading.close) && _loading.close()
-    }
-
-    let requestHeader = headers
     if (isObject(requestBody)) {
       requestHeader = requestHeader instanceof HttpHeaders ? requestHeader : new HttpHeaders(requestHeader)
       requestHeader.set('Content-Type', Http.ContentType.JSON)
       requestBody = JSON.stringify(requestBody)
     }
+
+    const $messages = this[HttpMessage]
+    // loading handle
+    const _loading = notify('showLoading', $messages.loading || '请稍后...')
+    const closeLoading = () => {
+      _loading && isFunction(_loading.close) && _loading.close()
+    }
     // 拼接请求URL
     return Http.request(requestURL, {
-        method,
+        method: requestMethod,
         body: requestBody,
         headers: requestHeader,
         ...reqOptions
@@ -214,7 +205,7 @@ export default class Http {
       })
       .then(response => {
         // head 和 options 不经过response
-        if (method === HttpMethod.OPTIONS || method === HttpMethod.HEAD) {
+        if (requestMethod === HttpMethod.OPTIONS || requestMethod === HttpMethod.HEAD) {
           return response
         }
         return transformResponse(response)
@@ -222,6 +213,13 @@ export default class Http {
       .then(data => {
         closeLoading()
         notify('showSuccess', $messages.success || '完成', data)
+        // 缓存响应
+        if (cacheKey && isDef(data)) {
+          httpcache.set(cacheKey, {
+            data: data,
+            expiretime: isNumber(cache) ? (now() + cache) : Infinity
+          })
+        }
         return data
       }).catch(error => {
         closeLoading()
@@ -229,15 +227,41 @@ export default class Http {
         throw error
       })
   }
-
-  // 自定义文案
-  private [MessageKey] = {
-    success: '',
-    error: '',
-    loading: ''
-  }
-  // 用于设置响应中的提示内容
+  /** 用于设置响应中的提示内容 */
   public setHttpMessage (key: string, message: string) {
-    this[MessageKey][key] = message
+    this[HttpMessage][key] = message
   }
+}
+
+interface IHttpCache {
+  expiretime: number
+  data: any
+}
+
+export interface IHttpConfig {
+  baseURL?: string
+  validateStatus: (code: number) => boolean
+  transformRequest: (req: IHttpRequestOption) => IHttpRequestOption
+  transformResponse: (rsp: Response) => any
+  onHeadersReceived: (headers: Headers) => void
+  // onCookiesReceived: (cookies: Headers) => void
+}
+
+export interface IHttpRequestOption {
+  /** GET请求 支持缓存 */
+  cache?: boolean | number | ((fetchURL: string) => string),
+  url?: string
+  query?: any
+  body?: any
+  param?: any
+  data?: any
+
+  headers?: HeadersInit
+  method?: HttpMethod
+
+  showLoading?: any
+  showError?: any
+  showSuccess?: any
+  // 任意继承Request的配置，由实现体完成
+  [key: string]: any
 }

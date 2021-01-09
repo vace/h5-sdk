@@ -412,6 +412,7 @@ declare module 'h5-sdk/src/factory/Emitter' {
 
 }
 declare module 'h5-sdk/src/factory/Res' {
+	import { ITaskerPromise } from 'h5-sdk/src/plugins/tasker';
 	import Emitter from 'h5-sdk/src/factory/Emitter';
 	export type IResItem = {
 	    url: string;
@@ -434,7 +435,7 @@ declare module 'h5-sdk/src/factory/Res' {
 	    static STATUS_LOADING: ResTaskStatus;
 	    static STATUS_LOADED: ResTaskStatus;
 	    static STATUS_FAILED: ResTaskStatus;
-	    tasker: import("../plugins/tasker").ITaskerPromise<ResTask<T>>;
+	    tasker: ITaskerPromise<ResTask<T>>;
 	    status: number;
 	    key: string;
 	    url: string;
@@ -480,9 +481,9 @@ declare module 'h5-sdk/src/factory/Res' {
 	    baseURL: string;
 	    progress: ResProgress;
 	    protected $queue: ResTask<any>[];
-	    protected $task: import("../plugins/tasker").ITaskerPromise<Res>;
+	    protected $task: ITaskerPromise<Res>;
 	    constructor(options?: IResOption);
-	    start(): import("../plugins/tasker").ITaskerPromise<Res>;
+	    start(): ITaskerPromise<Res>;
 	    add<T>(item: string | IResItem, option?: any): ResTask<T>;
 	    add<T>(item: string[] | IResItem[], option?: any): ResTask<T>[];
 	    remove(res: ResTask<any>): boolean;
@@ -1001,7 +1002,7 @@ declare module 'h5-sdk/src/plugins/analysis.web' {
 
 }
 declare module 'h5-sdk/src/plugins/jssdk.web' {
-	 type IJssdkShareItem = {
+	import { ITaskerPromise } from 'h5-sdk/src/plugins/tasker'; type IJssdkShareItem = {
 	    arg: null | IJssdkShareBase;
 	    platform: string;
 	    api: string;
@@ -1011,7 +1012,7 @@ declare module 'h5-sdk/src/plugins/jssdk.web' {
 	    version: string;
 	    appid: string;
 	    shareLogid: number;
-	    task: import("./tasker").ITaskerPromise<boolean>;
+	    task: ITaskerPromise<boolean>;
 	    ready: (fn: EventListenerOrEventListenerObject) => void;
 	    config: (this: any, ...args: any[]) => any;
 	    share: typeof share;

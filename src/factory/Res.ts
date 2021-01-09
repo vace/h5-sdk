@@ -1,5 +1,5 @@
 import { md5 } from '../plugins/safety'
-import tasker from '../plugins/tasker'
+import tasker, { ITaskerPromise } from '../plugins/tasker'
 import { extname, isArray, isBase64, isDef, isHttp, isString, makeMap, once, resolvePath } from "../functions/common"
 import Emitter from './Emitter'
 
@@ -32,7 +32,7 @@ export class ResTask<T> {
   static STATUS_LOADING = ResTaskStatus.LOADING
   static STATUS_LOADED = ResTaskStatus.LOADED
   static STATUS_FAILED = ResTaskStatus.FAILED
-  public tasker = tasker<ResTask<T>>()
+  public tasker: ITaskerPromise<ResTask<T>> = tasker()
 
   public status: number = ResTaskStatus.ADDED
   public key: string
@@ -189,7 +189,7 @@ export default class Res extends Emitter {
   /** 等待中队列 */
   protected $queue: ResTask<any>[] = []
   /** 全局任务 */
-  protected $task = tasker<Res>()
+  protected $task: ITaskerPromise<Res> = tasker()
 
   /** 实例化 */
   public constructor (options: IResOption = {}) {

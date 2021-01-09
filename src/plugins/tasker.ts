@@ -3,7 +3,7 @@ export interface ITaskerPromise<T> extends Promise<T> {
   reject(err?: Error): Promise<T>
 }
 
-export default function tasker <T>() {
+export default function tasker<T>(): ITaskerPromise<T> {
   const handler: any = {}
 
   const promise = <ITaskerPromise<T>> new Promise((resolve, reject) => {

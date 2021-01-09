@@ -5,11 +5,11 @@ import Res from '../factory/Res.web'
 import Http, { HttpError } from "../factory/Http"
 import mlocation from './location.web'
 import analysis from './analysis.web'
-import tasker from './tasker'
+import tasker, { ITaskerPromise } from './tasker'
 import { isString, isHasOwn, once, uniqueArray, noop, assign, alwaysTrue, createURL, isFunction, timestamp, nextTick } from "../functions/common"
 import { isWechat, document, isMiniapp } from "../functions/utils.web"
 
-const task = tasker<boolean>()
+const task = tasker() as ITaskerPromise<boolean>
 
 declare var wx: any
 

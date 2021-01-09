@@ -17,7 +17,7 @@ Auth.prototype._requestLogin = async function (): Promise<AuthUser> {
     throw new AuthError(AuthErrorCode.NO_CODE, 'miss `code` and `state`')
   }
   const response = await this.get(`/api/oauth/login/${platform}`, { code, state })
-  return Auth.transformAuthResponse(this, response)
+  return this.transformAuthResponse(response)
 }
 
 /**

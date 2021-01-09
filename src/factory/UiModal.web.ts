@@ -87,9 +87,7 @@ export default class UiModal extends UiBase{
     this.on('closed', this._closedHook.bind(this))
   }
 
-  /**
-   * 关闭任务包装
-   */
+  /** 执行一个异步任务，执行成功则关闭 */
   public withClose (next, message?: string) {
     const madal = this
     let _next = next
@@ -103,14 +101,13 @@ export default class UiModal extends UiBase{
         madal.hideSpinning()
         madal.close()
         return value
-      }, err => {
+      }).catch(err => {
         madal.hideSpinning()
         return Promise.reject(err)
       })
-    } else if (typeof _next === 'undefined' || _next) {
-      madal.close()
-      return Promise.resolve(_next)
     }
+    madal.close()
+    return Promise.resolve(_next)
   }
 
   /** 显示操作loading */

@@ -1,5 +1,5 @@
 import '../assets/ui-view.less'
-import { SvgWindmill } from '../assets/star-loading'
+import { SvgWindmill } from '../assets/svg-string'
 
 import UiBase, { UiBaseOption, createClsElement, createSdkIcon, classPrefix } from "./UiBase.web";
 import { assign } from "../functions/common";

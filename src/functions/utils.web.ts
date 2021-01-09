@@ -1,6 +1,6 @@
-import { once, uid, each, isDef, global } from './common'
+import { once, uid, each, isDef, global, isNumeric, isString, object, makeMark } from './common'
 
-const { navigator, document } = global
+const { navigator, document } = <Window> global
 
 export { document, navigator }
 
@@ -8,7 +8,9 @@ export { document, navigator }
  * 网页相关常量
  */
 
-const ua = navigator.userAgent.toLowerCase()
+export const userAgent = navigator.userAgent
+
+const ua = userAgent.toLowerCase()
 
 /** 是否为移动设备 */
 export const isMobile: boolean = /mobile/.test(ua)
@@ -75,6 +77,8 @@ export const webp = once(() => new Promise(resolve => {
 
 export const jsonp = _jsonp
 
+export const getDomAttrs = _getDomAttrs
+
 interface IJsonpOption { callback?: string, timeout?: number}
 
 function _jsonp(url: string, options: IJsonpOption | any = {}) {
@@ -94,4 +98,36 @@ function _jsonp(url: string, options: IJsonpOption | any = {}) {
     // TODO ERROR HANDLE
     root.appendChild(script)
   })
+}
+
+const FalseString = makeMark(['false', 'off', 'disabled'])
+
+function _getDomAttrs (element: string | Element, attrs: string[]): Record<string, any> {
+  const dom = isString(element) ? document.querySelector(element) : element
+  const cache = object()
+  if (!dom) return cache
+  for (let attr of attrs) {
+    const firstTypeChar = attr[0]
+    const isBoolean = firstTypeChar === '!'    // 转换为boolean，字符串时为false,off,disabled
+    const isNumber = firstTypeChar === '+'     // 强制转换为数字，无法转换返回0
+    const isAutoCovent = firstTypeChar === '?' // 尽可能转换为数字，不能转换原样返回
+    if (isBoolean || isNumber || isAutoCovent) {
+      attr = attr.slice(1)
+    }
+    let value: any = dom.getAttribute(attr)
+    if (!isDef(value)) {
+      continue
+    }
+    if (isBoolean) {
+      value = !FalseString[value]
+    } else if (isNumber) {
+      value = parseFloat(value) || 0
+    } else if (isAutoCovent) {
+      if (isNumeric(value)) {
+        value = parseFloat(value)
+      }
+    }
+    cache[attr] = value
+  }
+  return cache
 }

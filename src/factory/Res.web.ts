@@ -1,4 +1,4 @@
-import Res from './Res'
+import Res, { IResItem, ResTask } from './Res'
 import { assign, each, isDef, isFunction } from '../functions/common'
 import { jsonp } from '../functions/utils.web'
 
@@ -8,7 +8,7 @@ WebFetch.forEach(fc => Res.registerLoader(fc, res => fetch(res.url, res.options)
 // utils jsonp
 Res.registerLoader('jsonp', res => jsonp(res.url, res.options))
 
-enum WebResAttr { LOADER, TAG, ATTR, EVENT, DEF, INSERTED }
+const enum WebResAttr { LOADER, TAG, ATTR, EVENT, DEF, INSERTED }
 
 const DEF_VAL = null
 const WebRES: any[] = [

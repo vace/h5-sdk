@@ -15,7 +15,7 @@ export const appid: string = miniProgram.appId
 export const isDev: boolean = miniProgram.envVersion === 'develop'
 
 // 读取auth setting
-export const getAuthSetting = (scope: string) => new Promise((resolve, reject) => wx.getSetting().then(({ authSetting }) => resolve(authSetting[`scope.${scope}`])).catch(err => {throw new WxError(err)}))
+export const getAuthSetting = (scope: string): Promise<boolean> => new Promise((resolve, reject) => wx.getSetting().then(({ authSetting }) => resolve(authSetting[`scope.${scope}`])).catch(err => {throw new WxError(err)}))
 
 // 可缓存的读取系统信息
 export const getSystemInfoSync = once(() => wx.getSystemInfoSync())

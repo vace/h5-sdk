@@ -1,7 +1,7 @@
+import Auth from './Auth'
 import { always, assign, isString, isPromise, isHttp, inArray, createURL, noop, isFunction, isObject, now, isDef, isNumber } from "../functions/common"
 
 const HttpMessage = Symbol('$message')
-const HttpConfig  = Symbol('$config')
 const HttpCache   = Symbol('$cache')
 
 type HttpRequestOption = string | IHttpRequestOption
@@ -18,6 +18,8 @@ export enum HttpMethod {
   PATCH = 'PATCH',
   JSONP = 'JSONP'
 }
+
+type SendRequest = (url: HttpRequestOption, query?: any) => Promise<any>
 
 /** http抛出的错误类 */
 export class HttpError extends Error {
@@ -67,18 +69,37 @@ export default class Http {
   public static request (url: string, request: any): Promise<Response> {
     return Promise.resolve(new Response(''))
   }
+
   /** 默认全局实例 */
   public static instance: Http = new Http()
   /** 实例配置 */
-  public [HttpConfig]: IHttpConfig
+  public httpconfig: IHttpConfig = {}
   /** 请求缓存 */
   public [HttpCache]: Map<string, IHttpCache> = new Map()
   /** 自定义文案 */
   public [HttpMessage] = { success: '', error: '', loading: '' }
+  /** 是否携带用户凭证 */
+  public auth!: Auth
+  /** 仅在子类中使用 */
+  protected $tryUseAuth = false
+
   /** 实例化 */
-  public constructor (_option?: IHttpConfig | any) {
-    this[HttpConfig] = assign({}, Http.HttpOption, _option)
+  public constructor (_option?: IHttpConfig) {
+    if (_option) {
+      // use and delete
+      if (_option.auth) {
+        this.auth = _option.auth
+        delete _option.auth
+      }
+      this.httpconfig = assign({}, Http.HttpOption, _option)
+    }
   }
+  /** 关联Auth */
+  public withAuth (auth: Auth) {
+    this.auth = auth
+    return this
+  }
+
   /** GET 请求 */
   public get (url: HttpRequestOption, query?: any): Promise<any> {
     return this.action(url, query, HttpMethod.GET)
@@ -123,10 +144,14 @@ export default class Http {
   }
   /** 发送request */
   public request(req: IHttpRequestOption): Promise<any> {
+    const auth: any = this.$tryUseAuth ? this : this.auth
     const HttpHeaders = Http.HttpHeaders
     const httpcache = this[HttpCache]
-    const { baseURL, validateStatus, transformRequest, transformResponse, onHeadersReceived } = this[HttpConfig]
-    const request = transformRequest(req) || req
+    const { baseURL, validateStatus, transformRequest, transformResponse, onHeadersReceived } = this.httpconfig
+    let request = isFunction(transformRequest) && transformRequest(req) || req
+    if (auth) {
+      request = auth.transformAuthRequest(request) || request
+    }
     const { cache, url, query, body, param, data, method, headers, ...reqOptions } = request
 
     let requestURL: string = url || ''
@@ -196,9 +221,12 @@ export default class Http {
         headers: requestHeader,
         ...reqOptions
       }).then(response => {
-        const { status, statusText } = response
-        onHeadersReceived(response.headers)
-        if (!validateStatus(status)) {
+        const { status, statusText, headers } = response
+        if (auth) {
+          auth.onAuthHeadersReceived(headers)
+        }
+        isFunction(onHeadersReceived) && onHeadersReceived(headers)
+        if (isFunction(validateStatus) && !validateStatus(status)) {
           throw new HttpError(status, statusText, this, response)
         }
         return response
@@ -208,7 +236,7 @@ export default class Http {
         if (requestMethod === HttpMethod.OPTIONS || requestMethod === HttpMethod.HEAD) {
           return response
         }
-        return transformResponse(response, request)
+        return isFunction(transformResponse) ? transformResponse(response, request) : response
       })
       .then(data => {
         closeLoading()
@@ -231,7 +259,25 @@ export default class Http {
   public setHttpMessage (key: string, message: string) {
     this[HttpMessage][key] = message
   }
+
+  // bind fast methods
+  public static get: SendRequest
+  public static delete: SendRequest
+  public static head: SendRequest
+  public static options: SendRequest
+  public static post: SendRequest
+  public static put: SendRequest
+  public static patch: SendRequest
+  public static jsonp: SendRequest
+  public static action: SendRequest
 }
+
+// install static methods
+const staticMethods = [ 'get', 'delete', 'head', 'options', 'post', 'put', 'patch', 'jsonp', 'action' ]
+staticMethods.forEach(method => Http[method] = function (url: HttpRequestOption, query?: any) {
+  const instance = this.instance || Http.instance
+  return instance[method](url, query)
+})
 
 interface IHttpCache {
   expiretime: number
@@ -239,11 +285,12 @@ interface IHttpCache {
 }
 
 export interface IHttpConfig {
+  auth?: Auth
   baseURL?: string
-  validateStatus: (code: number) => boolean
-  transformRequest: (req: IHttpRequestOption) => IHttpRequestOption
-  transformResponse: (rsp: Response, req: IHttpRequestOption) => any
-  onHeadersReceived: (headers: Headers) => void
+  validateStatus?: (code: number) => boolean
+  transformRequest?: (req: IHttpRequestOption) => IHttpRequestOption
+  transformResponse?: (rsp: Response, req: IHttpRequestOption) => any
+  onHeadersReceived?: (headers: Headers) => void
   // onCookiesReceived: (cookies: Headers) => void
 }
 

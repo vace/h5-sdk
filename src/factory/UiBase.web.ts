@@ -1,5 +1,5 @@
 import Emitter from './Emitter'
-import { uid, wait, isDef, isArray } from '../functions/common'
+import { uid, wait, isDef, isArray, splice } from '../functions/common'
 import $ from '../venders/zepto.js'
 
 /** UI支持的颜色 */
@@ -83,7 +83,7 @@ export type UiInputOption = {
  * @extends {Emitter}
  */
 export default class UiBase extends Emitter {
-  public static nextZIndex: number = 1e5
+  public static nextZIndex: number = 1e4
 
   public static get zIndex () {
     return UiBase.nextZIndex++
@@ -120,7 +120,7 @@ export default class UiBase extends Emitter {
   /** 根元素 */
   public $root: ZeptoCollection
   /** 遮罩 */
-  public $mask: ZeptoCollection
+  public $mask!: ZeptoCollection
   /** 动画入场className */
   public inClassName: string = classPrefix('fade-in')
   /** 动画出场className */
@@ -144,11 +144,11 @@ export default class UiBase extends Emitter {
       .addClass(className || '')
       .css({ zIndex: UiBase.zIndex, position: 'fixed' })
     // 合并全局变量
-    const { transparent, maskClose } = this.option
-    this.$mask = createClsElement('mask')
-      .addClass(transparent ? classPrefix('mask-tp') : '')
-      .on('click', () => maskClose && this.close())
     if (isAddMask) {
+      const { transparent, maskClose } = this.option
+      this.$mask = createClsElement('mask')
+        .addClass(transparent ? classPrefix('mask-tp') : '')
+        .on('click', () => maskClose && this.close())
       this.$root.append(this.$mask)
     }
   }
@@ -195,11 +195,11 @@ export default class UiBase extends Emitter {
   }
   // 打开成功
   private _onOpened() {
-    // push open instance
-    UiBase.openInstances.push(this)
     const { $root, inClassName } = this
     $root.removeClass(inClassName)
     this.emit('opened')
+    // push open instance
+    UiBase.openInstances.push(this)
   }
 
   // 定时容器滚动（ios软键盘bug）
@@ -257,16 +257,11 @@ export default class UiBase extends Emitter {
     }
   }
   private _onClosed() {
-    // 移除打开的实例列表
-    const openInstances = UiBase.openInstances
-    const openInstanceIndex = openInstances.indexOf(this)
-    if (openInstanceIndex !== -1) {
-      openInstances.splice(openInstanceIndex, 1)
-    }
-
     const { $root, outClassName } = this
     $root.removeClass(outClassName).remove()
     this.emit('closed')
+    // remove instance
+    splice(UiBase.openInstances, this)
   }
   /** 延迟关闭 */
   public wait(duration: number): Promise<UiBase> {

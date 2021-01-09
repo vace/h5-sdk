@@ -122,7 +122,7 @@ describe('test factory Http', () => {
     })
   })
   it('http config check', () => {
-    http.httpconf.baseURL.should.is.equal('../api/')
+    http.httpconfig.baseURL.should.is.equal('../api/')
   })
   it('http request test', (done) => {
     http.get('pack.json').then(json => {
@@ -215,8 +215,9 @@ describe('test factory Http', () => {
 })
 
 describe('test factory Auth', () => {
-  var auth
+  var auth, authhttp
   before(() => {
+    sdk.Config.API_AUTH = 'https://api2.ahmq.net/'
     auth = new sdk.Auth({
       appid: 'wxe2aac4977ce6c0ad',
       platform: 'open',
@@ -225,6 +226,11 @@ describe('test factory Auth', () => {
       env: ''
     })
     auth.login()
+    authhttp = new sdk.Http({
+      auth,
+      baseURL: 'https://api2.ahmq.net/index/'
+    })
+    console.log(authhttp)
   })
   it('auth config check', () => {
     should(auth.appid).is.equal('wxe2aac4977ce6c0ad')
@@ -234,5 +240,15 @@ describe('test factory Auth', () => {
   })
   it('auth.user has appid', () => {
     should(sdk.user && sdk.user.appid).is.equal('wxe2aac4977ce6c0ad')
+  })
+
+  it('authhttp has user', () => {
+    should(authhttp.auth).is.equal(auth)
+  })
+
+  it('authhttp send request', (done) => {
+    authhttp.get('index').then(rep => {
+      done()
+    })
   })
 })

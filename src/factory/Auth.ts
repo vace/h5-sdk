@@ -11,7 +11,7 @@ const AuthStore = hotcache('@SdkTokens')
  * 普通静默登录：`auth.login().then(...)
  */
 
-export enum AuthType { none = 'none', base = 'base', user = 'user' }
+export const enum AuthType { none = 'none', base = 'base', user = 'user' }
 export enum AuthErrorCode { OK, NO_CODE, LOGIN_FAILED }
 // 可使用此函数实现自定义登陆
 type AuthOnRedirectLogin = (url: string, reason: AuthError) => void
@@ -37,36 +37,6 @@ export default class Auth extends Http {
   // @ts-ignore
   public static instance:Auth = null
 
-  /** 转换配置参数，子类可覆盖实现 */
-  public static transformAuthOptions = always
-
-  /** 全局请求转换 */
-  public static transformAuthRequest(auth: Auth, config: any) {
-    if (auth && auth.token) {
-      if (!isHasOwn(config, 'headers')) {
-        config.headers = {}
-      }
-      config.headers.Authorization = auth.token
-    }
-    return config
-  }
-  /** 全局auth参数接收 */
-  public static onAuthHeadersReceived(auth: Auth, header: Headers) {
-    const authorization = header.get('Authorization')
-    if (authorization) {
-      if (authorization === 'LogOut') auth.logout()
-      else auth.saveToken(authorization)
-    }
-  }
-
-  /** 转换用户登陆请求 */
-  public static transformAuthResponse (auth: Auth, response: any): AuthUser {
-    if (isHasOwn(response, 'code') && response.code === 0 && response.data) {
-      return auth.user.login(response.data)
-    }
-    throw new AuthError(AuthErrorCode.LOGIN_FAILED, 'login failed', response)
-  }
-
   /** 用户实例 */
   public user!: AuthUser
   /** Auth版本号，可修改version强制重新授权 */
@@ -89,6 +59,9 @@ export default class Auth extends Http {
   public url!: string
   /** 自定义redirect方法 */
   public onRedirectLogin!: AuthOnRedirectLogin
+
+  /** 仅在子类中使用 */
+  protected $tryUseAuth = true
 
   /** 读取当前缓存key */
   get $key() {
@@ -136,12 +109,8 @@ export default class Auth extends Http {
 
   // 初始化
   constructor(options: any) {
-    super({
-      baseURL: Config.API_AUTH,
-      transformRequest: config => Auth.transformAuthRequest(this, config),
-      onHeadersReceived: header => Auth.onAuthHeadersReceived(this, header)
-    })
-    const { platform, appid, type, scope, env, url, version, onRedirectLogin } = Auth.transformAuthOptions(options)
+    super({ baseURL: Config.API_AUTH })
+    const { platform, appid, type, scope, env, url, version, onRedirectLogin } = this.transformAuthOptions(options)
     this.platform = platform
     this.appid = appid
     this.type = type
@@ -151,6 +120,7 @@ export default class Auth extends Http {
     this.version = version
     this.onRedirectLogin = onRedirectLogin
     this.user = new AuthUser(this)
+    // 设置默认实例
     if (!(Auth.instance instanceof Auth)) {
       Auth.instance = this
     }
@@ -186,7 +156,7 @@ export default class Auth extends Http {
   /** 刷新用户资料 */
   public async refresh () {
     const response = await this.get('/api/oauth/refresh')
-    return Auth.transformAuthResponse(this, response)
+    return this.transformAuthResponse(response)
   }
 
   /** 更新用户token */
@@ -208,5 +178,35 @@ export default class Auth extends Http {
   /** 跳转到登录页或自行处理逻辑 */
   public _redirectLogin (reason: AuthError) {
     throw reason
+  }
+
+  /** 转换配置参数，子类可覆盖实现 */
+  public transformAuthOptions = always
+
+  /** 全局请求转换 */
+  public transformAuthRequest(config: any) {
+    if (this && this.token) {
+      if (!isHasOwn(config, 'headers')) {
+        config.headers = {}
+      }
+      config.headers.Authorization = this.token
+    }
+    return config
+  }
+  /** 全局auth参数接收 */
+  public onAuthHeadersReceived(header: Headers) {
+    const authorization = header.get('Authorization')
+    if (authorization) {
+      if (authorization === 'LogOut') this.logout()
+      else this.saveToken(authorization)
+    }
+  }
+
+  /** 转换用户登陆请求 */
+  public transformAuthResponse(response: any): AuthUser {
+    if (isHasOwn(response, 'code') && response.code === 0 && response.data) {
+      return this.user.login(response.data)
+    }
+    throw new AuthError(AuthErrorCode.LOGIN_FAILED, 'login failed', response)
   }
 }

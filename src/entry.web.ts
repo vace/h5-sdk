@@ -2,9 +2,6 @@ import './assets/common.less'
 import './assets/icon.less'
 import './venders/index.web'
 
-/** 版本号 */
-export const version = '__VERSION__'
-
 /** 导出类 */
 import App                     from './factory/App';
 import Auth                    from './factory/Auth.web';
@@ -13,7 +10,7 @@ import Config                  from './factory/Config.web';
 import Emitter                 from './factory/Emitter';
 import Http                    from './factory/Http.web';
 import Res                     from './factory/Res.web';
-import Tasker                  from './factory/Tasker'
+// import Tasker                  from './factory/Tasker'
 import UiBase                  from './factory/UiBase.web'
 import UiModal                 from './factory/UiModal.web'
 import UiMusic                 from './factory/UiMusic.web'
@@ -21,7 +18,7 @@ import UiSheet                 from './factory/UiSheet.web'
 import UiToast                 from './factory/UiToast.web'
 import UiView                  from './factory/UiView.web'
 
-export { App, Auth, AuthUser, Config, Emitter, Http, Res, Tasker, UiBase, UiModal, UiMusic, UiSheet, UiToast, UiView }
+export { App, Auth, AuthUser, Config, Emitter, Http, Res, UiBase, UiModal, UiMusic, UiSheet, UiToast, UiView }
 
 /* 导出辅助函数类 */
 export *                       from './functions/common'
@@ -33,6 +30,7 @@ export { default as hotcache}  from './plugins/hotcache'
 export { default as jssdk}     from './plugins/jssdk.web'
 export { default as location}  from './plugins/location.web'
 export { default as store}     from './plugins/store.web'
+export { default as tasker}    from './plugins/tasker'
 import * as cdn                from './plugins/cdn'
 import * as cloud              from './plugins/cloud.web'
 import * as safefy             from './plugins/safety'

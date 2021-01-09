@@ -5,7 +5,7 @@ import { appid } from '../functions/utils.mini'
 
 declare var wx: any
 
-Auth.transformAuthOptions = (_opts) => {
+Auth.prototype.transformAuthOptions = (_opts) => {
   const options: any = _opts || {}
   options.platform = 'mini'
   // 默认只读取base授权
@@ -33,7 +33,7 @@ Auth.prototype._requestLogin = async function _requestLogin (): Promise<AuthUser
       throw new AuthError(AuthErrorCode.NO_CODE, err.errMsg)
     })
     const response = await this.get('/wx/mini/login', { code, appid, type })
-    return Auth.transformAuthResponse(this, response)
+    return this.transformAuthResponse(response)
   } else {
     if (user.needRefreshed) {
       return await this.refresh()
@@ -70,7 +70,7 @@ Auth.prototype.authorize = async function authorize (userinfo?: any) {
   await this.login()
   const param = { iv, data: encryptedData, signature, appid }
   const response = await this.get('/wx/mini/loginuser', param)
-  const authuser = Auth.transformAuthResponse(this, response)
+  const authuser = this.transformAuthResponse(response)
   this.type = AuthType.user
   return authuser
 }

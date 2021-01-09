@@ -27,10 +27,10 @@ export default class UiToast extends UiBase{
   }
 
   // jquery element cache
-  /** header 结构 */
-  public $header?: ZeptoCollection
   /** body 内容 */
-  public $body?: ZeptoCollection
+  public $body: ZeptoCollection
+  /** 图标内容 */
+  public $icon!: ZeptoCollection
   /** 消息内容 */
   public $message: ZeptoCollection
 
@@ -39,6 +39,7 @@ export default class UiToast extends UiBase{
 
   constructor (_option: UiToastOption) {
     super(assign({}, UiToast.option, _option))
+    this.$body = createClsElement('toast-body')
     this.$message = createClsElement('toast-message', '')
     this.$root.addClass(classPrefix('toast')).on('click', () => {
       const { onClick, clickClosed } = this.option
@@ -48,7 +49,7 @@ export default class UiToast extends UiBase{
       if (clickClosed) {
         this.close()
       }
-    })
+    }).append(this.$body)
     this.on('open', this._openHook.bind(this))
     this.on('closed', this._closedHook.bind(this))
   }
@@ -65,12 +66,17 @@ export default class UiToast extends UiBase{
   }
 
   private _openHook () {
-    const { $root, $message } = this
+    const { $body, $message } = this
     const { icon, message } = this.option
     if (icon) {
-      $root.append(createClsElement('toast-icon', createSdkIcon(icon)))
+      if (!this.$icon) {
+        this.$icon = createClsElement('toast-icon', createSdkIcon(icon))
+        $body.append(this.$icon)
+      } else {
+        this.setIcon(icon)
+      }
     }
-    $root.append($message.html(message || ''))
+    $body.append($message.html(message || ''))
   }
   private _closedHook () {
     this.$root.html('')

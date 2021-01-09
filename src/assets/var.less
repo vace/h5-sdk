@@ -3,5 +3,23 @@
 @PrimaryColor: #0BB20C;
 @WarnColor: #E64340;
 @InfoColor: #03a9f4;
+// @WhiteColor: #ffffff;
+// @FontColor1: #333;
+// @FontColor2: #666;
+
 @BorderColor: rgba(213, 213, 214, 0.4);
 @Border1px: 1px solid rgba(213, 213, 214, 0.4);
+
+// 遮罩层背景
+@MaskBackground: rgba(0, 0, 0, .6);
+@ModalBackground: #FFF;
+
+// toast弹窗背景以及颜色
+@ToastBackground: rgba(0, 0, 0, 0.8);
+@ToastColor: #fff;
+@ToastIconSize: 48px;
+
+.theme(@property, @def, @cssvar) {
+  @{property}: @def;
+  @{property}: var(@cssvar, @def);
+}

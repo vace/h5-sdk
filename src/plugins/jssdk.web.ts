@@ -1,15 +1,15 @@
 import Config from "../factory/Config"
-import Tasker from "../factory/Tasker"
 import App from "../factory/App"
 import Auth from "../factory/Auth"
 import Res from '../factory/Res.web'
 import Http, { HttpError } from "../factory/Http"
 import mlocation from './location.web'
 import analysis from './analysis.web'
-import { isString, isHasOwn, once, uniqueArray, noop, assign, alwaysTrue, createURL, isFunction, now } from "../functions/common"
+import tasker from './tasker'
+import { isString, isHasOwn, once, uniqueArray, noop, assign, alwaysTrue, createURL, isFunction, timestamp, nextTick } from "../functions/common"
 import { isWechat, document, isMiniapp } from "../functions/utils.web"
 
-const task = new Tasker()
+const task = tasker<boolean>()
 
 declare var wx: any
 
@@ -47,10 +47,10 @@ const loadJssdk = once(async () => {
 
   if (typeof wx === 'undefined') {
     try {
-      await Res.instance.add(jweixin('res'))
+      Res.js(jweixin('res'))
     } catch {
       // 如果上述服务不可用，则加载微信服务2
-      await Res.instance.add(jweixin('res2')).catch(noop)
+      Res.js(jweixin('res2'))
     }
     if (typeof wx === 'undefined') {
       throw new JssdkError('`jweixin-${version}.js` load failed')
@@ -61,28 +61,34 @@ const loadJssdk = once(async () => {
 
 const config = once(async (config: IJssdkConfig) => {
   const { url, debug, appid, jsApiList = [] } = config
-  const http = Http.instance
   const wx = await loadJssdk()
   const currentURL = mlocation.url
   // 在微信中请求签名，其他环境中使用适配器模式
-  const response = isWechat ? await http.get(url || Config.service('wechat/signature'), {
-    appid,
-    url: currentURL
-  }) : { code: 0, appId: appid, url: currentURL, timestamp: now(), signature: 'mock value' }
-  if (!isHasOwn(response, 'code')) {
-    throw new HttpError(-1, 'response empty', http, response)
+  let responseSignure: any
+  if (isWechat) {
+    const response = await Http.get(url || Config.service('wechat/signature'), {
+      appid,
+      url: currentURL
+    })
+    if (!isHasOwn(response, 'code')) {
+      throw new HttpError(-1, 'response empty', Http.instance, response)
+    }
+    const { code, message, data } = response
+    if (code) {
+      throw new JssdkError(message)
+    }
+    responseSignure = data
+  } else {
+    responseSignure = { appId: appid, url: currentURL, timestamp: timestamp(), signature: 'mock value' }
   }
-  const { code, message, data } = response
-  if (code) {
-    throw new JssdkError(message)
-  }
-  const signature = { ...data, debug, jsApiList: uniqueArray([...DefaultJssdkApi, ...jsApiList]) }
+  const signature = { ...responseSignure, debug, jsApiList: uniqueArray([...DefaultJssdkApi, ...jsApiList]) }
   wx.ready(() => task.resolve(true))
   wx.error((err: any) => task.reject(new JssdkError(err.errMsg)))
-  if (debug) {
-    console.log(`sdk:jssdk.config`, signature)
-  }
   wx.config(signature)
+  // 不在微信环境中直接resolve
+  if (!isWechat) {
+    nextTick().then(() => task.resolve(true))
+  }
   return task
 })
 

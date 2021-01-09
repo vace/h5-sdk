@@ -1,6 +1,6 @@
 import analysis from './analysis'
 import { isArray, isString, assign, global } from '../functions/common'
-import { addListener, domready } from '../functions/utils.web'
+import { addListener, domready, document, userAgent } from '../functions/utils.web'
 import mlocation from './location.web'
 import Auth from '../factory/Auth'
 
@@ -21,7 +21,7 @@ const webConfig = {
     return mlocation.rootpath
   },
   getAgent () {
-    return navigator.userAgent
+    return userAgent
   },
   // 用户溯源探针
   getSpm() {

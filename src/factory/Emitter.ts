@@ -1,5 +1,5 @@
-// @flow
-// An event handler can take an optional event argument
+import { object } from '../functions/common'
+
 // and should not return a value
 type IEmitterEventHandler = (event?: any, a1?: any, a2?: any) => void;
 type IEmitterWildCardEventHandler = (type: string, event?: any, a1?: any, a2?: any) => void
@@ -20,7 +20,7 @@ export default class Emitter {
   public static instance: Emitter = new Emitter
 
   /** 缓存监听的实例对象 */
-  private [EmitterSymbol]: EventHandlerMap = Object.create(null)
+  private [EmitterSymbol]: EventHandlerMap = object()
 
   /**
    * 注册指定事件，返回解绑事件句柄

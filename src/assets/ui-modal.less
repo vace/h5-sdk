@@ -8,7 +8,7 @@
   right: 0;
   left: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, .6);
+  .theme(background, @MaskBackground, --mask-background);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -29,7 +29,6 @@
 
 ._sdk-modal {
   user-select: none;
-  // font-family: PingFang SC,Helvetica Neue,Hiragino Sans GB,Helvetica,Microsoft YaHei,Arial;
   font-family: -apple-system-font,Helvetica Neue,Helvetica,sans-serif;
   line-height: 1.15;
   position: fixed;
@@ -39,7 +38,7 @@
   left: 50%;
   transform: translate3d(-50%,-50%, 0);
   z-index: 5000;
-  background-color: #fff;
+  .theme(background, @ModalBackground, --modal-background);
   text-align: center;
   border-radius: 12px;
   overflow: hidden;
@@ -81,14 +80,13 @@
     color: #333;
     margin-bottom: 0.5em;
   }
-  &-content {
+  &-header, &-footer, &-content {
+    .theme(color, @DarkColor, --color-dark);
     padding: 0.6em @paddingGap;
     font-size: 17px;
     line-height: 1.4;
     word-wrap: break-word;
     word-break: break-all;
-    color: #666;
-    margin-bottom: 1em;
     text-align: justify;
   }
   &-form {
@@ -140,6 +138,7 @@
     }
   }
   &-buttons {
+    margin-top: 10px;
     position: relative;
     line-height: 56px;
     font-size: 18px;

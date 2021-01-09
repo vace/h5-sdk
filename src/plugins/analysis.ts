@@ -1,7 +1,7 @@
 import App from "../factory/App";
 import Config from "../factory/Config";
 import Auth from '../factory/Auth'
-import { randomstr, now, isNumber, isString, wait, noop } from "../functions/common";
+import { randomstr, now, isNumber, isString, wait, noop, version} from "../functions/common";
 import { signature } from "./safety";
 
 type IAnalysisConfig = {
@@ -92,7 +92,7 @@ function send (event: string, data: any = '', value: number = 0) {
     [ANA_USER_AGENT]: config.getAgent(),
     [ANA_PAGE_URL]: config.getURL(),
     [ANA_USER_ID]: config.userId,
-    [ANA_SDK_VERSION]: '__VERSION__',
+    [ANA_SDK_VERSION]: version,
     [ANA_EVENT_NAME]: event,
     [ANA_SEND_DATA]: data,
     [ANA_SEND_VALUE]: Math.round(value || 0),

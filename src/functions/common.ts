@@ -1,3 +1,5 @@
+declare var wx: any
+
 // @private 全局UID
 let GLOBAL_UID = 0
 
@@ -10,7 +12,6 @@ const toString = ObjProto.toString
 
 /** 当前环境全局变量 */
 let EnvGlobal: any = {}
-declare var wx: any
 
 // @ts-ignore
 if ('__PLANTFORM__' === 'web') {
@@ -25,7 +26,15 @@ if ('__PLANTFORM__' === 'node') {
   EnvGlobal = typeof global === 'undefined' ? {} : global
 }
 
+/** 
+ * 环境变量
+ */
+/** 当前全局变量 */
 export { EnvGlobal as global }
+/** 当前运行平台 */
+export const platform = '__PLANTFORM__'
+/** 当前版本信息 */
+export const version  = '__VERSION__'
 
 /**
  * 常用正则
@@ -37,7 +46,7 @@ export const regexBase64: RegExp = /^data:(.+);base64,/i
 /** 是否为数字的正则表达式(正数、负数、和小数) */
 export const regexNumber: RegExp = /^(\-|\+)?\d+(\.\d+)?$/
 /** 是否为电话号码的正则表达式 */
-export const regexMobile: RegExp = /^1[3-9]\d{9}$/
+export const regexMobile: RegExp = /^1[1-9]\d{9}$/
 /** 是否为中文的正则表达式 */
 export const regexChinese: RegExp = /^[\u0391-\uFFE5]+$/
 /** 使用正则匹配和分割目录 */
@@ -52,6 +61,7 @@ export const alwaysTrue = () => true
 export const alwaysFalse = () => false
 export const assign = Object.assign
 export const keys = Object.keys
+export const object = () => Object.create(null)
 
 /**
  * 类型判断函数
@@ -87,7 +97,7 @@ export const isBase64 = (str: any) => isString(str) && regexBase64.test(str)
 export const isNative = (Ctor: unknown): boolean => typeof Ctor === 'function' && /native code/.test(Ctor.toString())
 export const isWindow = (obj: any) => obj != null && obj == obj.window
 export const isDocument = (obj: any) => obj != null && isDef(obj.nodeType) && obj.nodeType == obj.DOCUMENT_NODE
-export const isFormData = (val: any) => val instanceof FormData
+export const isFormData = (val: any) => typeof FormData !== 'undefined' && val instanceof FormData
 export const isNumeric = (val: any) => {
   var num = Number(val), type = typeof val
   return val != null && type != 'boolean' && (type != 'string' || val.length) && !isNaN(num) && isFinite(num) || false
@@ -128,16 +138,16 @@ export const css = _css
 export const getLength: (obj: any) => number = _shallowProperty('length')
 export const equal = _equal
 export const remove = _remove
-export const inArray = (val: any, arr: any, fromIndex?: number) => isArray(arr) && arr.indexOf(val, fromIndex) !== -1
+export const splice = _splice
+export const inArray = (val: any, arr: any[], fromIndex?: number) => isArray(arr) && arr.indexOf(val, fromIndex) !== -1
 export const uniqueArray = (arr: any[]) => Array.from(new Set(arr))
 export const map = _map
 export const shuffle = _shuffle
 export const pick = _pick
 // 遍历对象/数组，返回false时停止循环
 export const each = _each
-export const makeMark = (arr: string[]): Record<string, boolean> => _makeArrMarkOrMap(arr, true)
-export const makeMap = (arr: string[]): Record<string, string> => _makeArrMarkOrMap(arr)
-// export const define = (obj: object, key: string, val: any, enumerable?: boolean, writable?: boolean) => Object.defineProperty(obj, key, { value: val, enumerable: !!enumerable, writable: true, configurable: true })
+export const makeMark = <T extends number|string|symbol>(arr: T[]): Record<T, true> => _makeArrMarkOrMap(arr, true)
+export const makeMap = <T extends number|string|symbol>(arr: T[], fn?: (key: T, arr: T[]) => any): Record<T, any> => _makeArrMarkOrMap(arr, fn)
 
 /**
  * 常用函数包装函数
@@ -148,12 +158,12 @@ export const after = _after
 export const throttle = _throttle
 export const debounce = _debounce
 export const memoize = _memoize
-export const spread = (callback: Function) => (arr: any[]) => callback.apply(null, arr)
-export const wrapFn = (callback: any, context?: any) => isFunction(callback) ? callback.bind(context) : noop
+export const spread = <T extends Function>(callback: T) => (arr: any[]): any => callback.apply(null, arr)
+export const wrapFn = <T extends Function>(callback: T, context?: any): T => isFunction(callback) ? callback.bind(context) : noop
 export const nextTick = _makeNextTick()
 
 /**
- * qs函数
+ * querystring 函数
  */
 export const stringify = (obj: any, sep = '&', eq = '='): string => isString(obj) ? obj : _map(obj, (value, key) => key + eq + _encodePrimitive(value)).join(sep)
 export const parse = _parse
@@ -288,14 +298,14 @@ function _formatTime (date: Date, format = 'Y-m-d H:i:s') {
  * @param  {function}   func      传入函数
  * @param  {number}     wait      表示时间窗口的间隔
  */
-function _throttle(func: Function, wait: number) {
+function _throttle<T extends Function>(func: T, wait: number): T {
   let ctx: any,
     args: any | IArguments,
     rtn: any,
     timeoutID: any,
     last: number = 0
 
-  return function throttled(this: any) {
+  const throttled: any = function (this: any) {
     ctx = this
     args = arguments
     var delta = now() - last
@@ -312,6 +322,7 @@ function _throttle(func: Function, wait: number) {
     ctx = null
     args = null
   }
+  return throttled
 }
 
 /**
@@ -403,7 +414,7 @@ function _each (obj: any, iteratee: (val: any, key: any, _this: unknown) => any,
  * @param map 文本
  */
 function _pick<T>(obj: T, map: string[] | Record<string, any>): T {
-  const res = Object.create(null)
+  const res = object()
   each(map, (value: any, key: any) => {
     res[value] = typeof key === 'string' ? obj[key] : obj[value]
   })
@@ -416,8 +427,8 @@ function _pick<T>(obj: T, map: string[] | Record<string, any>): T {
  * @param {any} func 计算函数体
  * @param {any} hashFn 可选的函数缓存key
  */
-function _memoize<T>(func: Function, hashFn?: (...arg: any[]) => string): T {
-  const memoized: any = function (this: any, key: string) {
+function _memoize<T extends Function>(func: T, hashFn?: (...arg: any[]) => string): T {
+  const memoized: any = function (this: any, key: string): any {
     const cache = memoized.cache
     const arg: any = arguments
     const address = '' + (hashFn ? hashFn.apply(this, arg) : key)
@@ -553,6 +564,15 @@ function _remove<T>(array: T[], predicate: (value: unknown, index: number, array
     }
   }
   return result
+}
+
+function _splice <T>(array: T[], item: T) {
+  const idx = array.indexOf(item)
+  if (idx !== -1) {
+    array.splice(idx, 1)
+    return item
+  }
+  return false
 }
 
 // timeago
@@ -692,10 +712,20 @@ function _filterURL (url: string, filters: string[]) {
   return createURL(base, query)
 }
 
-function _makeArrMarkOrMap(arr: string[], isMark?: boolean) {
-  const mark = Object.create(null)
+function _makeArrMarkOrMap(arr: any[], fn?: boolean | Function) {
+  const mark = object()
+  const isMark = isBoolean(fn)
+  const isFunc = isFunction(fn)
   if (!isArray(arr)) return mark
-  arr.forEach(item => mark[item] = isMark ? true : item)
+  arr.forEach(item => {
+    let value: any = item
+    if (isMark) {
+      value = true
+    } else if (isFunc) {
+      value = (<any>fn)(item, arr)
+    }
+    mark[item] = value
+  })
   return mark
 }
 
@@ -820,7 +850,11 @@ function _makeNextTick() {
       copies[i]()
     }
   }
-  return function _nextTick (callback?: any, ctx?: any): Promise<void> {
+
+  function _nextTick (callback: any): void
+  function _nextTick (): Promise<void>
+
+  function _nextTick (callback?: any, ctx?: any): any {
     let _resolve: any
     callbacks.push(() => {
       if (callback) {
@@ -836,6 +870,7 @@ function _makeNextTick() {
     if (!callback) {
       return new Promise(resolve => { _resolve = resolve })
     }
-    return Promise.resolve()
   }
+
+  return _nextTick
 }

@@ -1,10 +1,9 @@
 import $ from '../venders/zepto.js';
 import '../assets/ui-music.less'
-import { SvgWindmill } from '../assets/star-loading'
-import Emitter from "./Emitter";
+import { SvgWindmill } from '../assets/svg-string'
 import { createClsElement, classPrefix } from "./UiBase.web";
 import { addListener, isWechat, document } from '../functions/utils.web';
-import { assign, each, pick, isDef, once } from "../functions/common";
+import { assign, each, pick, isDef, once, object } from "../functions/common";
 import Config from './Config'
 
 /** 配置项 */
@@ -110,7 +109,7 @@ export default class UiMusic {
     return this.themes.set(themeName, _adapter)
   }
   /** 雪碧音支持 */
-  public timelines: Record<string, IUiMusicTimeline> = Object.create(null)
+  public timelines: Record<string, IUiMusicTimeline> = object()
   /** 实例配置 */
   public option: IUiMusicOption
   /** 是否挂载 */

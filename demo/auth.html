@@ -14,22 +14,21 @@
   <title>title</title>
   <meta name="sdk:app" appid="apr79oyug6">
   <!-- jssdk 配置 -->
-  <meta name="sdk:jssdk" appid="wxe2aac4977ce6c0ad" debug="false"
+  <meta name="sdk:jssdk" appid="wxe2aac4977ce6c0ad" debug="true"
     api="chooseImage,uploadImage,getLocalImgData,stopRecord,startRecord,uploadVoice">
   <meta name="sdk:share" title="shareTitle" desc="shareDesc">
-  <meta name="sdk:auth" appid="wxf4a60c4e95c3db80" platform="wechat" scope="snsapi_login" type="user" env="proxy">
+  <meta name="sdk:auth" appid="wxe2aac4977ce6c0ad" platform="open" scope="snsapi_userinfo" type="user" env="mock">
 </head>
 
 <body>
   <div id="app"></div>
   <!-- built files will be auto injected -->
-  <!-- spm_uid=1230&spm_from=miniapp -->
-  <script autocss src="sdk.dev.js"></script>
   <script>
-    sdk.app.ready(setting => {
-      console.log(setting)
-    })
+    var _SDK = {
+      api: 'https://api2.ahmq.net'
+    }
   </script>
+  <script autocss src="sdk.dev.js"></script>
   <script>
   </script>
 </body>

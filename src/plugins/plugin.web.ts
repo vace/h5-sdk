@@ -34,7 +34,7 @@ export function use (plugin: IUsePlugin) {
   }
   const suffix = version ? `?v=${version}` : ''
   const pluginRoot = Config.cdn(config.rootPath + name + '.js' + suffix)
-  return Res.instance.add(pluginRoot).then(() => {
+  return Res.js(pluginRoot).then(() => {
     const plugin = store.get(cacheKey)
     if (!isDef(plugin)) {
       throw new TypeError(`plugin loaded empty:` + name)

@@ -1,44 +1,10 @@
-import { isDef, isNumeric, uid } from '../functions/common'
+import { uid } from '../functions/common'
 
 export * from './tool'
 
 /** 生成微信账号二维码 */
 export function getQrcode(username: string): string {
   return `https://open.weixin.qq.com/qr/code?username=${username}`
-}
-
-
-/**
- * 读取获取元素的配置属性
- * ! 布尔值，+ 数字，? 如果有可能，转换为数字
- * @ignore
- * @param {HTMLElement} element 元素
- * @param {string[]} attrs 属性表
- */
-export function getElementAttrs(element: Element, attrs: string[]): Record<string, any> {
-  const options = {}
-  for (let attr of attrs) {
-    const firstTypeChar = attr[0]
-    const isBoolean = firstTypeChar === '!'
-    const isNumber = firstTypeChar === '+'
-    const isAutoCovent = firstTypeChar === '?'
-    if (isBoolean || isNumber || isAutoCovent) attr = attr.slice(1)
-    let value: any = element.getAttribute(attr)
-    if (!isDef(value)) {
-      continue
-    }
-    if (isBoolean) {
-      value = (value !== 'false' && value !== 'off' && value !== 'disabled')
-    } else if (isNumber) {
-      value = parseFloat(value)
-    } else if (isAutoCovent) {
-      if (isNumeric(value)) {
-        value = parseFloat(value)
-      }
-    }
-    options[attr] = value
-  }
-  return options
 }
 
 /** 读取文件的base64 */

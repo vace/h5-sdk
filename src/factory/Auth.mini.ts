@@ -18,7 +18,7 @@ Auth.prototype.transformAuthOptions = (_opts) => {
   return options
 }
 
-Auth.prototype._requestLogin = async function _requestLogin (): Promise<AuthUser> {
+Auth.prototype.autoLogin = async function _requestLogin (): Promise<AuthUser> {
   const { appid, user, type } = this
   let token = this.token
   if (token) {
@@ -32,8 +32,7 @@ Auth.prototype._requestLogin = async function _requestLogin (): Promise<AuthUser
     const code = await wx.login().then(ret => ret.code, (err: any) => {
       throw new AuthError(AuthErrorCode.NO_CODE, err.errMsg)
     })
-    const response = await this.get('/wx/mini/login', { code, appid, type })
-    return this.transformAuthResponse(response)
+    return this.doLogin('/wx/mini/login', { code, appid, type })
   } else {
     if (user.needRefreshed) {
       return await this.refresh()
@@ -42,7 +41,7 @@ Auth.prototype._requestLogin = async function _requestLogin (): Promise<AuthUser
   return user
 }
 
-Auth.prototype._redirectLogin = function (reason: AuthError) {
+Auth.prototype.redirectLogin = function (reason: AuthError) {
   if (isFunction(this.onRedirectLogin)) {
     return this.onRedirectLogin('', reason)
   }
@@ -69,8 +68,7 @@ Auth.prototype.authorize = async function authorize (userinfo?: any) {
   }
   await this.login()
   const param = { iv, data: encryptedData, signature, appid }
-  const response = await this.get('/wx/mini/loginuser', param)
-  const authuser = this.transformAuthResponse(response)
+  const authuser = await this.doLogin('/wx/mini/loginuser', param)
   this.type = AuthType.user
   return authuser
 }

@@ -4,7 +4,7 @@ import Config from './Config'
 import mlocation from '../plugins/location.web'
 import { filterURL, createURL, isFunction } from '../functions/common'
 
-Auth.prototype._requestLogin = async function (): Promise<AuthUser> {
+Auth.prototype.autoLogin = async function (): Promise<AuthUser> {
   const { isTokenValid, platform, user } = this
   if (isTokenValid) {
     if (user.needRefreshed) {
@@ -16,15 +16,14 @@ Auth.prototype._requestLogin = async function (): Promise<AuthUser> {
   if (!code || !state) {
     throw new AuthError(AuthErrorCode.NO_CODE, 'miss `code` and `state`')
   }
-  const response = await this.get(`/api/oauth/login/${platform}`, { code, state })
-  return this.transformAuthResponse(response)
+  return this.doLogin(`/api/oauth/login/${platform}`, { code, state })
 }
 
 /**
    * 跳转到登陆页面
    * TODO 避免循环重定向登陆
    */
-Auth.prototype._redirectLogin =  function(reason: AuthError) {
+Auth.prototype.redirectLogin =  function(reason: AuthError) {
   const { platform, appid, env, scope, url, type } = this
   // 跳转到登陆授权页面
   const redirectURL = filterURL(url || mlocation.url, ['code', 'state', 'appid'])

@@ -4,6 +4,7 @@ import Config from './Config'
 import hotcache from '../plugins/hotcache'
 import { isString, isHasOwn, now, always } from '../functions/common'
 import { jwtDecode } from '../plugins/safety'
+import tasker, { ITaskerPromise } from '../plugins/tasker'
 
 const AuthStore = hotcache('@SdkTokens')
 
@@ -14,7 +15,7 @@ const AuthStore = hotcache('@SdkTokens')
 export const enum AuthType { none = 'none', base = 'base', user = 'user' }
 export enum AuthErrorCode { OK, NO_CODE, LOGIN_FAILED }
 // 可使用此函数实现自定义登陆
-type AuthOnRedirectLogin = (url: string, reason: AuthError) => void
+type AuthOnRedirectLogin = (url: string, reason: AuthError) => AuthUser
 
 // 授权错误
 export class AuthError extends Error {
@@ -127,24 +128,20 @@ export default class Auth extends Http {
   }
 
   /** 登陆任务 */
-  public tasker!: Promise<AuthUser>
-  private $_loginResolve!: Function
-  private $_loginReject!: (err: Error) => void
+  public tasker!: ITaskerPromise<AuthUser>
 
   /** 登陆用户 */
   public login (): Promise<AuthUser> {
-    if (this.tasker) return this.tasker
-    this.tasker = new Promise((resolve, reject) => {
-      this.$_loginResolve = resolve
-      this.$_loginReject = reject
-    })
-    // 尝试使用code 和 state 登陆用户
-    this._requestLogin()
-      .then(user => this.$_loginResolve(user))
-      // 登陆失败，跳转到登录页继续尝试
-      .catch(error => this._redirectLogin(error))
-      // 捕获上述错误
-      .catch(error => this.$_loginReject(error))
+    if (!this.tasker) {
+      this.tasker = tasker()
+      // 尝试使用code 和 state 登陆用户
+      this.autoLogin()
+        .then(user => this.tasker.resolve(user))
+        // 登陆失败，跳转到登录页继续尝试
+        .catch(error => this.redirectLogin(error))
+        // 捕获上述错误
+        .catch(error => this.tasker.reject(error))
+    }
     return this.tasker
   }
 
@@ -171,13 +168,19 @@ export default class Auth extends Http {
   }
 
   /** 尝试使用现有参数登陆 */
-  public async _requestLogin(): Promise<AuthUser> {
+  public autoLogin(): Promise<AuthUser> {
     throw new TypeError('_requestLogin is undefined')
   }
 
   /** 跳转到登录页或自行处理逻辑 */
-  public _redirectLogin (reason: AuthError) {
+  public redirectLogin (reason: AuthError): AuthUser {
     throw reason
+  }
+
+  /** 跳转到登陆 */
+  public doLogin (loginApi: string, query: any): Promise<AuthUser> {
+    return this.get(loginApi, query)
+      .then(response => this.transformAuthResponse(response))
   }
 
   /** 转换配置参数，子类可覆盖实现 */
@@ -205,7 +208,9 @@ export default class Auth extends Http {
   /** 转换用户登陆请求 */
   public transformAuthResponse(response: any): AuthUser {
     if (isHasOwn(response, 'code') && response.code === 0 && response.data) {
-      return this.user.login(response.data)
+      const user = this.user.login(response.data)
+      this.tasker.resolve(user)
+      return user
     }
     throw new AuthError(AuthErrorCode.LOGIN_FAILED, 'login failed', response)
   }

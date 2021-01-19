@@ -1,5 +1,5 @@
 {
-  "exclude": [".git", "node_modules"],
+  "exclude": [".git", "node_modules", "build", "dist"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": { "*": ["types/*"] },

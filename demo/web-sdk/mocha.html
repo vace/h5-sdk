@@ -12,17 +12,17 @@
   <meta name="msapplication-tap-highlight" content="no" />
   <meta name="viewport"
     content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <link href="../static/mocha.min.css" rel="stylesheet">
+  <link href="//h5.ahmq.net/_lib/mocha/8.2.1/mocha.min.css" rel="stylesheet">
 </head>
 
 <body>
   <div id="mocha"></div>
-  <script src="../sdk.dev.js" autocss></script>
-  <script src="../static/mocha.js"></script>
-  <script src="../static/should.js"></script>
+  <script src="sdk.dev.js" autocss></script>
+  <script src="//h5.ahmq.net/_lib/mocha/8.2.1/mocha.min.js"></script>
+  <script src="//h5.ahmq.net/_lib/should.js/13.2.3/should.js"></script>
   <script>mocha.setup('bdd')</script>
-  <script src="factory.js"></script>
-  <script src="functions.js"></script>
+  <script src="mocha-factory.js"></script>
+  <script src="mocha-functions.js"></script>
   <script>
     // mocha.checkLeaks();
     // mocha.globals(['sdk']);

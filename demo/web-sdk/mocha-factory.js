@@ -1,8 +1,8 @@
 describe('test factory Res', () => {
-  var res = new sdk.Res({ baseURL: '../static/', autoStart: true })
+  var res = new sdk.Res({ baseURL: 'api/', autoStart: true })
 
   it('res 配置检测', () => {
-    res.baseURL.should.is.equal('../static/')
+    res.baseURL.should.is.equal('api/')
   })
 
   it('res.on() 可以监听到各种事件', done => {
@@ -25,7 +25,7 @@ describe('test factory Res', () => {
     })
   })
   it('res.json(file) 执行后会返回json内容', done => {
-    res.json('../api/pack.json').then((json) => {
+    res.json('pack.json').then((json) => {
       should(json).have.keys('name', 'version', 'description')
       done()
     })
@@ -39,18 +39,21 @@ describe('test factory Res', () => {
 
   it('res.add([res1, res2, ..., res3]) 之后后会返回多个资源', done => {
     res.add([
-      '../api/pack.json',
+      'pack.json',
       '../logo.png',
-      { type: 'text', key: 'keytest', url: '../api/text.txt' },
-      { type: 'js', url: '../api/javascript.js' },
-      { type: 'css', url: '../api/css.css' },
-      { type: 'blob', url: '../api/blob' },
+      { type: 'text', key: 'keytest', url: 'text.txt' },
+      { type: 'js', url: 'javascript.js' },
+      { type: 'css', url: 'css.css' },
+      { type: 'blob', url: 'blob' },
+      // remote
+      'http://h5.ahmq.net/default-avatar.png',
     ]).then(list => {
       should(list).is.a.Array()
-      should(list.length).is.equal(6)
+      should(list.length).is.equal(7)
       // 可以通过key直接读取内容
       should(res.get('keytest')).is.a.String()
       done()
+      // console.log('res', list)
     })
   })
 })
@@ -59,8 +62,19 @@ describe('test factory App', () => {
   var app
   before(function () {
     app = new sdk.App('apr79oyug6')
-    app.ready()
   });
+
+  it('app.ready 返回 Promise', () => {
+    const ready = app.ready()
+    should(ready).be.a.Promise()
+  })
+
+  it('app.ready().then(app) 可接收到应用配置', (done) => {
+    app.ready().then(app => {
+      app.config.should.has.property('appid')
+      done()
+    }).catch(done)
+  })
 
   it('app config check', () => {
     app.appid.should.is.equal('apr79oyug6')
@@ -118,11 +132,11 @@ describe('test factory Http', () => {
   var http
   before(() => {
     http = new sdk.Http({
-      baseURL: '../api/'
+      baseURL: 'api/'
     })
   })
   it('http config check', () => {
-    http.httpconfig.baseURL.should.is.equal('../api/')
+    http.httpconfig.baseURL.should.is.equal('api/')
   })
   it('http request test', (done) => {
     http.get('pack.json').then(json => {

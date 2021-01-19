@@ -22,7 +22,7 @@ export { default as hotcache} from './plugins/hotcache'
 export { default as store}    from './plugins/store.node'
 import * as cdn               from './plugins/cdn'
 import * as cloud             from './plugins/cloud'
-import * as safefy            from './plugins/safety'
+import * as safefy            from './plugins/safety.node'
 export { cdn, cloud, safefy }
 
 /** 导出动态加载 */

@@ -21,7 +21,7 @@ export { default as hotcache } from './plugins/hotcache'
 export { default as store }    from './plugins/store.mini'
 import * as cdn                from './plugins/cdn'
 import * as cloud              from './plugins/cloud'
-import * as safety             from './plugins/safety'
+import * as safety             from './plugins/safety.mini'
 import * as tool               from './plugins/tool'
 import * as ui                 from './plugins/ui.mini'
 

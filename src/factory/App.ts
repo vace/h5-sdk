@@ -53,9 +53,10 @@ export default class App extends Http {
     const json = await response.json()
     this.setHttpMessage('success', '')
     if (isHasOwn(json, 'code')) {
-      if (json.code) throw new AppError(json.code, json.message, json.data, this) // 包含错误码则抛出错误
-      this.setHttpMessage('success', json.message || json.msg)
-      return json.data
+      const { code, message, data } = json
+      if (code) throw new AppError(code, message, data, this) // 包含错误码则抛出错误
+      this.setHttpMessage('success', message || '')
+      return data
     }
     return json
   }
@@ -77,7 +78,7 @@ export default class App extends Http {
 
   constructor (opts: IAppOption | string) {
     const option = isString(opts) ? { appid: opts } : opts
-    const { appid = '', baseURL = Config.API_APP, auth = Auth.instance, readyapi = '', analysisoff = false } = option
+    const { appid = '', baseURL = Config.API_APP, auth = Auth.instance, readyapi = 'init', analysisoff = false } = option
     super({
       auth,
       // set app base api

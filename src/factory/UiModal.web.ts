@@ -88,7 +88,7 @@ export default class UiModal extends UiBase{
   }
 
   /** 执行一个异步任务，执行成功则关闭 */
-  public withClose (next, message?: string) {
+  public withClose (next:Function | Promise<any>, message?: string) {
     const madal = this
     let _next = next
     if (typeof next === 'function') {

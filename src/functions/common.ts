@@ -14,31 +14,33 @@ const toString = ObjProto.toString
 let EnvGlobal: any = {}
 
 // @ts-ignore
-if ('__PLANTFORM__' === 'web') {
+if ('__PLATFORM__' === 'web') {
   EnvGlobal = typeof window === 'undefined' ? {} : window
 }
 // @ts-ignore
-if ('__PLANTFORM__' === 'mini') {
+if ('__PLATFORM__' === 'mini') {
   EnvGlobal = typeof wx === 'undefined' ? {} : wx
 }
 // @ts-ignore
-if ('__PLANTFORM__' === 'node') {
+if ('__PLATFORM__' === 'node') {
   EnvGlobal = typeof global === 'undefined' ? {} : global
 }
 
 /** 
  * 环境变量
  */
+
 /** 当前全局变量 */
 export { EnvGlobal as global }
-/** 当前运行平台 */
-export const platform = '__PLANTFORM__'
-/** 当前版本信息 */
+/** 当前运行平台，web|mini|node */
+export const platform = '__PLATFORM__'
+/** 当前版本信息 x.y.z */
 export const version  = '__VERSION__'
 
 /**
  * 常用正则
  */
+
 /** 是否为http匹配的正则表达式，存在//www.example.com的情况 */
 export const regexHttp: RegExp = /^(https?:|s?ftp:)?\/\/\S+$/i
 /** base64匹配的正则表达式 */
@@ -55,49 +57,89 @@ export const regexSplitPath: RegExp = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.
 /**
  * 常用简易函数
  */
+
+/** 空函数 */
 export const noop = () => { }
+/** 定值函数 */
 export const always = <T>(val: T): T => val
+/** 返回值始终为true */
 export const alwaysTrue = () => true
+/** 返回值始终为false */
 export const alwaysFalse = () => false
+/** 对象合并`Object.assign` */
 export const assign = Object.assign
+/** 对象key列表`Object.keys` */
 export const keys = Object.keys
+/** 创建无原型链对象 */
 export const object = () => Object.create(null)
 
 /**
  * 类型判断函数
  */
-export const isArray = Array.isArray
-export const isNaN = Number.isNaN
-export const isNumber: (arg: any) => arg is number = _tagTester('Number')
-export const isString: (arg: any) => arg is string = _tagTester('String')
-export const isBoolean: (arg: any) => arg is boolean = _tagTester('Boolean')
-export const isArguments: (arg: any) => arg is any[] = _tagTester('Arguments')
-export const isMap: (arg: any) => arg is Map<any, any> = _tagTester('Map')
-export const isError: (arg: any) => arg is Error = _tagTester('Error')
-export const isSet: (arg: any) => arg is Set<any> = _tagTester('Set')
-export const isRegExp: (arg: any) => arg is RegExp = _tagTester('RegExp')
-export const isSymbol: (arg: any) => arg is symbol = _tagTester('Symbol')
-export const isDate: (arg: any) => arg is Date = _tagTester('Date')
-export const isFile: (arg: any) => arg is File = _tagTester('File')
-export const isBlob: (arg: any) => arg is Blob = _tagTester('Blob')
 
+/** 判定参数是否为数组`Array.isArray` */
+export const isArray = Array.isArray
+/** 判定参数是否为NaN`Number.isNaN` */
+export const isNaN = Number.isNaN
+/** 判定参数是否为Number对象 */
+export const isNumber: (arg: any) => arg is number = _tagTester('Number')
+/** 判定参数是否为String对象 */
+export const isString: (arg: any) => arg is string = _tagTester('String')
+/** 判定参数是否为Boolean对象 */
+export const isBoolean: (arg: any) => arg is boolean = _tagTester('Boolean')
+/** 判定参数是否为Arguments对象 */
+export const isArguments: (arg: any) => arg is any[] = _tagTester('Arguments')
+/** 判定参数是否为Map对象 */
+export const isMap: (arg: any) => arg is Map<any, any> = _tagTester('Map')
+/** 判定参数是否为Error对象 */
+export const isError: (arg: any) => arg is Error = _tagTester('Error')
+/** 判定参数是否为Set对象 */
+export const isSet: (arg: any) => arg is Set<any> = _tagTester('Set')
+/** 判定参数是否为RegExp对象 */
+export const isRegExp: (arg: any) => arg is RegExp = _tagTester('RegExp')
+/** 判定参数是否为Symbol对象 */
+export const isSymbol: (arg: any) => arg is symbol = _tagTester('Symbol')
+/** 判定参数是否为Date对象 */
+export const isDate: (arg: any) => arg is Date = _tagTester('Date')
+/** 判定参数是否为File对象 */
+export const isFile: (arg: any) => arg is File = _tagTester('File')
+/** 判定参数是否为Blob对象 */
+export const isBlob: (arg: any) => arg is Blob = _tagTester('Blob')
+/** 判定参数是否为Object对象(object|function) */
 export const isObject = (obj: any) => (typeof obj === 'object' && !!obj) || isFunction(obj)
+/** 判定对象是否具有指定属性 */
 export const isHasOwn = (obj: any, prop: any) => ObjProto.hasOwnProperty.call(obj, prop)
+/** 判定参数是否为函数`Function` */
 export const isFunction = (fun: any): fun is Function => typeof fun === 'function'
+/** 判定参数是否为`Null` */
 export const isNull = (nul: any): nul is null => nul === null
+/** 判定参数是否为`Undefined` */
 export const isUndefined = (val: any): val is undefined => val === void 0
+/** 判定参数是否为`Null`|`Undefined` */
 export const isNullOrUndefined = (arg: unknown) => arg == null
+/** 判定参数是否为存在(非`Null`|`Undefined`) */
 export const isDef = <T>(val: T | null | undefined): val is T  => val != null
+/** 判定参数是否为原始对象(排除数组) */
 export const isPlainObject = (val: any) => isDef(val) && typeof val === 'object' && !isArray(val)
+/** 判定参数是否为绝对路径 */
 export const isAbsolute = (path: any) => isString(path) && path[0] === '/'
+/** 判定参数是否为http|ftp链接 */
 export const isHttp = (path: any) => isString(path) && regexHttp.test(path)
+/** 判定参数是否为`Promise` */
 export const isPromise = <T>(obj: Promise<T> | any): obj is Promise<T> => isPlainObject(obj) && isFunction(obj.then) && isFunction(obj.catch)
+/** 判定参数是否为空值(falsely,空数组,空对象,空字符串) */
 export const isEmpty = _isEmpty
+/** 判定参数是否为base64编码格式 */
 export const isBase64 = (str: any) => isString(str) && regexBase64.test(str)
+/** 判定参数是否为原始函数 */
 export const isNative = (Ctor: unknown): boolean => typeof Ctor === 'function' && /native code/.test(Ctor.toString())
+/** 判定参数是否为`Window` */
 export const isWindow = (obj: any) => obj != null && obj == obj.window
+/** 判定参数是否为`Document` */
 export const isDocument = (obj: any) => obj != null && isDef(obj.nodeType) && obj.nodeType == obj.DOCUMENT_NODE
+/** 判定参数是否为`FormData` */
 export const isFormData = (val: any) => typeof FormData !== 'undefined' && val instanceof FormData
+/** 判定参数是否为有效的数值表示方法 */
 export const isNumeric = (val: any) => {
   var num = Number(val), type = typeof val
   return val != null && type != 'boolean' && (type != 'string' || val.length) && !isNaN(num) && isFinite(num) || false
@@ -106,7 +148,10 @@ export const isNumeric = (val: any) => {
 /**
  * 常用数学函数
  */
+
+/** 范围取值，num始终在[min,max]闭区间内 */
 export const range = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max)
+/** 在[0,min]或[min, max)中取随机整值 */
 export const random = (min: number, max?: number) => {
   if (!isDef(max)) max = min, min = 0
   return min + Math.floor(Math.random() * (max - min + 1))
@@ -115,77 +160,126 @@ export const random = (min: number, max?: number) => {
 /**
  * 常用字符串处理函数
  */
+
+/** 生成sdk内带前缀唯一值 */
 export const uid = (prefix: string = ''): string => `${prefix}${++GLOBAL_UID}`
+/** 生成随机32位UUID值 */
 export const uuid = _uuid
+/** 生成指定长度随机字符串 */
 export const randomstr = _randomstr
+/** 将参数转为驼峰格式 */
 export const camelize = (str: string): string => str.replace(/-+(.)?/g, function (match, chr: string) { return chr ? chr.toUpperCase() : '' })
-/** 将驼峰字符串转换为 dasherize格式*/
+/** 将驼峰字符串转换为中划线格式(paddingLeft => padding-left) */
 export const dasherize = (str: string): string => str.replace(/::/g, '/').replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2').replace(/([a-z\d])([A-Z])/g, '$1_$2').replace(/_/g, '-').toLowerCase()
+/** 根据基路径和参数创建url(参数为number时转换为{id: num}) */
 export const createURL = (base: string, query?: string | number | Record<any, any>) => {
   if (isEmpty(query)) return base
   return base + (/\?/.test(base) ? '&' : '?') + stringify(isNumber(query) ? {id: query} : query)
 }
+/** 参数转换为字符串，并首尾去空 */
 export const trim = (str: any) => str == null ? "" : String.prototype.trim.call(str)
-// 从url中去除某些参数
+/** 从url中去过滤参数集合 */
 export const filterURL = _filterURL
+/** 从参数中提取文本classnames */
 export const classnames = _classNames
+/** 从参数中生成css样式 */
 export const styles = _styles
+/** 根据属性和值生成css代码 */
 export const css = _css
+/** 根据属性和值判定是否需要增加px单位并返回新值 */
+export const addPx = _addPx
 
 /**
  * 数组/对象工具函数
  */
+
+/** 获取任意参数`length`值 */
 export const getLength: (obj: any) => number = _shallowProperty('length')
+/** 判定给定任意两个值是否全等 */
 export const equal = _equal
+/** 在数组中根据删除条件过滤删除数组，并返回过滤后的数组(原数组已被过滤) */
 export const remove = _remove
+/** 在数组中查找指定值，并移除指定值 */
 export const splice = _splice
+/** 在数组中从指定开始(默认为0)位置判定对象是否存在 */
 export const inArray = (val: any, arr: any[], fromIndex?: number) => isArray(arr) && arr.indexOf(val, fromIndex) !== -1
+/** 在数组中移除重复选项，保持数组项唯一性 */
 export const uniqueArray = (arr: any[]) => Array.from(new Set(arr))
+/** 使用迭代器遍历对象或数组，返回遍历后数组 */
 export const map = _map
+/** 将参数数组随机打乱 */
 export const shuffle = _shuffle
+/** 从数组中取值 */
 export const pick = _pick
-// 遍历对象/数组，返回false时停止循环
+/** 遍历对象/数组，返回false时停止循环 */
 export const each = _each
+/** 从参数数组中生成映射对象 */
 export const makeMark = <T extends number|string|symbol>(arr: T[]): Record<T, true> => _makeArrMarkOrMap(arr, true)
+/** 从数组中根据条件生成映射对象 */
 export const makeMap = <T extends number|string|symbol>(arr: T[], fn?: (key: T, arr: T[]) => any): Record<T, any> => _makeArrMarkOrMap(arr, fn)
 
 /**
- * 常用函数包装函数
+ * 常用函数高阶函数
  */
+
+/** 高阶函数：只运行函数一次 */
 export const once = (func: Function) => _before(2, func)
+/** 高阶函数：只运行函数N次 */
 export const before = _before
+/** 高阶函数：在调用N次后，运行函数一次 */
 export const after = _after
+/** 高阶函数：频率控制，返回函数连续调用时，func 执行频率限定为 次/wait */
 export const throttle = _throttle
+/** 高阶函数：空闲控制 返回函数连续调用时，空闲时间必须大于或等于 wait，func 才会执行 */
 export const debounce = _debounce
+/** 高阶函数：根据缓存函数或参数缓存函数运算结果 */
 export const memoize = _memoize
+/** 高阶函数：参数延展，fun(a, b, c) => spread(fun)([a, b, c]) */
 export const spread = <T extends Function>(callback: T) => (arr: any[]): any => callback.apply(null, arr)
+/** 高阶函数：包装参数作为函数运行，wranFn(any)(a, b) */
 export const wrapFn = <T extends Function>(callback: T, context?: any): T => isFunction(callback) ? callback.bind(context) : noop
+/** 在事件循环的下一帧执行函数 */
 export const nextTick = _makeNextTick()
 
 /**
  * querystring 函数
  */
+
+/** 转换对象为stringify格式 */
 export const stringify = (obj: any, sep = '&', eq = '='): string => isString(obj) ? obj : _map(obj, (value, key) => key + eq + _encodePrimitive(value)).join(sep)
+/** 将查询参数中序列化为对象 */
 export const parse = _parse
 
 /**
  * 时间相关
  */
+
+/** 获取当前毫秒时间戳 */
 export const now = Date.now
-export const timestamp = () => Math.floor(Date.now() / 1000)
+/** 获取当前unix事件戳 */
+export const timestamp = () => Math.floor(now() / 1000)
+/** 格式化时间戳为可读事件 */
 export const unixtime = (unixtime: number = now() / 1000, format?: string) => _formatTime(new Date(unixtime * 1000), format)
+/** 延迟固定时间并返回Promise */
 export const wait = <T>(duration: number, arg?: T): Promise<T> => new Promise(resolve => setTimeout(resolve, duration, arg))
+/** 语义化时间戳 */
 export const timeago = _timeago
-// v3.0别名
+/** 别名：请使用unixtime */
 export const unixFormat = unixtime
 
 /**
  * 路径操作
  */
+
+/** 目录操作：分隔目录 */
 export const splitPath = (filename: string): string[] => (regexSplitPath.exec(filename) || []).slice(1)
+/** 目录操作：将多个路径转换为一个路径 */
 export const resolvePath = _resolvePath
+/** 目录操作：获取当前目录文件夹 */
 export const dirname = _dirname
+/** 目录操作：获取当前路径中的文件名(如`share.png`，后缀可选) */
 export const basename = _basename
+/** 目录操作：获取当前路径的后缀名称(包含`.`，如`.png`) */
 export const extname = _extname
 
 function _tagTester(name: string) {
@@ -800,14 +894,18 @@ const _makeIgorePxSet = once(() => {
   return new Set(props)
 })
 
-function _css(prop: string, value: any) {
+function _css(prop: string, value: any, isString?: boolean) {
   if (!prop || value == null || value === '') {
     return ''
   }
+  return `${hyphenateStyleName(prop)}:${_addPx(prop, value)}`
+}
+
+function _addPx (prop: string, value: any) {
   if (value && isNumeric(value) && !_makeIgorePxSet().has(prop)) {
-    value = (+value) + 'px'
+    return (+value) + 'px'
   }
-  return `${hyphenateStyleName(prop)}:${value}`
+  return value
 }
 
 function _equal (a: any, b: any): boolean {

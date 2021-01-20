@@ -1,5 +1,5 @@
 import Http, { HttpError, HttpMethod } from './Http'
-import { DOMException, Headers, Request, Response } from '../venders/http.mini'
+import { DOMException, Headers as IHeader, Request as IRequest, Response as IResponse } from '../venders/http.mini'
 import { loading, error, success } from '../plugins/ui.mini'
 
 declare var wx: any
@@ -10,10 +10,10 @@ Http.showError = message => error(message)
 Http.showSuccess = message => success(message)
 
 Http['DOMException'] = DOMException
-Http.HttpHeaders = Headers
-Http.HttpRequest = Request
-Http.HttpResponse = Response
-Http.request = (url: string, request: Request) => {
+Http.HttpHeaders = <any> IHeader
+Http.HttpRequest = <any> IRequest
+Http.HttpResponse = <any> IResponse
+Http.request = (url: string, request: IRequest) => {
   return new Promise((resolve, reject) => {
     if (request.method === HttpMethod.JSONP) {
       throw new HttpError(-1, 'not support method: JSONP', request as any)
@@ -35,7 +35,7 @@ Http.request = (url: string, request: Request) => {
       success: (ret: any) => {
         // todo cookies
         const { data, statusCode, header, cookies } = ret
-        const response = new Response(data, {
+        const response: any = new IResponse(data, {
           headers: header,
           status: statusCode,
           url: url

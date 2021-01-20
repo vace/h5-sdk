@@ -55,7 +55,7 @@ const webConfig = {
 assign(analysis.config, webConfig)
 
 // 页面就绪 & 用户登录后 开始发送分析数据
-domready.then(() => Auth.instance && Auth.instance.tasker).then(() => {
+domready.then(() => Auth.instance && Auth.instance.finished).then(() => {
   addListener(global, 'unload', () => analysis.unload())
   addListener(global, 'error', (e: any) => analysis.error(e.error))
   analysis.pv()

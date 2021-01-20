@@ -28,10 +28,13 @@ export class AuthError extends Error {
   }
 }
 
+/**
+ * Auth 授权
+ */
 export default class Auth extends Http {
-  // 导出用户类
+  /** 导出用户类 */
   static AuthUser = AuthUser
-  // 导出授权错误类
+  /** 导出授权错误类 */
   static AuthError = AuthError
 
   /** 用户Auth实例，使用时生成 */
@@ -60,7 +63,6 @@ export default class Auth extends Http {
   public url!: string
   /** 自定义redirect方法 */
   public onRedirectLogin!: AuthOnRedirectLogin
-
   /** 仅在子类中使用 */
   protected $tryUseAuth = true
 
@@ -85,14 +87,12 @@ export default class Auth extends Http {
     }
     return ''
   }
-
   /** 读取jwt信息 */
   get jwt () {
     const { token } = this
     // 'Bearer '.length = 7
     return token ? jwtDecode(token.slice(7)) : null
   }
-
   /** 读取token是否有效 */
   get isTokenValid(): boolean {
     const { jwt, appid, platform, type } = this
@@ -108,7 +108,10 @@ export default class Auth extends Http {
     return false
   }
 
-  // 初始化
+  /**
+   * 实例化Auth，只有一个实例可通过Auth.instance获取
+   * @param options 初始化Auth
+   */
   constructor(options: any) {
     super({ baseURL: Config.API_AUTH })
     const { platform, appid, type, scope, env, url, version, onRedirectLogin } = this.transformAuthOptions(options)
@@ -128,21 +131,21 @@ export default class Auth extends Http {
   }
 
   /** 登陆任务 */
-  public tasker!: ITaskerPromise<AuthUser>
+  public finished!: ITaskerPromise<AuthUser>
 
   /** 登陆用户 */
   public login (): Promise<AuthUser> {
-    if (!this.tasker) {
-      this.tasker = tasker()
+    if (!this.finished) {
+      this.finished = tasker()
       // 尝试使用code 和 state 登陆用户
       this.autoLogin()
-        .then(user => this.tasker.resolve(user))
+        .then(user => this.finished.resolve(user))
         // 登陆失败，跳转到登录页继续尝试
         .catch(error => this.redirectLogin(error))
         // 捕获上述错误
-        .catch(error => this.tasker.reject(error))
+        .catch(error => this.finished.reject(error))
     }
-    return this.tasker
+    return this.finished
   }
 
   /** 授权用户 */
@@ -209,7 +212,7 @@ export default class Auth extends Http {
   public transformAuthResponse(response: any): AuthUser {
     if (isHasOwn(response, 'code') && response.code === 0 && response.data) {
       const user = this.user.login(response.data)
-      this.tasker.resolve(user)
+      this.finished.resolve(user)
       return user
     }
     throw new AuthError(AuthErrorCode.LOGIN_FAILED, 'login failed', response)

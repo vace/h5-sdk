@@ -1,3 +1,4 @@
+
 import { isHasOwn, keys } from '../functions/common'
 
 const supports = {
@@ -6,17 +7,17 @@ const supports = {
   URLSearchParams: typeof URLSearchParams !== 'undefined',
 }
 
-class DOMException extends Error {
+export class DOMException extends Error {
   public constructor(message: string, name: string) {
     super(message)
     this.name = name
   }
 }
 
-class _Headers implements Headers {
+export class Headers {
   public map = {}
-  public constructor(headers?: HeadersInit) {
-    if (headers instanceof _Headers) {
+  public constructor(headers?: HeadersInit | any) {
+    if (headers instanceof Headers) {
       // @ts-ignore
       headers.forEach((value, name) => this.append(name, value))
     } else if (Array.isArray(headers)) {
@@ -59,9 +60,9 @@ class _Headers implements Headers {
   }
 }
 
-class _Body implements Body {
+export class Body {
   public bodyUsed: boolean = false
-  public headers = new _Headers()
+  public headers = new Headers()
   public body!: any
 
   public _bodyInit: any
@@ -173,7 +174,7 @@ class _Body implements Body {
   }
 }
 
-class _Request extends _Body implements Request {
+export class Request extends Body {
   // ignore
   readonly isHistoryNavigation!: boolean;
   readonly isReloadNavigation!: boolean;
@@ -184,7 +185,7 @@ class _Request extends _Body implements Request {
   readonly credentials!: RequestCredentials
   readonly destination!: RequestDestination;
 
-  public headers!: _Headers
+  public headers!: Headers
   public integrity!: string
   public url: string = ''
   public method!: string
@@ -197,14 +198,14 @@ class _Request extends _Body implements Request {
     super()
     var body = options.body
 
-    if (input instanceof _Request) {
+    if (input instanceof Request) {
       if (input.bodyUsed) {
         throw new TypeError('Already read')
       }
       this.url = input.url
       this.credentials = input.credentials
       if (!options.headers) {
-        this.headers = new _Headers(input.headers)
+        this.headers = new Headers(input.headers)
       }
       this.method = input.method
       this.mode = input.mode
@@ -220,7 +221,7 @@ class _Request extends _Body implements Request {
 
     this.credentials = options.credentials || this.credentials || 'same-origin'
     if (options.headers || !this.headers) {
-      this.headers = new _Headers(options.headers)
+      this.headers = new Headers(options.headers)
     }
     this.method = normalizeMethod(options.method || this.method || 'GET')
     this.mode = options.mode || this.mode || null
@@ -249,15 +250,15 @@ class _Request extends _Body implements Request {
   }
 
   public clone (this: any) {
-    return new _Request(this, { body: this._bodyInit })
+    return new Request(this, { body: this._bodyInit })
   }
 }
 
 const redirectStatuses = [301, 302, 303, 307, 308]
 
-class _Response extends _Body implements Response {
+export class Response extends Body {
   public static error() {
-    var response = new _Response(null, { status: 0, statusText: '' })
+    var response = new Response(null, { status: 0, statusText: '' })
     response.type = 'error'
     return response
   }
@@ -266,7 +267,7 @@ class _Response extends _Body implements Response {
     if (redirectStatuses.indexOf(status) === -1) {
       throw new RangeError('Invalid status code')
     }
-    return new _Response(null, { status: status, headers: { location: url } })
+    return new Response(null, { status: status, headers: { location: url } })
   }
 
   readonly trailer!: Promise<Headers>
@@ -283,28 +284,28 @@ class _Response extends _Body implements Response {
     this.status = options.status === undefined ? 200 : options.status
     this.ok = this.status >= 200 && this.status < 300
     this.statusText = 'statusText' in options ? options.statusText : ''
-    this.headers = new _Headers(options.headers)
+    this.headers = new Headers(options.headers)
     this.url = options.url || ''
     this._initBody(bodyInit)
   }
 
   public clone(this: any) {
-    return new _Response(this._bodyInit, {
+    return new Response(this._bodyInit, {
       status: this.status,
       statusText: this.statusText,
-      headers: new _Headers(this.headers),
+      headers: new Headers(this.headers),
       url: this.url
     })
   }
 }
 
-export {
-  DOMException,
-  _Headers as Headers,
-  _Body as Body,
-  _Request as Request,
-  _Response as Response
-}
+// export {
+//   DOMException,
+//   _Headers as Headers,
+//   Body as Body,
+//   Request as Request,
+//   Response as Response
+// }
 
 // HTTP methods whose capitalization should be normalized
 var methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT']

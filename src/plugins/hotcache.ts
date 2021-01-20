@@ -11,7 +11,12 @@ type ICacheObject = {
   hot: number
 }
 
-export default function hotcache(cacheKey: string, maxLength: number = 16) {
+/**
+ * 在本地缓存中保存若干个值，达到上限后移除尾部数组头部值
+ * @param cacheKey 缓存key
+ * @param maxLength 最大长度
+ */
+export default function hotcache(cacheKey: string, maxLength: number = 32) {
   // 读取当前缓存项目
   let hotCacheList: ICacheObject[]
   // 当前内存缓存
@@ -27,15 +32,15 @@ export default function hotcache(cacheKey: string, maxLength: number = 16) {
     return hotCacheList
   }
 
-  // 查找key
+  /** 查找值 */
   const _find = (key: string) => _getHotList().find(obj => obj.key === key)
-  // 移除key
+  /** 移除key */
   const _spliced = (key: string) => {
     const hit = _find(key)
     return isDef(hit) && hotCacheList.splice(hotCacheList.indexOf(hit), 1)
   }
 
-  // 取值
+  /** 读取值 */
   const get = (key: string, _default?: any) => {
     // 尝试从内存中查找
     if (memocache.has(key)) {
@@ -48,7 +53,7 @@ export default function hotcache(cacheKey: string, maxLength: number = 16) {
     }
     return _default
   }
-  // 设置
+  /** 设置key指定值 */
   const set = (key: string, value: any) => {
     _spliced(key)
     const cache = _getHotList()
@@ -58,14 +63,14 @@ export default function hotcache(cacheKey: string, maxLength: number = 16) {
     memocache.set(key, value)
     return value
   }
-  // 移除
+  /** 移除指定值 */
   const remove = (key: string) => {
     if (_spliced(key)) {
       store.set(cacheKey, _getHotList())
       memocache.delete(key)
     }
   }
-  // 清空
+  /** 清空列表 */
   const clearAll = () => {
     store.remove(cacheKey)
     memocache.clear()

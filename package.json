@@ -1,6 +1,6 @@
 {
   "name": "sdk",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "description": "sdk.js 跨平台sdk",
   "types": "index.d.ts",
   "main": "sdk.js",
@@ -12,6 +12,7 @@
     "web": "rollup --config build/rollup.web.dev.js && rollup --config build/rollup.web.prod.js && node build/package.js web",
     "node": "rollup --config build/rollup.node.prod.js && node build/package.js node",
     "mini": "rollup --config build/rollup.mini.prod.js && node build/package.js mini",
+    "dts": "node build/rollup.sdk.dts.js",
     "prepare": "npm run dev && npm run web && npm run mini && npm run node",
     "test": "mocha --require ts-node/register --watch-extensions ts,tsx \"src/**/*.spec.ts\"",
     "docs": "typedoc --out docs --mode file --exclude \"**/*+(index.ts|.spec.ts|.e2e.ts|.js)\" --excludeNotExported src/web-entry.ts"
@@ -28,6 +29,7 @@
     "less": "^4.1.0",
     "postcss": "^8.2.4",
     "rollup": "^2.36.2",
+    "rollup-plugin-dts": "^2.0.1",
     "rollup-plugin-postcss": "^4.0.0",
     "rollup-plugin-serve": "^1.1.0",
     "rollup-plugin-typescript2": "^0.29.0",

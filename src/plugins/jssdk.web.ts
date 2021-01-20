@@ -47,13 +47,12 @@ const loadJssdk = once(async () => {
 
   if (typeof wx === 'undefined') {
     try {
-      Res.js(jweixin('res'))
+      await Res.js(jweixin('res')).catch(() => Res.js(jweixin('res2')))
     } catch {
-      // 如果上述服务不可用，则加载微信服务2
-      Res.js(jweixin('res2'))
+      // 如果上述服务不可用，则报错
     }
     if (typeof wx === 'undefined') {
-      throw new JssdkError('`jweixin-${version}.js` load failed')
+      throw new JssdkError(`jweixin-${version}.js load failed`)
     }
   }
   return wx

@@ -6,6 +6,9 @@ const API_BASE = host('api')
 
 type CommonQuery = string | number | Record<string, any>
 
+/**
+ * 全局配置
+ */
 export default class Config {
   /** 是否为调试模式 */
   static isDev = process.env.NODE_ENV === 'development'

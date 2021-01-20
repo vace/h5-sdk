@@ -6,19 +6,24 @@ declare var wx: any
 // 打开的loading计数
 let _ToastOpenId = 0
 
+/** 关闭所有弹窗 */
 export const closeAll = () => {
   _ToastOpenId = 0
   wx.hideToast()
 }
 
-// base
+/** 展示弹窗：loading */
 export const loading = (title = '加载中...', mask = false) => _wrapToast(title, mask, 'loading')
+/** 展示弹窗：success */
 export const success = (title = '操作成功', mask = false) => _wrapToast(title, mask, 'success')
+/** 展示弹窗：error */
 export const error = (title = '操作失败', mask = false) => _wrapToast(title, mask, 'none')
+/** 展示弹窗：preloader */
 export const preloader = (title = '操作中...', mask = true) => _wrapToast(title, mask, 'loading')
 
-// promise
+/** 展示弹窗：alert */
 export const alert = (content: IShowModalOption | string) => _getModalOptions(content)
+/** 展示弹窗：confirm */
 export const confirm = (content: IShowModalOption | string) => _getModalOptions(content, true)
 
 function _getModalOptions(content: IShowModalOption | string, showCancel = false) {

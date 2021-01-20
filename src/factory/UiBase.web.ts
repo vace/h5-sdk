@@ -1,5 +1,5 @@
 import Emitter from './Emitter'
-import { uid, wait, isDef, isArray, splice } from '../functions/common'
+import { uid, wait, isDef, isArray, splice, isPromise } from '../functions/common'
 import $ from '../venders/zepto.js'
 
 /** UI支持的颜色 */
@@ -107,13 +107,10 @@ export default class UiBase extends Emitter {
     target: 'body',
     duration: 2500
   }
-
   /** 时间触发器 */
   public emitter: any = null
-  
   /** 实例配置 */
   public option: UiBaseOption
-
   // jquery element cache
   /** 挂载元素 */
   public $target?: ZeptoCollection
@@ -241,6 +238,26 @@ export default class UiBase extends Emitter {
       this._releaseCloseTid()
     }
   }
+  /** 执行一个异步任务，执行成功则关闭 */
+  public withClose(next: Function | Promise<any>) {
+    const madal = this
+    let _next = next
+    if (typeof next === 'function') {
+      _next = next(madal)
+    }
+    if (isPromise(_next)) {
+      return _next.then(value => {
+        madal.close()
+        return value
+      }).catch(err => {
+        madal.close()
+        return Promise.reject(err)
+      })
+    }
+    madal.close()
+    return Promise.resolve(_next)
+  }
+
   private _onClose() {
     const { $root, outClassName, option: { onClose } } = this
     this.isOpened = false

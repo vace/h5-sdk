@@ -7,27 +7,27 @@ const PrivacyFileds = ['code', 'state', 'nonce', 'token', 'key', 'secret', 'sign
 
 export default {
   PrivacyFileds,
-  // 查询字符如
+  /** 当前路径，查询字符串 */
   get querystring () {
     return lt.search.slice(1)
   },
-  // 查询字符串序列化
+  /** 查询字符串序列化 */
   get query () {
     return parse(this.querystring)
   },
-  // 当前根路径
+  /** 当前根路径 */
   get rootpath () {
     return lt.origin + dirname(lt.pathname) + '/'
   },
-  // 当前路径url
+  /** 当前路径url */
   get url (): string {
     return lt.href.split('#').shift() || ''
   },
-  // 脱敏链接
+  /** 脱敏链接 */
   get safeurl (): string {
     return filterURL(this.url, this.PrivacyFileds)
   },
-
+  /** 获取当前根路径下的指定文件 */
   getRootFile (filename: string) {
     if (isHttp(filename) || isBase64(filename)) {
       return filename

@@ -1,10 +1,12 @@
 import Auth from './Auth'
-import { always, assign, isString, isPromise, isHttp, inArray, createURL, noop, isFunction, isObject, now, isDef, isNumber } from "../functions/common"
+import { always, assign, isString, isPromise, isHttp, inArray, createURL, noop, isFunction, isObject, now, isDef, isNumber, isFormData, isBlob, isFile } from "../functions/common"
 
 const HttpMessage = Symbol('$message')
 const HttpCache   = Symbol('$cache')
 
+/** 请求格式 */
 type HttpRequestOption = string | IHttpRequestOption
+/** ui提示逻辑 */
 type HttpNofifyCallback = (message: string, data: any) => any
 
 /** 可用方法签名 */
@@ -19,14 +21,27 @@ export enum HttpMethod {
   JSONP = 'JSONP'
 }
 
-type SendRequest = (url: HttpRequestOption, query?: any) => Promise<any>
+type SendRequest = (url: HttpRequestOption, query?: any, options?: any) => Promise<any>
 
-/** http抛出的错误类 */
+/**
+ * http抛出的错误类
+ */
 export class HttpError extends Error {
+  /** 错误代码 */
   public code: number
+  /** 携带的错误数据 */
   public data: any
+  /** 请求类 */
   public request?: Http
+  /** 响应结果 */
   public response?: Response
+  /**
+   * 初始化http错误对象
+   * @param code 错误码
+   * @param message 错误消息
+   * @param request 请求类
+   * @param response 响应结果
+   */
   constructor(code: number, message: string, request?: Http, response?: Response) {
     super(message || `网络出错（code: ${code}）`)
     this.code = code
@@ -35,6 +50,9 @@ export class HttpError extends Error {
   }
 }
 
+/**
+ * Http请求类
+ */
 export default class Http {
   /** 抛出的网络错误类 */
   public static HttpError = HttpError
@@ -100,59 +118,59 @@ export default class Http {
     return this
   }
 
-  /** GET 请求 */
+  /** 发送 GET 请求，并返回结果 */
   public get (url: HttpRequestOption, query?: any): Promise<any> {
     return this.action(url, query, HttpMethod.GET)
   }
-  /** DELETE 请求 */
+  /** 发送 DELETE 请求，并返回结果 */
   public delete (url: HttpRequestOption, query?: any): Promise<any> {
     return this.action(url, query, HttpMethod.DELETE)
   }
-  /** HEAD 请求 */
+  /** 发送 HEAD 请求，并返回结果 */
   public head (url: HttpRequestOption, query?: any): Promise<any> {
     return this.action(url, query, HttpMethod.HEAD)
   }
-  /** OPTIONS 请求 */
+  /** 发送 OPTIONS 请求，并返回结果 */
   public options (url: HttpRequestOption, query?: any): Promise<any> {
     return this.action(url, query, HttpMethod.OPTIONS)    
   }
-  /** POST 请求 */
+  /** 发送 POST 请求，并返回结果 */
   public post (url: HttpRequestOption, data?: any): Promise<any> {
     return this.action(url, data, HttpMethod.POST)
   }
-  /** PUT 请求 */
+  /** 发送 PUT 请求，并返回结果 */
   public put(url: HttpRequestOption, data?: any): Promise<any> {
     return this.action(url, data, HttpMethod.PUT)
   }
-  /** PATCH 请求 */
+  /** 发送 PATCH 请求，并返回结果 */
   public patch(url: HttpRequestOption, data?: any): Promise<any> {
     return this.action(url, data, HttpMethod.PATCH)
   }
-  /* JSONP 请求 */
+  /*  发送JSONP 请求，并返回结果 */
   public jsonp (url: HttpRequestOption, query?: any) {
     return this.action(url, query, HttpMethod.JSONP)
   }
   /** 执行指定action */
-  public action (url: HttpRequestOption, data?: any, method?: HttpMethod): Promise<any> {
-    let req: IHttpRequestOption = { data, method }
-    if (isString(url)) {
-      req.url = url
-    } else {
-      assign(req, url)
-    }
+  public action (url: HttpRequestOption, data?: any, method?: HttpMethod, extOptions?: any): Promise<any> {
+    let req: IHttpRequestOption = assign({ data, method }, isString(url) ? { url } : url, extOptions)
     return this.request(req)
   }
   /** 发送request */
   public request(req: IHttpRequestOption): Promise<any> {
-    const auth: any = this.$tryUseAuth ? this : this.auth
+    const auth = <null | Auth>(this.$tryUseAuth ? this : this.auth)
     const HttpHeaders = Http.HttpHeaders
     const httpcache = this[HttpCache]
-    const { baseURL, validateStatus, transformRequest, transformResponse, onHeadersReceived } = this.httpconfig
+    const { baseURL, validateStatus, transformRequest, onHeadersReceived } = this.httpconfig
+    let { transformResponse } = this.httpconfig
     let request = isFunction(transformRequest) && transformRequest(req) || req
     if (auth) {
       request = auth.transformAuthRequest(request) || request
     }
-    const { cache, url, query, body, param, data, method, headers, ...reqOptions } = request
+    const { cache, url, query, body, param, data, method, headers, transformResponse: userTransformResponse, ...reqOptions } = request
+    // 使用用户自定义的参数转换方法
+    if (userTransformResponse && isFunction(userTransformResponse)) {
+      transformResponse = userTransformResponse
+    }
 
     let requestURL: string = url || ''
     let requestQuery = query
@@ -202,10 +220,22 @@ export default class Http {
       return callback(message, data)
     }
 
-    if (isObject(requestBody)) {
+    if (requestBody) {
+      // create http file
+      if (isFile(requestBody)) {
+        const fdata = new FormData()
+        fdata.append('file', requestBody)
+        requestBody = fdata
+      }
+
       requestHeader = requestHeader instanceof HttpHeaders ? requestHeader : new HttpHeaders(requestHeader)
-      requestHeader.set('Content-Type', Http.ContentType.JSON)
-      requestBody = JSON.stringify(requestBody)
+      if (!requestHeader.get('content-type')) {
+        // exclude Formdata, Blob ...
+        if (isObject(requestBody) && !isFormData(requestBody) && !isBlob(requestBody)) {
+          requestHeader.set('Content-Type', Http.ContentType.JSON)
+          requestBody = JSON.stringify(requestBody)
+        }
+      }
     }
 
     const $messages = this[HttpMessage]
@@ -260,6 +290,23 @@ export default class Http {
     this[HttpMessage][key] = message
   }
 
+  /** 使用指定方法(默认GET)请求，并返回text */
+  public text (url: HttpRequestOption, query?: any, method = HttpMethod.GET) {
+    return this.action(url, query, method, { transformResponse: (res: Response) => res.text() })
+  }
+  /** 使用指定方法(默认GET)请求，并返回arrayBuffer */
+  public arrayBuffer(url: HttpRequestOption, query?: any, method = HttpMethod.GET) {
+    return this.action(url, query, method, { transformResponse: (res: Response) => res.arrayBuffer() })
+  }
+  /** 使用指定方法(默认GET)请求，并返回blob */
+  public blob(url: HttpRequestOption, query?: any, method = HttpMethod.GET) {
+    return this.action(url, query, method, { transformResponse: (res: Response) => res.blob() })
+  }
+  /** 使用指定方法(默认GET)请求，并返回formData */
+  public formData(url: HttpRequestOption, query?: any, method = HttpMethod.GET) {
+    return this.action(url, query, method, { transformResponse: (res: Response) => res.formData() })
+  }
+
   // bind fast methods
   public static get: SendRequest
   public static delete: SendRequest
@@ -270,16 +317,23 @@ export default class Http {
   public static patch: SendRequest
   public static jsonp: SendRequest
   public static action: SendRequest
+  public static text: SendRequest
+  public static arrayBuffer: SendRequest
+  public static blob: SendRequest
+  public static formData: SendRequest
 }
 
 // install static methods
-const staticMethods = [ 'get', 'delete', 'head', 'options', 'post', 'put', 'patch', 'jsonp', 'action' ]
+const staticMethods = [
+  'get', 'delete', 'head', 'options', 'post', 'put', 'patch', 'jsonp', 'action',
+  'text', 'arrayBuffer', 'blob', 'formData'
+]
 staticMethods.forEach(method => Http[method] = function (url: HttpRequestOption, query?: any) {
   const instance = this.instance || Http.instance
   return instance[method](url, query)
 })
 
-interface IHttpCache {
+export interface IHttpCache {
   expiretime: number
   data: any
 }

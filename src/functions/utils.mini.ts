@@ -29,16 +29,18 @@ export function requestAnimationFrame(cb: Function) {
   return wx.createSelectorQuery().selectViewport().boundingClientRect().exec(() => cb())
 }
 
-// 读取当前页面
+/** 读取当前页面 */
 export function getCurrentPage() {
   var pages = getCurrentPages();
   return pages[pages.length - 1]
 }
 
+/** 获取离屏渲染实例 */
 export const getOffscreenCanvas = once(() => {
   return wx.createOffscreenCanvas()
 })
 
+/** 包装wx函数调用的error */
 export class WxError extends Error {
   public reason: any
   constructor (err: any) {

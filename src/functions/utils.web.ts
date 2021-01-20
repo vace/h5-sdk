@@ -8,6 +8,7 @@ export { document, navigator }
  * 网页相关常量
  */
 
+/** 当前的userAgent */
 export const userAgent = navigator.userAgent
 
 const ua = userAgent.toLowerCase()
@@ -45,21 +46,29 @@ if (!isDef(testVenderEl.style.transform)) {
   })
 }
 
+/** css animation的前缀 */
 export const animationPrefix = transitionPrefix
+/** css transitionEnd 事件 */
 export const transitionEnd = normalizeEvent('TransitionEnd')
+/** css animationEnd 事件 */
 export const animationEnd = normalizeEvent('AnimationEnd')
+/** 当前页面是否启用动画 */
 export const animationEnabled = isDef(transitionEventPrefix) || isDef(testVenderEl.style.transitionProperty)
 
-/** 监听事件 */
-export function addListener(element: any, event: string, callback: EventListener): Function {
+type removeEventListener = () => void
+
+/** 监听指定元素的时间，返回unbind */
+export function addListener(element: EventTarget, event: string, callback: EventListener): removeEventListener {
   element.addEventListener(event, callback, false)
   return () => element.removeEventListener(event, callback, false)
 }
 
+/** 监听动画结束事件 */
 export function onAnimationEnd (element: HTMLElement, callback: EventListener) {
   return animationEnabled ? addListener(element, animationEnd, callback) : callback(new Event('disabled'))
 }
 
+/** 监听渐变动画结束事件 */
 export function onTransitionEnd (element: HTMLElement, callback: EventListener) {
   return animationEnabled ? addListener(element, animationEnd, callback) : callback(new Event('disabled'))
 }
@@ -75,8 +84,10 @@ export const webp = once(() => new Promise(resolve => {
   webP.onload = webP.onerror = () => webP.height === 2 ? resolve(true) : resolve(false)
 }))
 
+/** 发送jsonp请求 */
 export const jsonp = _jsonp
 
+/** 获取dom属性表，属性支持修饰符(!:转换为布尔值，+:转换为数值，?: 尝试转换数值) */
 export const getDomAttrs = _getDomAttrs
 
 interface IJsonpOption { callback?: string, timeout?: number}

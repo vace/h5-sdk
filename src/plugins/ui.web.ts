@@ -5,7 +5,7 @@ import UiMusic, { IUiMusicOption } from '../factory/UiMusic.web';
 import UiView, { UiViewOption } from '../factory/UiView.web';
 import UiSheet, { IUiSheetOption } from '../factory/UiSheet.web';
 
-import { assign, isObject, isNumber, isFunction, isPromise, each, regexMobile, regexChinese } from '../functions/common';
+import { assign, isObject, isNumber, isFunction, isPromise, each, regexMobile, regexChinese, once } from '../functions/common';
 
 /** UiAlert 配置 */
 export interface IUiAlertOption extends UiModalOption {
@@ -51,20 +51,12 @@ export interface IUiUserboxOption extends IUiConfirmOption {
 
 const closeHelper = (modal: UiModal) => modal.close()
 
-/**
- * 打开一个Modal
- * @param {UiModalOption} option
- * @returns {UiModal}
- */
+/** 打开一个Modal */
 export function modal(option: UiModalOption): UiModal {
   return new UiModal(option).open()
 }
 
-/**
- * 打开一个Alert弹窗
- * @param {(IUiAlertOption | string)} option
- * @returns {UiModal}
- */
+/** 打开一个Alert弹窗 */
 export function alert(option: IUiAlertOption | string): UiModal {
   // 文本处理
   if (typeof option === 'string') {
@@ -80,11 +72,7 @@ export function alert(option: IUiAlertOption | string): UiModal {
   return new UiModal(option).open()
 }
 
-/**
- * 打开一个confirm弹窗
- * @param {IUiConfirmOption} option
- * @returns {UiModal}
- */
+/** 打开一个confirm弹窗 */
 export function confirm(option: IUiConfirmOption): UiModal {
   const { okText = '确定', noText = '取消', ok, no, isForm } = option
   let wrapOkCallback = ok
@@ -114,11 +102,7 @@ export function confirm(option: IUiConfirmOption): UiModal {
   return new UiModal(option).open()
 }
 
-/**
- * 打开一个prompt
- * @param {IUiPromptOption | string} option
- * @returns {UiModal}
- */
+/** 打开一个prompt */
 export function prompt(option: IUiPromptOption | string): UiModal {
   if (typeof option === 'string') {
     option = { title: option }
@@ -133,27 +117,15 @@ export function prompt(option: IUiPromptOption | string): UiModal {
   return confirm(option)
 }
 
-/**
- * 打开一个sheet
- * @param {IUiSheetOption} option
- * @returns {UiSheet}
- */
+/** 打开一个sheet */
 export function sheet (option: IUiSheetOption) {
   return new UiSheet(option).open()
 }
 
-let _$cacheMapProfile: any
-
-/**
- * 打开自定义输入面板
- * @param {IUiUserboxOption} option
- * @returns {UiModal}
- */
-export function userbox(option: IUiUserboxOption): UiModal {
-  let { profile } = option
-  if (!_$cacheMapProfile) {
-    _$cacheMapProfile = {
-      username: { type: 'text', name: 'username', placeholder: '点击输入姓名', label: '姓名', tips: '请输入您的姓名', min: 2, max: 20, validate: function (value: string) {
+const getValidate = once(() => {
+  return {
+    username: {
+      type: 'text', name: 'username', placeholder: '点击输入姓名', label: '姓名', tips: '请输入您的姓名', min: 2, max: 20, validate: function (value: string) {
         if (!value) {
           return '姓名不能为空'
         }
@@ -167,29 +139,41 @@ export function userbox(option: IUiUserboxOption): UiModal {
           return '输入包含特殊字符，请正确输入'
         }
         return true
-      } },
-      mobile: { type: 'tel', name: 'mobile', placeholder: '点击输入手机号', label: '手机', tips: '请输入11位手机号码', min: 11, max: 11, validate: function (mobile: string) {
+      }
+    },
+    mobile: {
+      type: 'tel', name: 'mobile', placeholder: '点击输入手机号', label: '手机', tips: '请输入11位手机号码', min: 11, max: 11, validate: function (mobile: string) {
         if (!mobile) {
           return '手机号码不能为空'
         }
         return regexMobile.test(mobile) ? true : '请填写11位国内手机号码'
-      } },
-      password: { type: 'password', name: 'password', placeholder: '点击输入密码', label: '密码', tips: '请输入您的密码', validate: (pwd: string) => {
+      }
+    },
+    password: {
+      type: 'password', name: 'password', placeholder: '点击输入密码', label: '密码', tips: '请输入您的密码', validate: (pwd: string) => {
         if (pwd.length < 6) return '密码不能低于6位数字'
-      }},
-      address: { type: 'textarea', name: 'address', placeholder: '点击输入地址', label: '地址', tips: '请输入您的联系地址', validate: (addr: string) => {
+      }
+    },
+    address: {
+      type: 'textarea', name: 'address', placeholder: '点击输入地址', label: '地址', tips: '请输入您的联系地址', validate: (addr: string) => {
         if (addr.length > 64) return '地址输入内容过多，请检查输入'
-      } },
-      hidden: { type: 'hidden', name: 'hidden' }
-    }
+      }
+    },
+    hidden: { type: 'hidden', name: 'hidden' }
   }
+})
+
+/** 打开自定义输入面板 */
+export function userbox(option: IUiUserboxOption): UiModal {
+  let { profile } = option
   if (!profile) {
     profile = ['username', 'mobile']
   }
   const inputs = option.inputs || []
   each(profile, (data, index) => {
+    const validater = getValidate()[index]
     if (typeof index === 'string') {
-      const input = assign({}, _$cacheMapProfile[index])
+      const input = assign({}, validater)
       if (isObject(data)) {
         assign(input, data)
       } else {
@@ -198,7 +182,7 @@ export function userbox(option: IUiUserboxOption): UiModal {
       inputs.push(input)
     } else {
       // 支持对象嵌套
-      inputs.push(typeof data === 'string' ? _$cacheMapProfile[data] : data)
+      inputs.push(typeof data === 'string' ? validater : data)
     }
   })
   option.inputs = inputs
@@ -243,21 +227,12 @@ export const error = toastWrapper('err')
 /** 显示toast-loading */
 export const loading = toastWrapper('loading')
 
-/**
- * 打开自定义view
- * @param {UiViewOption} option
- * @returns {UiView}
- */
+/** 打开自定义view */
 export function view(option: UiViewOption): UiView {
   return new UiView(option).open()
 }
 
-/**
- * 预览图片，支持全屏/半屏
- * @param {(UiViewOption | string)} option
- * @param {boolean} [isFullScreen]
- * @returns {UiView}
- */
+/** 预览图片，支持全屏/半屏 */
 export function image(option: UiViewOption | string, isFullScreen?: boolean): UiView {
   if (typeof option === 'string') {
     option = { type: 'image', src: option, isFullScreen, icon: 'close' }
@@ -270,64 +245,33 @@ export function image(option: UiViewOption | string, isFullScreen?: boolean): Ui
   return view(option)
 }
 
-/**
- * 展示全局的加载动画
- * @param {string} [content='请稍后...']
- * @returns {UiView}
- */
+/** 展示全局的加载动画 */
 export function preloader(content: string = '请稍后...'): UiView {
   return view({ type: 'preloader', content })
 }
 
-/**
- * !注意，一个应用一般只有一个播放器，所以为单例模式
- * 如果需要多个实例，通过 `new ui.UiMusic(option) 创建`
- * @param {(string | IUiMusicOption)} option
- * @returns {UiMusic}
- */
-export function music(option: string | IUiMusicOption): UiMusic {
-  if (typeof option === 'string') {
-    option = { src: option }
-  }
-  return new UiMusic(option)
-}
-
-
-/**
- * 打开一个modal弹窗，返回按钮key，取消时key=undefined
- * @param {UiModalOption} option
- */
+/** 打开一个modal弹窗，返回按钮key，取消时key=undefined */
 export const $modal = (option: UiModalOption) => wrapModal(modal, option)
 
-/**
- * 打开一个alert弹窗，用户点击确定，返回true
- * @param {IUiAlertOption} option
- */
+/** 打开一个alert弹窗，用户点击确定，返回true */
 export const $alert = (option: IUiAlertOption) => wrapAlert(alert, option)
 
 /**
  * 打开一个confirm弹窗，返回true,false
  * @example
- * ```js
  * var isOk = await ui.$confim({title: '确认吗？', content: '内容'})
- * ```
- * @param {IUiConfirmOption} option
  */
 export const $confirm = (option: IUiConfirmOption) => wrapConfirm(confirm, option)
 
 /**
  * 打开一个prompt弹窗，返回输入内容，取消返回undefined
  * @example
- * ```js
  * var content = await ui.$prompt({title: '输入内容', content: '请在输入框输入内容'})
- * ```
- * @param {IUiPromptOption} option
  */
 export const $prompt = (option: IUiPromptOption) => wrapPrompt(prompt, option)
 
 /**
  * 打开一个userbox弹窗，返回输入对象，取消返回undefined
- * @param {IUiUserboxOption} option
  */
 export const $userbox = (option: IUiUserboxOption) => wrapUserbox(userbox, option)
 

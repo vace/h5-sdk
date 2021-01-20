@@ -1,4 +1,4 @@
-import _md5 from 'blueimp-md5'
+import md5 from '../venders/md5'
 import { isObject, keys, global } from '../functions/common'
 
 const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='
@@ -51,7 +51,7 @@ export const atob = global.atob || function (input: string) {
 }
 
 /** md5 */
-export const md5: (str: string, key?: string) => string = _md5
+export { md5 }
 
 /** 对数据签名 */
 export function signature (object: Record<string, any>, action: string = ''): string {

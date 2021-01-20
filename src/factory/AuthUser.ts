@@ -5,6 +5,9 @@ import { isObject, each, timestamp } from '../functions/common'
 const AuthSymbol = Symbol('auth')
 const UserStore = hotcache('@SdkUsers')
 
+/**
+ * 用户类
+ */
 export default class AuthUser {
   /** 用户资料刷新时间 */
   public static REFRESH_TIME = 5 * 24 * 3600

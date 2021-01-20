@@ -20,12 +20,16 @@ interface IAppOption {
 
 const AppStore = hotcache('@SdkApps')
 
-//  接口响应错误
+/**
+ * 应用返回值处理
+ */
 export class AppError extends Error {
+  /** 错误代码 */
   public code: number
+  /** 错误数据 */
   public data: number
+  /** 绑定实例 */
   public app: App
-
   constructor(code: number, message: string, data: any, app: App) {
     super(message)
     this.code = code
@@ -34,10 +38,13 @@ export class AppError extends Error {
   }
 }
 
+/**
+ * 实例化App对象
+ */
 export default class App extends Http {
-  // APP 响应错误
+  /** APP 响应错误 */
   static AppError = AppError
-  // 转换app的请求
+  /** 转换app的请求 */
   public transformAppRequest(config: any) {
     // 转换url
     const api = config.api || config.url
@@ -48,7 +55,7 @@ export default class App extends Http {
     }
     return config
   }
-  // 转换app响应
+  /** 转换app响应 */
   public async transformAppResponse(response: Response) {
     const json = await response.json()
     this.setHttpMessage('success', '')
@@ -61,21 +68,25 @@ export default class App extends Http {
     return json
   }
 
+  /** 当前应用实例(如果有多个实例，只能获取第一个) */
   // @ts-ignore
   static instance: App = null
-
-  public config!: Record<string, any>
+  /** 当前应用基本配置， */
+  public config: IAppConfig
+  /** 当前应用定义的配置 */
   public setting!: Record<string, any>
-
-  // 应用appid
+  /** 应用appid */
   public readonly appid: string
-  // 初始化接口
+  /** 初始化接口 */
   public readyapi: string
-  // 应用分析
+  /** 是否启用应用分析 */
   public analysisoff!: boolean
+  /** 应用初始化完成事件 */
+  public finished!: ITaskerPromise<App>
 
-  public tasker!: ITaskerPromise<App>
-
+  /**
+   * @param opts app配置或者appid
+   */
   constructor (opts: IAppOption | string) {
     const option = isString(opts) ? { appid: opts } : opts
     const { appid = '', baseURL = Config.API_APP, auth = Auth.instance, readyapi = 'init', analysisoff = false } = option
@@ -91,17 +102,17 @@ export default class App extends Http {
     this.appid = appid
     this.readyapi = readyapi
     this.analysisoff = analysisoff
-    this.config = {}
-    this.setting = {}
+    this.config = <any>{}
+    this.setting = <any>{}
     if (!(App.instance instanceof App)) {
       App.instance = this
     }
   }
 
-  // 应用初始化
-  public async ready (fn: any): Promise<App> {
-    if (this.tasker) return this.tasker
-    this.tasker = tasker<App>()
+  /** 应用初始化 */
+  public async ready (fn?: (app: App) => any): Promise<App> {
+    if (this.finished) return this.finished
+    this.finished = tasker<App>()
     const { appid } = this
     let { version, config, setting } = AppStore.get(appid, {}) as any
     try {
@@ -114,9 +125,31 @@ export default class App extends Http {
       this.config = config
       this.setting = setting
       if (isFunction(fn)) fn(this)
-      return await this.tasker.resolve(this)
+      return this.finished.resolve(this)
     } catch (err) {
-      return await this.tasker.reject(err)
+      return this.finished.reject(err)
     }
   }
+}
+
+/** 应用全局配置 */
+export interface IAppConfig {
+  /** 应用ID */
+  id:         number;
+  /** 应用appid */
+  appid:      string;
+  /** 应用名称 */
+  name:       string;
+  /** 应用接入点 */
+  endpoint:   string;
+  /** 应用要求授权种类：none=无授权,base=基础授权,user=用户授权,custom=自定义授权 */
+  oauth:      'none' | 'base' | 'user' | 'custom';
+  /** 应用开始时间 */
+  starttime:  number;
+  /** 应用结束时间 */
+  endtime:    number;
+  /** 应用状态：normal=正常,paused=暂停,overdue=下线 */
+  status:     'normal' | 'paused' | 'overdue';
+  /** 应用更新时间 */
+  updatetime: number;
 }

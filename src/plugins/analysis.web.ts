@@ -1,8 +1,10 @@
-import analysis from './analysis'
+import { config, unload, error, pv } from './analysis'
 import { isArray, isString, assign, global } from '../functions/common'
 import { addListener, domready, document, userAgent } from '../functions/utils.web'
 import mlocation from './location.web'
 import Auth from '../factory/Auth'
+
+export * from './analysis'
 
 const $img = document.createElement('img')
 
@@ -52,13 +54,11 @@ const webConfig = {
   }
 }
 
-assign(analysis.config, webConfig)
+assign(config, webConfig)
 
 // 页面就绪 & 用户登录后 开始发送分析数据
 domready.then(() => Auth.instance && Auth.instance.finished).then(() => {
-  addListener(global, 'unload', () => analysis.unload())
-  addListener(global, 'error', (e: any) => analysis.error(e.error))
-  analysis.pv()
+  addListener(global, 'unload', () => unload())
+  addListener(global, 'error', (e: any) => error(e.error))
+  pv()
 })
-
-export default analysis

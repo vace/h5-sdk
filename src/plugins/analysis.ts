@@ -32,7 +32,7 @@ type IAnalysisConfig = {
   getErrorStack: (err: Error | string) => string
 }
 
-const config: IAnalysisConfig = {
+export const config: IAnalysisConfig = {
   enabled: true,
   minVistedTime: 3000,
   minStayTime: 10000,
@@ -49,10 +49,6 @@ const config: IAnalysisConfig = {
   sendRequest: noop,
   getErrorStack: err => err.toString()
 }
-
-const baseAnalysis = { config, send, pv, share, user, click, unload, error }
-
-export default baseAnalysis
 
 /** 事件集合 */
 const EVENT_VIEW = 'VIEW'
@@ -76,7 +72,7 @@ const ANA_REQEST_NONCE = '_n' // 随机数
 const ANA_REQEST_SIGNATURE = '_s' // 此次请求签名
 
 /** 发送指定事件 */
-function send (event: string, data: any = '', value: number = 0) {
+export function send (event: string, data: any = '', value: number = 0) {
   const app = App.instance
   // 无应用，不发送数据
   if (!app || !app.appid || app.analysisoff || !config.enabled) {
@@ -106,7 +102,7 @@ function send (event: string, data: any = '', value: number = 0) {
 }
 
 /** 发送页面pv事件 */
-function pv () {
+export function pv () {
   const spm = config.getSpm()
   const stayTime = now() - config.requestTime
   const afterSend = Math.max(config.minVistedTime - stayTime, 0)
@@ -114,22 +110,22 @@ function pv () {
 }
 
 /** 发送用户事件 */
-function user(data?: any, value?: number) {
+export function user(data?: any, value?: number) {
   return send(EVENT_USER, data, value)
 }
 
 /** 发送用户分享事件 */
-function share(platform?: any, logid?: number) {
+export function share(platform?: any, logid?: number) {
   return send(EVENT_SHARE, platform, logid)
 }
 
 /** 发送用户点击事件 */
-function click(data?: any, value?: number) {
+export function click(data?: any, value?: number) {
   return send(EVENT_CLICK, data, value)
 }
 
 /** 发送用户离开事件 */
-function unload () {
+export function unload () {
   const stayTime = (now() - config.requestTime) / 1000
   // 最小访问时间限制
   if (stayTime < config.minStayTime) {
@@ -141,7 +137,7 @@ function unload () {
 let _errorReportHistory: string[] = []
 
 /** 发送错误事件 */
-function error (error: Error | string) {
+export function error (error: Error | string) {
   // 已经达到最大上报次数
   if (!error || _errorReportHistory.length >= config.maxReportError) {
     return false

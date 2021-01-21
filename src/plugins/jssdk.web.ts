@@ -4,30 +4,38 @@ import Auth from "../factory/Auth"
 import Res from '../factory/Res.web'
 import Http, { HttpError } from "../factory/Http"
 import mlocation from './location.web'
-import analysis from './analysis.web'
+import { share as sendAnalysisShare } from './analysis.web'
 import tasker, { ITaskerPromise } from './tasker'
 import { isString, isHasOwn, once, uniqueArray, noop, assign, alwaysTrue, createURL, isFunction, timestamp, nextTick } from "../functions/common"
 import { isWechat, document, isMiniapp } from "../functions/utils.web"
 
-const task = tasker() as ITaskerPromise<boolean>
+/** jssdk 配置 */
+export const config = {
+  /** 使用的jssdk版本 */
+  version: '1.6.0',
+  /** 当前签名appid */
+  appid: '',
+  /** 分享保留参数 */
+  shareLogid: 0,
+  /** 小程序分享专用 */
+  mini: 'mini'
+}
 
-declare var wx: any
+/** 签名ready完成事件 */
+export const finished = tasker() as ITaskerPromise<boolean>
 
-type IJssdkShareItem = { arg: null | IJssdkShareBase, platform: string, api: string, params?: any }
+export type IJssdkShareItem = { arg: null | IJssdkShareBase, platform: string, api: string, params?: any }
 
-// 小程序分享专用
-const MINIAPP_KEYWORD = 'mini'
-
-const DefaultJssdkShare: IJssdkShareItem[] = [
+export const DefaultJssdkShare: IJssdkShareItem[] = [
   { arg: null, platform: 'timeline', api: 'onMenuShareTimeline' },
   { arg: null, platform: 'app',      api: 'onMenuShareAppMessage' },
   { arg: null, platform: 'qq',       api: 'onMenuShareQQ' },
   { arg: null, platform: 'weibo',    api: 'onMenuShareWeibo' },
   { arg: null, platform: 'qzone',    api: 'onMenuShareQZone' },
-  { arg: null, platform: MINIAPP_KEYWORD, api: 'postMessage' },
+  { arg: null, platform: config.mini, api: 'postMessage' },
 ]
 
-const DefaultJssdkApi = [
+export const DefaultJssdkApi = [
   'scanQRCode',
   'closeWindow',
   'previewImage',
@@ -40,9 +48,9 @@ const DefaultJssdkApi = [
   ...DefaultJssdkShare.map(t => t.api)
 ]
 
-// 异步加载jssdk资源
-const loadJssdk = once(async () => {
-  const version = jssdk.version
+/** 异步加载jssdk */
+export const loadJssdk = once(async () => {
+  const version = config.version
   const jweixin = (endpoint: string) => `//${endpoint}.wx.qq.com/open/js/jweixin-${version}.js`
 
   if (typeof wx === 'undefined') {
@@ -58,7 +66,7 @@ const loadJssdk = once(async () => {
   return wx
 })
 
-const config = once(async (config: IJssdkConfig) => {
+export const signature = once(async (config: IJssdkConfig) => {
   const { url, debug, appid, jsApiList = [] } = config
   const wx = await loadJssdk()
   const currentURL = mlocation.url
@@ -81,54 +89,35 @@ const config = once(async (config: IJssdkConfig) => {
     responseSignure = { appId: appid, url: currentURL, timestamp: timestamp(), signature: 'mock value' }
   }
   const signature = { ...responseSignure, debug, jsApiList: uniqueArray([...DefaultJssdkApi, ...jsApiList]) }
-  wx.ready(() => task.resolve(true))
-  wx.error((err: any) => task.reject(new JssdkError(err.errMsg)))
+  wx.ready(() => finished.resolve(true))
+  wx.error((err: any) => finished.reject(new JssdkError(err.errMsg)))
   wx.config(signature)
   // 不在微信环境中直接resolve
   if (!isWechat) {
-    nextTick().then(() => task.resolve(true))
+    nextTick().then(() => finished.resolve(true))
   }
-  return task
+  return finished
 })
 
-// const userShare = new Map()
-function share (opts?: string | IJssdkShare) {
+/** 调用分享 */
+export function share (opts?: string | IJssdkShare) {
   if (!opts || opts === '*') return DefaultJssdkShare
   if (isString(opts)) return DefaultJssdkShare.find(s => s.platform === platform)
   const option = _parseShareOptions(opts)
   const platform = opts.platform
   const filter = platform && platform !== '*' ? (t: any) => t.platform === platform : alwaysTrue
   DefaultJssdkShare.filter(filter).forEach(item => item.arg = assign(item.arg || {}, option))
-  return task.then(() => DefaultJssdkShare.forEach(_proxyShareOption))
+  return finished.then(() => DefaultJssdkShare.forEach(_proxyShareOption))
 }
 
-class JssdkError extends Error {}
+/** 错误对象 */
+export class JssdkError extends Error {}
 
-const jssdk = {
-  /** 使用的jssdk版本 */
-  version: '1.6.0',
-  /** 当前签名appid */
-  appid: '',
-  /** 分享保留参数 */
-  shareLogid: 0,
-  /** 定义值 */
-  task,
-  /** ready 监听 */
-  ready: (fn: EventListenerOrEventListenerObject) => document.addEventListener("WeixinJSBridgeReady", fn, false),
-  /** 配置处理 */
-  config,
-  /** 调用分享 */
-  share,
-  /** 异步加载jssdk */
-  loadJssdk,
-  /** 错误对象 */
-  JssdkError
-}
+/** on ready */
+export const onReady = (fn: EventListenerOrEventListenerObject) => document.addEventListener("WeixinJSBridgeReady", fn, false)
 
-// 在微信浏览器环境中自动加载wx变量
+/** 在微信浏览器环境中自动加载wx变量 */
 isWechat && loadJssdk()
-
-export default jssdk
 
 function _parseShareOptions (opts: IJssdkShare): IJssdkShareBase {
   const { title, desc, link, imgUrl, type, img, imgurl, success, cancel } = opts
@@ -162,7 +151,7 @@ function _proxyShareOption (share: IJssdkShareItem) {
   const spm_from = share.platform
   link = createURL(link, { spm_uid, spm_from }) // 创建追踪url
 
-  if (spm_from === MINIAPP_KEYWORD) {
+  if (spm_from === config.mini) {
     if (!isMiniapp) {
       return // 仅在小程序webview中支持
     }
@@ -173,7 +162,7 @@ function _proxyShareOption (share: IJssdkShareItem) {
   }
 
   const success = () => {
-    analysis.share('wx.' + spm_from, jssdk.shareLogid)
+    sendAnalysisShare('wx.' + spm_from, config.shareLogid)
     if (isFunction(userSuccess)) {
       userSuccess(spm_from)
     }

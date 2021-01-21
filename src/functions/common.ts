@@ -211,8 +211,16 @@ export const map = _map
 export const shuffle = _shuffle
 /** 从数组中取值 */
 export const pick = _pick
-/** 遍历对象/数组，返回false时停止循环 */
+/** 遍历对象/数组 */
 export const each = _each
+/** 过滤数组中falsy选项，false, null, 0, "",undefined,NaN */
+export const compact = (arr: any[]) => arr.filter(Boolean)
+/** 从数组对象中获取属性列表 */
+export const pluck = (list: any[], property: string) => list.map(item => item[property])
+/** 从数组/对象中归类 */
+export const groupBy = _group((result: any[], value, key) => { (result[key] || (result[key] = [])).push(value) })
+/** 从数组/对象中建立索引 */
+export const indexBy = _group((result, value, key) => result[key] = value)
 /** 从参数数组中生成映射对象 */
 export const makeMark = <T extends number|string|symbol>(arr: T[]): Record<T, true> => _makeArrMarkOrMap(arr, true)
 /** 从数组中根据条件生成映射对象 */
@@ -224,6 +232,8 @@ export const makeMap = <T extends number|string|symbol>(arr: T[], fn?: (key: T, 
 
 /** 高阶函数：只运行函数一次 */
 export const once = (func: Function) => _before(2, func)
+/** 高阶函数：运行后始终为常量 */
+export const constant = <T>(value: T) => () => value
 /** 高阶函数：只运行函数N次 */
 export const before = _before
 /** 高阶函数：在调用N次后，运行函数一次 */
@@ -236,8 +246,10 @@ export const debounce = _debounce
 export const memoize = _memoize
 /** 高阶函数：参数延展，fun(a, b, c) => spread(fun)([a, b, c]) */
 export const spread = <T extends Function>(callback: T) => (arr: any[]): any => callback.apply(null, arr)
-/** 高阶函数：包装参数作为函数运行，wranFn(any)(a, b) */
-export const wrapFn = <T extends Function>(callback: T, context?: any): T => isFunction(callback) ? callback.bind(context) : noop
+/** 高阶函数：包装运行函数 wrap((fn) => `before` + fn()) */
+export const wrap = <T extends Function>(fn: T, wrapper: (fn: T, ...args: any[]) => any) => (...args: any[]) => wrapper(fn, ...args)
+/** 高阶函数：包装参数作为函数运行，toFunction(any)(a, b) */
+export const toFunction = <T extends Function>(callback: T, context?: any): T => isFunction(callback) ? callback.bind(context) : noop
 /** 在事件循环的下一帧执行函数 */
 export const nextTick = _makeNextTick()
 
@@ -489,12 +501,12 @@ function _each (obj: any, iteratee: (val: any, key: any, _this: unknown) => any,
   let i: any, length: number
   if (isArray(obj)) {
     for (i = 0, length = obj.length; i < length; i++) {
-      if (iteratee(obj[i], i, obj) === false) return
+      iteratee(obj[i], i, obj)
     }
   } else {
     var keys = Object.keys(obj)
     for (i = 0, length = keys.length; i < length; i++) {
-      if (iteratee(obj[keys[i]], keys[i], obj) === false) return
+      iteratee(obj[keys[i]], keys[i], obj)
     }
   }
   return obj
@@ -971,4 +983,16 @@ function _makeNextTick() {
   }
 
   return _nextTick
+}
+
+function _group (behavior: (ret: any, value: any, key: string) => void) {
+  type IterateeFn = ((val: any, index: string | number, obj: any) => string)
+  return function (obj: any, iteratee: IterateeFn) {
+    var result = {}
+    _each(obj, (val, key) => {
+      var index = iteratee(val, key, obj)
+      behavior(result, val, index);
+    });
+    return result;
+  }
 }

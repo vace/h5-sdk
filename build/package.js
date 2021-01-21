@@ -8,7 +8,7 @@ const platform = process.argv.pop()
 const getDtsConfig = () => {
   const lazyLoader = {
     web: () => _mergeDTS({
-      name: 'sdk',
+      name: 'h5-sdk',
       prefix: 'h5-sdk',
       main: 'h5-sdk/src/entry.web',
       out: 'dist/web-sdk/index.d.ts',

@@ -14,12 +14,12 @@ describe('test factory Res', () => {
     res.add('../logo.png')
   })
 
-  it('res.add(img) 需要返回promise', () => should(res.add('../logo.png')).be.a.Promise())
+  it('res.add(img) 需要返回 Res.ResTask', () => should(res.add('../logo.png')).instanceOf(sdk.Res.ResTask))
   it('res.start() 执行后将会被加载', done => {
-    res.add('../logo.png').then(() => done())
+    res.add('../logo.png').finished.then(() => done())
   })
   it('res.add(path) 执行后将会返回img元素', done => {
-    res.add('../logo.png').then((img) => {
+    res.add('../logo.png').finished.then((img) => {
       should(img).is.instanceof(Image)
       done()
     })
@@ -31,14 +31,14 @@ describe('test factory Res', () => {
     })
   })
   it('res.add(err).catch(err) 执行后会捕获错误详情', done => {
-    res.add({ type: 'err', url: 'err' }).catch((err) => {
+    res.add({ type: 'err', url: 'err' }).finished.catch((err) => {
       should(err).is.a.Error()
       done()
     })
   })
 
-  it('res.add([res1, res2, ..., res3]) 之后后会返回多个资源', done => {
-    res.add([
+  it('res.add([res1, res2, ..., res3])', done => {
+    const taskList = res.add([
       'pack.json',
       '../logo.png',
       { type: 'text', key: 'keytest', url: 'text.txt' },
@@ -47,13 +47,12 @@ describe('test factory Res', () => {
       { type: 'blob', url: 'blob' },
       // remote
       'http://h5.ahmq.net/default-avatar.png',
-    ]).then(list => {
-      should(list).is.a.Array()
-      should(list.length).is.equal(7)
-      // 可以通过key直接读取内容
+    ])
+    Promise.all(taskList.map(t => t.finished)).then(() => {
+      should(taskList).is.a.Array()
+      should(taskList.length).is.equal(7)
       should(res.get('keytest')).is.a.String()
       done()
-      // console.log('res', list)
     })
   })
 })

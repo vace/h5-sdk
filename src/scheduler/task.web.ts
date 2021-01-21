@@ -5,7 +5,7 @@ import Auth from '../factory/Auth'
 import App from '../factory/App'
 import Config from '../factory/Config'
 import UiMusic from '../factory/UiMusic.web'
-import jssdk from '../plugins/jssdk.web'
+import { signature, share as setJssdkShare } from '../plugins/jssdk.web'
 import { document, getDomAttrs } from '../functions/utils.web'
 
 initializeScript()
@@ -71,7 +71,7 @@ function initializeJssdk () {
   if (config.api) {
     config.jsApiList = config.api.split(',')
   }
-  jssdk.config(config)
+  signature(config)
 
   // 只设置全局分享，如果需要定制，需要自行调用接口
   // banner为小程序所用的分享图标, config 为附带参数（一般用于设置小程序webview，格式为url parse）
@@ -93,7 +93,7 @@ function initializeJssdk () {
       }
     }
   })
-  jssdk.share(share)
+  setJssdkShare(share)
 }
 
 // 背景音乐

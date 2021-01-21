@@ -16,9 +16,9 @@ export *                       from './functions/common'
 export *                       from './functions/utils.mini'
 
 /** 导入插件模块类 */
-export { default as analysis } from './plugins/analysis.mini'
 export { default as hotcache } from './plugins/hotcache'
 export { default as store }    from './plugins/store.mini'
+export * as analysis           from './plugins/analysis.mini'
 import * as cdn                from './plugins/cdn'
 import * as cloud              from './plugins/cloud'
 import * as safety             from './plugins/safety.mini'

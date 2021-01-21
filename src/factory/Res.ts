@@ -1,6 +1,6 @@
 import { md5 } from '../plugins/safety'
 import tasker, { ITaskerPromise } from '../plugins/tasker'
-import { extname, isArray, isBase64, isDef, isHttp, isString, makeMap, once, resolvePath } from "../functions/common"
+import { extname, isArray, isBase64, isDef, isHttp, isString, makeMap, once } from "../functions/common"
 import Emitter from './Emitter'
 import { assign } from '../functions/common'
 
@@ -43,7 +43,7 @@ export class ResTask<T> {
   /** 资源加载失败 */
   static STATUS_FAILED = ResTaskStatus.FAILED
   /** 当前资源加载完成 */
-  public finished: ITaskerPromise<ResTask<T>> = tasker()
+  public finished: ITaskerPromise<T> = tasker()
   /** 当前资源加载状态 */
   public status: number = ResTaskStatus.ADDED
   /** 当前资源key */
@@ -76,19 +76,9 @@ export class ResTask<T> {
     this.options = options
   }
 
-  /** 资源加载成功通知 */
-  public resolve () {
-    return this.finished.resolve(this)
-  }
-
-  /** 资源加载失败通知 */
-  public reject (err?: Error) {
-    return this.finished.reject(err)
-  }
-
   /** 资源加载成功后触发 */
   public onLoad (fn: (data: T) => any) {
-    return this.finished.then(res => fn(res.data))
+    return this.finished.then(fn)
   }
 
   /** 资源加载失败后触发 */
@@ -108,19 +98,18 @@ export class ResTask<T> {
       const error = new TypeError('Res loader not existed: ' + this.type)
       this.status = ResTaskStatus.FAILED
       this.error = error
-      this.reject(error)
-      return this.finished
+      return this.finished.reject(error)
     }
     this.status = ResTaskStatus.LOADING
     return loader(this).then((data: any) => {
       this.status = ResTaskStatus.LOADED
       this.data = data
-      this.resolve()
+      this.finished.resolve(data)
       return this.finished
     }).catch((error:Error) => {
       this.status = ResTaskStatus.FAILED
       this.error = error
-      this.reject(error)
+      this.finished.reject(error)
       return this.finished
     })
   }

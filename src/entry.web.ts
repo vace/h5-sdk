@@ -25,12 +25,12 @@ export *                       from './functions/common'
 export *                       from './functions/utils.web'
 
 /** 导入插件模块类 */
-export { default as analysis } from './plugins/analysis.web'
 export { default as hotcache}  from './plugins/hotcache'
-export { default as jssdk}     from './plugins/jssdk.web'
 export { default as location}  from './plugins/location.web'
 export { default as store}     from './plugins/store.web'
 export { default as tasker}    from './plugins/tasker'
+export * as jssdk              from './plugins/jssdk.web'
+export * as analysis           from './plugins/analysis.web'
 import * as cdn                from './plugins/cdn'
 import * as cloud              from './plugins/cloud.web'
 import * as safefy             from './plugins/safety.web'
@@ -52,3 +52,11 @@ define('http',                 () => Http.instance)
 define('emitter',              () => Emitter.instance)
 define('music',                () => UiMusic.instance)
 define('res',                  () => Res.instance)
+
+export declare const app: App
+export declare const auth: Auth
+export declare const user: AuthUser
+export declare const http: Http
+export declare const emitter: Emitter
+export declare const music: UiMusic
+export declare const res: Res

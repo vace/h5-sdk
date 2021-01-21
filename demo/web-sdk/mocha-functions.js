@@ -80,6 +80,19 @@ describe('test function', () => {
   it(`sdk.map({a: 1, b: 2, c: 3}, (v, k) => k + '=' + v)`, () => sdk.map({a: 1, b: 2, c: 3}, (v, k) => k + '=' + v).should.is.eql(['a=1', 'b=2', 'c=3']))
   it(`sdk.shuffle([1, 2, 3])`, () => sdk.shuffle([1, 2, 3]).should.is.containDeep([1, 2, 3]))
   it(`sdk.pick({a: 1, b: 2}, ['a'])`, () => should(sdk.pick({ a: 1, b: 2 }, ['a'])).have.property('a').not.property('b'))
+  it(`sdk.compact([0,1,2,3, undefined, null, false, '', NaN])`, () => should(sdk.compact([0, 1, 2, 3, undefined, null, false, '', NaN])).eql([1, 2, 3]))
+  it(`sdk.pluck([{name: 'Tom'}, {name: 'Peter'}], 'name')`, () => should(sdk.pluck([{ name: 'Tom' }, { name: 'Peter' }], 'name')).eql(['Tom', 'Peter']))
+
+  it(`sdk.groupBy([{name: 'vace', num: 2}, {name: 'Ppp', num: 5}, {name: 'vace', num: 3}], val => val.name)`, () => {
+    const group = sdk.groupBy([{ name: 'vace', num: 2 }, { name: 'Ppp', num: 5 }, { name: 'vace', num: 3 }], val => val.name)
+    should(group.vace).length(2)
+    should(group.Ppp).length(1)
+  })
+  it(`sdk.indexBy([{name: 'vace', num: 2}, {name: 'Ppp', num: 5}, {name: 'vace', num: 3}], val => val.name)`, () => {
+    const index = sdk.indexBy([{ name: 'vace', num: 2 }, { name: 'Ppp', num: 5 }, { name: 'vace', num: 3 }], val => val.name)
+    should(index.vace.name).eql('vace')
+    should(index.Ppp.name).eql('Ppp')
+  })
 
   it(`sdk.makeMark(['a', 'b', 'c'])`, () => {
     var mark = sdk.makeMark(['a', 'b', 'c'])
@@ -158,8 +171,8 @@ describe('test function', () => {
     })
     rust([1, 2, 3, 4])
   })
-  it(`sdk.wrapFn(null)('hello')`, () => should(sdk.wrapFn(null)('hello')).is.undefined())
-  it(`sdk.wrapFn(sdk.always)('hello')`, () => should(sdk.wrapFn(sdk.always)('hello')).is.equal('hello'))
+  it(`sdk.toFunction(null)('hello')`, () => should(sdk.toFunction(null)('hello')).is.undefined())
+  it(`sdk.toFunction(sdk.always)('hello')`, () => should(sdk.toFunction(sdk.always)('hello')).is.equal('hello'))
   it(`sdk.nextTick() is Promise`, () => should(sdk.nextTick()).is.Promise())
   it(`sdk.nextTick(fn) callnext`, (done) => sdk.nextTick(done))
 

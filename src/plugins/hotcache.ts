@@ -1,5 +1,5 @@
 import store from './store'
-import { now, isDef, isArray } from '../functions/common'
+import { now, isDef, isArray, memoize } from '../functions/common'
 
 /**
  * 热点数据缓存，采用LRU方式，缓存固定队列数值
@@ -16,7 +16,7 @@ type ICacheObject = {
  * @param cacheKey 缓存key
  * @param maxLength 最大长度
  */
-export default function hotcache(cacheKey: string, maxLength: number = 32) {
+export default memoize(function hotcache(cacheKey: string, maxLength: number = 32) {
   // 读取当前缓存项目
   let hotCacheList: ICacheObject[]
   // 当前内存缓存
@@ -77,4 +77,4 @@ export default function hotcache(cacheKey: string, maxLength: number = 32) {
   }
 
   return { get, set, remove, clearAll }
-}
+})

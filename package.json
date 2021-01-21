@@ -1,6 +1,6 @@
 {
   "name": "sdk",
-  "version": "4.0.4",
+  "version": "4.0.7",
   "description": "sdk.js 跨平台sdk",
   "types": "index.d.ts",
   "main": "sdk.js",

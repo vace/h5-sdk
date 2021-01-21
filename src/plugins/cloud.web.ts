@@ -1,11 +1,11 @@
 import { service, CloudResponse } from './cloud'
-import jssdk from "./jssdk.web";
+import { config } from "./jssdk.web";
 
 export * from './cloud'
 
 /** 同步微信资源文件 */
 export function wxmedia(media_id: string): Promise<CloudResponse> {
-  return service('cloud/wxmedia', { jsappid: jssdk.appid, media_id })
+  return service('cloud/wxmedia', { jsappid: config.appid, media_id })
 }
 
 /** 上传一个文件（项目文件） */

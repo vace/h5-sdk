@@ -11,6 +11,11 @@
         "$tsc-watch"
       ],
       "group": "build"
+    },
+    {
+      "label": "publish",
+      "type": "shell",
+      "command": "sh ./build/publish.sh"
     }
   ]
 }

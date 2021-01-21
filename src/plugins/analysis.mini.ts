@@ -1,6 +1,7 @@
-import analysis from './analysis'
+import { config, error, pv } from './analysis'
 import { isArray, isString, assign, parse } from '../functions/common'
 import { getCurrentPage, getSystemInfoSync } from '../functions/utils.mini'
+export * from './analysis'
 
 declare var wx: any
 
@@ -44,13 +45,11 @@ const webConfig = {
   }
 }
 
-assign(analysis.config, webConfig)
+assign(config, webConfig)
 
 // 页面就绪 & 用户登录后 开始发送分析数据
-wx.onError((err: any) => analysis.error(err))
+wx.onError((err: any) => error(err))
 wx.onAppShow((res: any) => {
   webConfig.query = res.query
-  analysis.pv()
+  pv()
 })
-
-export default analysis

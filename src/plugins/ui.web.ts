@@ -5,7 +5,7 @@ import UiMusic, { IUiMusicOption } from '../factory/UiMusic.web';
 import UiView, { UiViewOption } from '../factory/UiView.web';
 import UiSheet, { IUiSheetOption } from '../factory/UiSheet.web';
 
-import { assign, isObject, isNumber, isFunction, isPromise, each, regexMobile, regexChinese, once } from '../functions/common';
+import { assign, isObject, isNumber, isFunction, each, regexMobile, regexChinese, once } from '../functions/common';
 
 /** UiAlert 配置 */
 export interface IUiAlertOption extends UiModalOption {
@@ -226,11 +226,10 @@ export const warn = toastWrapper('sorry')
 export const error = toastWrapper('err')
 /** 显示toast-loading */
 export const loading = toastWrapper('loading')
-
 /** 打开自定义view */
-export function view(option: UiViewOption): UiView {
-  return new UiView(option).open()
-}
+export const view = (option: UiViewOption): UiView => new UiView(option).open()
+/** 创建music实例 */
+export const music = (option: IUiMusicOption) => new UiMusic(option)
 
 /** 预览图片，支持全屏/半屏 */
 export function image(option: UiViewOption | string, isFullScreen?: boolean): UiView {

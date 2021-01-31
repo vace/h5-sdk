@@ -1,4 +1,5 @@
 export interface ITaskerPromise<T> extends Promise<T> {
+  resolved: boolean
   resolve(val: T): Promise<T>
   reject(err?: Error): Promise<T>
 }
@@ -18,10 +19,13 @@ export default function tasker<T>(): ITaskerPromise<T> {
     handler.reject = reject
   })
 
+  promise.resolved = false
+
   // promise.abort = (reason) => {}
 
   /** resolve promise */
   promise.resolve = (val: T) => {
+    promise.resolved = true
     handler.resolve(val)
     return promise
   }

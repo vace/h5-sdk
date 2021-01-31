@@ -26,7 +26,7 @@ describe('test factory Res', () => {
   })
   it('res.json(file) 执行后会返回json内容', done => {
     res.json('pack.json').then((json) => {
-      should(json).have.keys('name', 'version', 'description')
+      should(json.data).have.keys('name', 'version', 'description')
       done()
     })
   })
@@ -137,50 +137,67 @@ describe('test factory Http', () => {
   it('http config check', () => {
     http.httpconfig.baseURL.should.is.equal('api/')
   })
-  it('http request test', (done) => {
+  it('http request success test', (done) => {
     http.get('pack.json').then(json => {
       should(json).have.keys('name', 'version', 'description')
       done()
     })
   })
+  it('http request fail test', (done) => {
+    http.get('error.json').catch(error => {
+      should(error).is.instanceOf(Error)
+      should(error.code).is.equal(-1)
+      should(error.data.key).is.equal('value') // 错误data读取
+      done()
+    })
+  })
+
+  it('http read json file', (done) => {
+    http.json('error.json').then(json => {
+      should(json.code).is.equal(-1)
+      should(json.data.key).is.equal('value') // 错误data读取
+      done()
+    })
+  })
+
   it('http request get', (done) => {
-    http.get(HTTP_BIN, { getarg: 'test' }).then(reponse => {
-      should(reponse.data.method).is.equal('GET')
-      should(reponse.data.get.getarg).is.equal('test')
+    http.get(HTTP_BIN, { getarg: 'test' }).then(data => {
+      should(data.method).is.equal('GET')
+      should(data.get.getarg).is.equal('test')
       done()
     }).catch(done)
   })
   it('http request post', (done) => {
-    http.post(HTTP_BIN, { getarg: 'test' }).then(reponse => {
-      should(reponse.data.method).is.equal('POST')
-      should(reponse.data.post.getarg).is.equal('test')
+    http.post(HTTP_BIN, { getarg: 'test' }).then(data => {
+      should(data.method).is.equal('POST')
+      should(data.post.getarg).is.equal('test')
       done()
     }).catch(done)
   })
   it('http request put', (done) => {
-    http.put(HTTP_BIN, { getarg: 'test' }).then(reponse => {
-      should(reponse.data.method).is.equal('PUT')
-      should(reponse.data.post.getarg).is.equal('test')
+    http.put(HTTP_BIN, { getarg: 'test' }).then(data => {
+      should(data.method).is.equal('PUT')
+      should(data.post.getarg).is.equal('test')
       done()
     }).catch(done)
   })
   it('http request delete', (done) => {
-    http.delete(HTTP_BIN, { getarg: 'delete' }).then(reponse => {
-      should(reponse.data.method).is.equal('DELETE')
-      should(reponse.data.get.getarg).is.equal('delete')
+    http.delete(HTTP_BIN, { getarg: 'delete' }).then(data => {
+      should(data.method).is.equal('DELETE')
+      should(data.get.getarg).is.equal('delete')
       done()
     }).catch(done)
   })
   it('http request patch', (done) => {
-    http.patch(HTTP_BIN, { getarg: 'patch' }).then(reponse => {
-      should(reponse.data.method).is.equal('PATCH')
-      should(reponse.data.put.getarg).is.equal('patch')
+    http.patch(HTTP_BIN, { getarg: 'patch' }).then(data => {
+      should(data.method).is.equal('PATCH')
+      should(data.put.getarg).is.equal('patch')
       done()
     }).catch(done)
   })
   it('http request head', (done) => {
-    http.head(HTTP_BIN, { getarg: 'head' }).then(reponse => {
-      should(reponse.type).is.equal('cors')
+    http.head(HTTP_BIN, { getarg: 'head' }).then(data => {
+      should(data.type).is.equal('cors')
       done()
     }).catch(done)
   })

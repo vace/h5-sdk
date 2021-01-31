@@ -1,5 +1,9 @@
 {
-  "name": "h5-sdk",
-  "version": "4.0.0",
-  "description": "sdk.js 用于Web程序开发的sdk"
+  "code": 0,
+  "data": {
+    "name": "h5-sdk",
+    "version": "4.0.0",
+    "description": "sdk.js 用于Web程序开发的sdk"
+  },
+  "message": "接口读取成功"
 }

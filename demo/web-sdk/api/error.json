@@ -1,0 +1,7 @@
+{
+  "code": -1,
+  "message": "接口error被捕获",
+  "data": {
+    "key": "value"
+  }
+}

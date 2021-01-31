@@ -1,46 +1,52 @@
-import { isDef, isString } from '../functions/common'
-import Config from '../factory/Config.web'
+import { isDef, isPromise, isString } from '../functions/common'
 import Res from '../factory/Res.web'
-export const store = new Map()
+import tasker, { ITaskerPromise } from './tasker'
 
-type IUsePlugin = {
-  name: string,
-  version?: string
-} | string
+/**
+ * @example
+ * ```js
+ * - 前端使用插件流程
+ * sdk.plugin.install('./app/plugin-modal.js')
+ * sdk.plugin.use('showModal').then(modal => {
+ *  model.open({ title: 'xxxx', ... })
+ * })
+ * 
+ * - 定义一个插件的流程
+ * sdk.plugin.define('showModal', fn)
+ * ```
+ */
+
+export const store: Map<string, ITaskerPromise<any>> = new Map()
 
 /** 插件系统配置 */
-export const config = {
-  rootPath: '/_lib/h5-plugins/',
+export const loader = new Res({
+  autoStart: true
+})
+
+function initPlugin (name: string) {
+  let plugin = store.get(lower(name))
+  if (!plugin) {
+    plugin = tasker()
+    store.set(name, plugin)
+  }
+  return plugin
+}
+
+/** 安装一个插件 */
+export function install(src: string) {
+  loader.js(src)
+  return { use, define }
 }
 
 /** 定义一个插件 */
-export function define (plugin: string, anything: any) {
-  store.set(lower(plugin), anything)
-  return anything
+export function define (name: string, fn: any) {
+  const plugin = initPlugin(name)
+  return plugin.resolve(fn)
 }
 
 /** 使用一个插件 */
-export function use (plugin: IUsePlugin) {
-  let name: string, version: string
-  if (isString(plugin)) {
-    [name, version = ''] = plugin.split('?')
-  } else {
-    name = plugin.name
-    version = plugin.version || ''
-  }
-  const cacheKey = lower(name)
-  if (store.has(cacheKey)) {
-    return Promise.resolve(store.get(cacheKey))
-  }
-  const suffix = version ? `?v=${version}` : ''
-  const pluginRoot = Config.cdn(config.rootPath + name + '.js' + suffix)
-  return Res.js(pluginRoot).then(() => {
-    const plugin = store.get(cacheKey)
-    if (!isDef(plugin)) {
-      throw new TypeError(`plugin loaded empty:` + name)
-    }
-    return plugin
-  })
+export function use (name: string) {
+  return initPlugin(name)
 }
 
 function lower (str: string) {

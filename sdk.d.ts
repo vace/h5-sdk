@@ -1,5 +1,5 @@
 /*!
- * @overview h5-sdk@4.0.6 2021/1/21 下午8:33:54
+ * @overview h5-sdk@4.0.9 2021/1/31 下午10:39:52
  * @copyright (c) 2018-present, MaQu, Inc.
  * @authors Vace<i@ahmq.net>
  * @license Released under the MIT License.
@@ -62,6 +62,7 @@ declare namespace sdk {
     }
     
     interface ITaskerPromise<T> extends Promise<T> {
+        resolved: boolean;
         resolve(val: T): Promise<T>;
         reject(err?: Error): Promise<T>;
     }
@@ -92,8 +93,7 @@ declare namespace sdk {
         static instance: Auth;
         /** 用户实例 */
         user: AuthUser;
-        /** Auth版本号，可修改version强制重新授权 */
-        version: string;
+        /** @deprecated Auth版本号，可修改version强制重新授权 */
         /** 用户角色 */
         state: string;
         /** 授权种类 */
@@ -130,7 +130,7 @@ declare namespace sdk {
          * 实例化Auth，只有一个实例可通过Auth.instance获取
          * @param options 初始化Auth
          */
-        constructor(options: any);
+        constructor(options?: any);
         /** 登陆任务 */
         finished: ITaskerPromise<AuthUser>;
         /** 登陆用户 */
@@ -156,7 +156,7 @@ declare namespace sdk {
         /** 全局auth参数接收 */
         onAuthHeadersReceived(header: Headers): void;
         /** 转换用户登陆请求 */
-        transformAuthResponse(response: any): AuthUser;
+        transformAuthResponse(userdata: any): AuthUser;
     }
     
     const HttpMessage: unique symbol;
@@ -186,17 +186,15 @@ declare namespace sdk {
         /** 携带的错误数据 */
         data: any;
         /** 请求类 */
-        request?: Http;
-        /** 响应结果 */
-        response?: Response;
+        http?: Http;
         /**
          * 初始化http错误对象
          * @param code 错误码
          * @param message 错误消息
-         * @param request 请求类
+         * @param http 请求类
          * @param response 响应结果
          */
-        constructor(code: number, message: string, request?: Http, response?: Response);
+        constructor(code: number, message: string, data?: any, http?: Http);
     }
     /**
      * Http请求类
@@ -269,6 +267,8 @@ declare namespace sdk {
         /** 用于设置响应中的提示内容 */
         setHttpMessage(key: string, message: string): void;
         /** 使用指定方法(默认GET)请求，并返回text */
+        json(url: HttpRequestOption, query?: any, method?: HttpMethod): Promise<any>;
+        /** 使用指定方法(默认GET)请求，并返回text */
         text(url: HttpRequestOption, query?: any, method?: HttpMethod): Promise<any>;
         /** 使用指定方法(默认GET)请求，并返回arrayBuffer */
         arrayBuffer(url: HttpRequestOption, query?: any, method?: HttpMethod): Promise<any>;
@@ -285,6 +285,7 @@ declare namespace sdk {
         static patch: SendRequest;
         static jsonp: SendRequest;
         static action: SendRequest;
+        static json: SendRequest;
         static text: SendRequest;
         static arrayBuffer: SendRequest;
         static blob: SendRequest;
@@ -297,15 +298,17 @@ declare namespace sdk {
     interface IHttpConfig {
         auth?: Auth;
         baseURL?: string;
-        validateStatus?: (code: number) => boolean;
+        useErrorCode?: string;
+        validateStatus?: (status: number) => boolean;
         transformRequest?: (req: IHttpRequestOption) => IHttpRequestOption;
-        transformResponse?: (rsp: Response, req: IHttpRequestOption) => any;
+        transformResponse?: (rsp: Response, http: Http) => any;
         onHeadersReceived?: (headers: Headers) => void;
     }
     interface IHttpRequestOption {
         /** GET请求 支持缓存 */
         cache?: boolean | number | ((fetchURL: string) => string);
         url?: string;
+        api?: string;
         query?: any;
         body?: any;
         param?: any;
@@ -350,8 +353,6 @@ declare namespace sdk {
         static AppError: typeof AppError;
         /** 转换app的请求 */
         transformAppRequest(config: any): any;
-        /** 转换app响应 */
-        transformAppResponse(response: Response): Promise<any>;
         /** 当前应用实例(如果有多个实例，只能获取第一个) */
         static instance: App;
         /** 当前应用基本配置， */
@@ -1579,17 +1580,6 @@ declare namespace sdk {
         each(fn: (value: any, key: string) => void): void;
     };
     
-    /** jssdk 配置 */
-    const config: {
-        /** 使用的jssdk版本 */
-        version: string;
-        /** 当前签名appid */
-        appid: string;
-        /** 分享保留参数 */
-        shareLogid: number;
-        /** 小程序分享专用 */
-        mini: string;
-    };
     /** 签名ready完成事件 */
     const finished: ITaskerPromise<boolean>;
     type IJssdkShareItem = {
@@ -1599,7 +1589,29 @@ declare namespace sdk {
         params?: any;
     };
     const DefaultJssdkShare: IJssdkShareItem[];
-    const DefaultJssdkApi: string[];
+    /** jssdk 配置 */
+    const config: {
+        /** 签名URL */
+        url: string;
+        /** 是否开启debug */
+        debug: boolean;
+        /** 使用的jssdk版本 */
+        version: string;
+        /** 当前签名appid */
+        appid: string;
+        /** 分享保留参数 */
+        shareLogid: number;
+        /** 小程序分享专用 */
+        mini: string;
+        /** 默认的jsapiList */
+        jsApiList: string[];
+        /**
+         * 注入权限验证配置并申请所需开放标签
+         * wx-open-launch-app 打开app
+         * wx-open-launch-weapp 打开weapp
+         */
+        openTagList: string[];
+    };
     /** 异步加载jssdk */
     const loadJssdk: (this: any, ...args: any[]) => any;
     const signature: (this: any, ...args: any[]) => any;
@@ -1608,14 +1620,17 @@ declare namespace sdk {
     /** 错误对象 */
     class JssdkError extends Error {
     }
-    /** on ready */
-    const onReady: (fn: EventListenerOrEventListenerObject) => void;
+    /** on js ready */
+    const onJsReady: (fn: EventListener) => void;
+    /** on wx ready */
+    const onReady: (fn: EventListener | any) => void;
     /** 配置结构 */
     type IJssdkConfig = {
         url?: string;
         debug?: boolean;
-        appid?: string;
+        appid: string;
         jsApiList?: string[];
+        openTagList?: string[];
     };
     /** h5 push到小程序的消息结构 */
     type IJssdkMessageMini = {
@@ -1683,16 +1698,16 @@ declare namespace sdk {
         banner: string;
     };
     
-    const jssdk_web_config: typeof config;
     const jssdk_web_finished: typeof finished;
     type jssdk_web_IJssdkShareItem = IJssdkShareItem;
     const jssdk_web_DefaultJssdkShare: typeof DefaultJssdkShare;
-    const jssdk_web_DefaultJssdkApi: typeof DefaultJssdkApi;
+    const jssdk_web_config: typeof config;
     const jssdk_web_loadJssdk: typeof loadJssdk;
     const jssdk_web_signature: typeof signature;
     const jssdk_web_share: typeof share;
     type jssdk_web_JssdkError = JssdkError;
     const jssdk_web_JssdkError: typeof JssdkError;
+    const jssdk_web_onJsReady: typeof onJsReady;
     const jssdk_web_onReady: typeof onReady;
     type jssdk_web_IJssdkConfig = IJssdkConfig;
     type jssdk_web_IJssdkMessageMini = IJssdkMessageMini;
@@ -1702,15 +1717,15 @@ declare namespace sdk {
     type jssdk_web_IJssdkShareMini = IJssdkShareMini;
     namespace jssdk_web {
       export {
-        jssdk_web_config as config,
         jssdk_web_finished as finished,
         jssdk_web_IJssdkShareItem as IJssdkShareItem,
         jssdk_web_DefaultJssdkShare as DefaultJssdkShare,
-        jssdk_web_DefaultJssdkApi as DefaultJssdkApi,
+        jssdk_web_config as config,
         jssdk_web_loadJssdk as loadJssdk,
         jssdk_web_signature as signature,
         jssdk_web_share as share,
         jssdk_web_JssdkError as JssdkError,
+        jssdk_web_onJsReady as onJsReady,
         jssdk_web_onReady as onReady,
         jssdk_web_IJssdkConfig as IJssdkConfig,
         jssdk_web_IJssdkMessageMini as IJssdkMessageMini,
@@ -1944,27 +1959,42 @@ declare namespace sdk {
       };
     }
     
-    const store: Map<any, any>;
-    type IUsePlugin = {
-        name: string;
-        version?: string;
-    } | string;
+    /**
+     * @example
+     * ```js
+     * - 前端使用插件流程
+     * sdk.plugin.install('./app/plugin-modal.js')
+     * sdk.plugin.use('showModal').then(modal => {
+     *  model.open({ title: 'xxxx', ... })
+     * })
+     *
+     * - 定义一个插件的流程
+     * sdk.plugin.define('showModal', fn)
+     * ```
+     */
+    const store: Map<string, ITaskerPromise<any>>;
     /** 插件系统配置 */
-    const config$2: {
-        rootPath: string;
+    const loader: Res;
+    /** 安装一个插件 */
+    function install(src: string): {
+        use: typeof use;
+        define: typeof define;
     };
     /** 定义一个插件 */
-    function define(plugin: string, anything: any): any;
+    function define(name: string, fn: any): Promise<any>;
     /** 使用一个插件 */
-    function use(plugin: IUsePlugin): Promise<any>;
+    function use(name: string): ITaskerPromise<any>;
     
     const plugin_web_store: typeof store;
+    const plugin_web_loader: typeof loader;
+    const plugin_web_install: typeof install;
     const plugin_web_define: typeof define;
     const plugin_web_use: typeof use;
     namespace plugin_web {
       export {
         plugin_web_store as store,
-        config$2 as config,
+        plugin_web_loader as loader,
+        plugin_web_install as install,
         plugin_web_define as define,
         plugin_web_use as use,
       };
@@ -2072,7 +2102,9 @@ declare namespace sdk {
     /** 显示toast-loading */
     const loading: (message: any, duration?: any, onClose?: any) => UiToast;
     /** 打开自定义view */
-    function view(option: UiViewOption): UiView;
+    const view: (option: UiViewOption) => UiView;
+    /** 创建music实例 */
+    const music: (option: IUiMusicOption) => UiMusic;
     /** 预览图片，支持全屏/半屏 */
     function image(option: UiViewOption | string, isFullScreen?: boolean): UiView;
     /** 展示全局的加载动画 */
@@ -2115,6 +2147,7 @@ declare namespace sdk {
     const ui_web_warn: typeof warn;
     const ui_web_loading: typeof loading;
     const ui_web_view: typeof view;
+    const ui_web_music: typeof music;
     const ui_web_image: typeof image;
     const ui_web_preloader: typeof preloader;
     const ui_web_$modal: typeof $modal;
@@ -2143,6 +2176,7 @@ declare namespace sdk {
         error$1 as error,
         ui_web_loading as loading,
         ui_web_view as view,
+        ui_web_music as music,
         ui_web_image as image,
         ui_web_preloader as preloader,
         ui_web_$modal as $modal,
@@ -2158,10 +2192,10 @@ declare namespace sdk {
     const user$1: AuthUser;
     const http: Http;
     const emitter: Emitter;
-    const music: UiMusic;
+    const music$1: UiMusic;
     const res$1: Res;
     
-    export { App, Auth, AuthUser, Config, Emitter, Http, Res, UiBase, UiModal, UiMusic, UiSheet, UiToast, UiView, addListener, addPx, after, always, alwaysFalse, alwaysTrue, analysis_web as analysis, animationEnabled, animationEnd, animationPrefix, app, assign, auth, basename, before, camelize, cdn, classnames, cloud_web as cloud, compact, constant, createURL, css, dasherize, debounce, dirname, document, domready, each, emitter, equal, extname, filterURL, getDomAttrs, getLength, EnvGlobal as global, groupBy, _default_1 as hotcache, http, inArray, indexBy, isAbsolute, isAndroid, isArguments, isArray, isBase64, isBlob, isBoolean, isDate, isDef, isDingTalk, isDocument, isEmpty, isError, isFile, isFormData, isFunction, isHasOwn, isHttp, isIos, isMap, isMiniapp, isMobile, isNaN, isNative, isNull, isNullOrUndefined, isNumber, isNumeric, isObject, isPlainObject, isPromise, isRegExp, isSet, isString, isSymbol, isUndefined, isWechat, isWindow, jsonp, jssdk_web as jssdk, keys, _default as location, makeMap, makeMark, map, memoize, music, navigator, nextTick, noop, now, object, onAnimationEnd, onTransitionEnd, once, parse, pick, platform, pluck, plugin_web as plugin, random, randomstr, range, regexBase64, regexChinese, regexHttp, regexMobile, regexNumber, regexSplitPath, remove, res$1 as res, resolvePath, safety_web as safefy, shuffle, splice, splitPath, spread, _default$1 as store, stringify, styles, tasker, throttle, timeago, timestamp, toFunction, tool_web as tool, transitionEnd, trim, ui_web as ui, uid, uniqueArray, unixFormat, unixtime, user$1 as user, userAgent, uuid, version, wait, webp, wrap };
+    export { App, Auth, AuthUser, Config, Emitter, Http, Res, UiBase, UiModal, UiMusic, UiSheet, UiToast, UiView, addListener, addPx, after, always, alwaysFalse, alwaysTrue, analysis_web as analysis, animationEnabled, animationEnd, animationPrefix, app, assign, auth, basename, before, camelize, cdn, classnames, cloud_web as cloud, compact, constant, createURL, css, dasherize, debounce, dirname, document, domready, each, emitter, equal, extname, filterURL, getDomAttrs, getLength, EnvGlobal as global, groupBy, _default_1 as hotcache, http, inArray, indexBy, isAbsolute, isAndroid, isArguments, isArray, isBase64, isBlob, isBoolean, isDate, isDef, isDingTalk, isDocument, isEmpty, isError, isFile, isFormData, isFunction, isHasOwn, isHttp, isIos, isMap, isMiniapp, isMobile, isNaN, isNative, isNull, isNullOrUndefined, isNumber, isNumeric, isObject, isPlainObject, isPromise, isRegExp, isSet, isString, isSymbol, isUndefined, isWechat, isWindow, jsonp, jssdk_web as jssdk, keys, _default as location, makeMap, makeMark, map, memoize, music$1 as music, navigator, nextTick, noop, now, object, onAnimationEnd, onTransitionEnd, once, parse, pick, platform, pluck, plugin_web as plugin, random, randomstr, range, regexBase64, regexChinese, regexHttp, regexMobile, regexNumber, regexSplitPath, remove, res$1 as res, resolvePath, safety_web as safefy, shuffle, splice, splitPath, spread, _default$1 as store, stringify, styles, tasker, throttle, timeago, timestamp, toFunction, tool_web as tool, transitionEnd, trim, ui_web as ui, uid, uniqueArray, unixFormat, unixtime, user$1 as user, userAgent, uuid, version, wait, webp, wrap };
     
 }
 /** zepto **/

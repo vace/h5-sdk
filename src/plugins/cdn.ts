@@ -25,7 +25,7 @@ export function lib (libname: string) {
  */
 export function info (filename: string) {
   const url = res(filename, 'image/info')
-  return Http.get(url)
+  return Http.json(url)
 }
 
 /**
@@ -34,7 +34,7 @@ export function info (filename: string) {
  */
 export function hue (filename: string) {
   const url = res(filename, 'image/average-hue')
-  return Http.get(url)
+  return Http.json(url)
 }
 
 /**
@@ -55,7 +55,7 @@ export function snapshot (filename: string, w: number = 0, h: number = 0, format
  */
 export function imm (filename: string, service: string) {
   const url = res(filename, `imm/${service}`)
-  return Http.get(url)
+  return Http.json(url)
 }
 
 export const styles = makeMap('w750 jpg webp w300 w600 w200 w100 w400 w500 100x100 800x600 640x480 400x200 400x300 500x400 500x500 600x600 400x400 300x300 200x200'.split(' '))

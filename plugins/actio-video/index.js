@@ -1,4 +1,4 @@
-class FullVideo {
+class ActioVideo {
   constructor(options = {}) {
     this.setOptions(options)
     this.setState()
@@ -23,7 +23,7 @@ class FullVideo {
     this.skipTime = options.skipTime || 0
     this.skipTimeText = options.skipTimeText
     this.background = options.background
-    this.objectFit = options.objectFit || 'fill'
+    this.objectFit = options.objectFit || 'cover'
     // 图层效果
     this.effect = options.effect
 
@@ -98,8 +98,15 @@ class FullVideo {
     this.$root.toggleClass('isSkip', _isSkip)
   }
 
+  change (videoSrc, posterSrc) {
+    this.$video.attr('src', videoSrc)
+    if (posterSrc) {
+      this.$root.find('.video-cover-el').attr('src', posterSrc)
+    }
+  }
+
   _createTemplate() {
-    const { effect, background } = this
+    const { effect, background, objectFit, poster, skipText } = this
     const attrbutes = [
       { key: 'preload', value: this.preload || 'auto' },
       { key: 'src', value: this.src },
@@ -109,22 +116,22 @@ class FullVideo {
       { key: 'x5-video-player-type', value: 'h5' },
       { key: 'x5-video-player-fullscreen', value: 'true' },
       { key: 'playsinline', value: 'true' },
-      { key: 'style', value: 'object-fit: ' + this.objectFit },
-      { key: 'poster', value: this.poster },
+      { key: 'style', value: 'object-fit: ' + objectFit },
+      { key: 'poster', value: poster },
     ].filter(attr => attr.value != null).map(attr => `${attr.key}="${attr.value}"`).join(' ')
     var $root = this.$root = $(`<div class="video">
   <div class="video-view">
-    <img class="video-cover-el" src="${this.poster}" />
+    <img class="video-cover-el" src="${poster}" style="object-fit: ${objectFit}" />
     <video class="video-el" ${attrbutes}></video>
   </div>
   <div class="video-control">
     <div class="video-cover ${effect ? ('video-' + effect) : ''}">
-      <img class="video-cover-el" src="${this.poster}" />
+      <img class="video-cover-el" src="${poster}" style="object-fit: ${objectFit}" />
     </div>
     <div class="video-play">
       <img src="video/btn-theme1.png" style="width: 4rem;">
     </div>
-    <div class="video-skip">${this.skipText}</div>
+    <div class="video-skip">${skipText}</div>
   </div>
 </div>`)
     if (background) {
@@ -187,7 +194,12 @@ class FullVideo {
           video.paused || video.pause()
           this._isSkip = true
           this.update()
-          typeof this.onSkip === 'function' && this.onSkip()
+          if (typeof this.onSkip === 'function') {
+            this.onSkip()
+          } else if (typeof this.onEnded === 'function') {
+            // 如果未定义skip将处罚ended事件
+            this.onEnded()
+          }
         }
       })
       .on('click', '.video-cover', (event) => {
@@ -214,7 +226,10 @@ class FullVideo {
     }).on('waiting', () => {
       this.update()
     }).on('timeupdate', () => {
-      this._onTimeupdate(video.currentTime)
+      // 解析mp4耗时
+      if (video.currentTime > 0) {
+        this._onTimeupdate(video.currentTime)
+      }
     })
     this.video.addEventListener('touchmove', e => {
       e.preventDefault()

@@ -55,18 +55,6 @@ export default class App extends Http {
     }
     return config
   }
-  /** 转换app响应 */
-  public async transformAppResponse(response: Response) {
-    const json = await response.json()
-    this.setHttpMessage('success', '')
-    if (isHasOwn(json, 'code')) {
-      const { code, message, data } = json
-      if (code) throw new AppError(code, message, data, this) // 包含错误码则抛出错误
-      this.setHttpMessage('success', message || '')
-      return data
-    }
-    return json
-  }
 
   /** 当前应用实例(如果有多个实例，只能获取第一个) */
   // @ts-ignore
@@ -95,9 +83,7 @@ export default class App extends Http {
       // set app base api
       baseURL: baseURL,
       // set token
-      transformRequest: (request) => this.transformAppRequest(request),
-      // transform data
-      transformResponse: (resposne) => this.transformAppResponse(resposne),
+      transformRequest: (request) => this.transformAppRequest(request)
     })
     this.appid = appid
     this.readyapi = readyapi

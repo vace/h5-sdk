@@ -159,7 +159,7 @@ export default class Res extends Emitter {
   /** 进度实例 */
   public static ResProgress = ResProgress
   /** 默认实例 */
-  public static instance = new Res({ autoStart: true })
+  public static instance: Res
   /** 加载控制器 */
   public static loaders: Map<string, IResLoader> = new Map()
   /** 全局ext自动查找，根据请求文件名自动查找对应加载器 */
@@ -268,10 +268,12 @@ export default class Res extends Emitter {
     const cache = Res.$cache
     const config = _formatResStruct(item, this)
     const cacheKey = <string> config.key
-    if (!cache.has(cacheKey)) {
-      cache.set(cacheKey, new ResTask(config, option))
+    // 已经存在缓存的资源直接返回资源声明
+    if (cache.has(cacheKey)) {
+      return cache.get(cacheKey) as ResTask<T>
     }
-    const task = cache.get(cacheKey) as ResTask<T>
+    const task: ResTask<T>  = new ResTask(config, option)
+    cache.set(cacheKey, task)
     this._nofify(ResTaskStatus.ADDED)
     if (this.isWorked) {
       this._execTask(task)
@@ -395,6 +397,9 @@ export default class Res extends Emitter {
   /** 加载download类型资源（使用全局加载器） */
   static download: IResLoaderHook<any>
 }
+
+/** 默认实例 */
+Res.instance = new Res({ autoStart: true })
 
 // 默认的格式映射，具体实现由各种平台子类控制
 const putExtLoader = (loader: string, exts: string[]) => exts.forEach(ext => Res.extmaps[ext] = loader || ext)

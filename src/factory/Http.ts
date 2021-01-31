@@ -1,5 +1,5 @@
 import Auth from './Auth'
-import { always, assign, isString, isPromise, isHttp, inArray, createURL, noop, isFunction, isObject, now, isDef, isNumber, isFormData, isBlob, isFile } from "../functions/common"
+import { always, assign, isString, isPromise, isHttp, inArray, createURL, noop, isFunction, isObject, now, isDef, isNumber, isFormData, isBlob, isFile, isHasOwn } from "../functions/common"
 
 const HttpMessage = Symbol('$message')
 const HttpCache   = Symbol('$cache')
@@ -32,21 +32,20 @@ export class HttpError extends Error {
   /** 携带的错误数据 */
   public data: any
   /** 请求类 */
-  public request?: Http
-  /** 响应结果 */
-  public response?: Response
+  public http?: Http
+
   /**
    * 初始化http错误对象
    * @param code 错误码
    * @param message 错误消息
-   * @param request 请求类
+   * @param http 请求类
    * @param response 响应结果
    */
-  constructor(code: number, message: string, request?: Http, response?: Response) {
+  constructor(code: number, message: string, data?: any, http?: Http) {
     super(message || `网络出错（code: ${code}）`)
     this.code = code
-    this.request = request
-    this.response = response
+    this.data = data
+    this.http = http
   }
 }
 
@@ -78,9 +77,21 @@ export default class Http {
   /** 默认的网络请求配置 */
   public static HttpOption: IHttpConfig = {
     // baseURL: '',
+    useErrorCode: 'code',
     validateStatus: status => status >= 200 && status < 300,
     transformRequest: always,
-    transformResponse: response => response.json(),
+    transformResponse: async (response, http) => {
+      const result = await response.json()
+      const useErrorCode = http.httpconfig.useErrorCode
+      if (useErrorCode && isHasOwn(result, useErrorCode)) {
+        http.setHttpMessage('success', '')
+        const { [useErrorCode]: code, message, data } = result
+        if (code) throw new HttpError(code, message, data, http) // 包含错误码则抛出错误
+        http.setHttpMessage('success', message || '')
+        return data
+      }
+      return result
+    },
     onHeadersReceived: noop,
   }
   /** 发送请求，具体实现由所在平台实现 */
@@ -89,7 +100,7 @@ export default class Http {
   }
 
   /** 默认全局实例 */
-  public static instance: Http = new Http()
+  public static instance: Http
   /** 实例配置 */
   public httpconfig: IHttpConfig = {}
   /** 请求缓存 */
@@ -166,13 +177,13 @@ export default class Http {
     if (auth) {
       request = auth.transformAuthRequest(request) || request
     }
-    const { cache, url, query, body, param, data, method, headers, transformResponse: userTransformResponse, ...reqOptions } = request
+    const { cache, url, api, query, body, param, data, method, headers, transformResponse: userTransformResponse, ...reqOptions } = request
     // 使用用户自定义的参数转换方法
     if (userTransformResponse && isFunction(userTransformResponse)) {
       transformResponse = userTransformResponse
     }
 
-    let requestURL: string = url || ''
+    let requestURL: string = url || api || ''
     let requestQuery = query
     let requestBody = body
     let requestHeader = headers
@@ -257,7 +268,7 @@ export default class Http {
         }
         isFunction(onHeadersReceived) && onHeadersReceived(headers)
         if (isFunction(validateStatus) && !validateStatus(status)) {
-          throw new HttpError(status, statusText, this, response)
+          throw new HttpError(status, statusText, null, this)
         }
         return response
       })
@@ -266,7 +277,7 @@ export default class Http {
         if (requestMethod === HttpMethod.OPTIONS || requestMethod === HttpMethod.HEAD) {
           return response
         }
-        return isFunction(transformResponse) ? transformResponse(response, request) : response
+        return isFunction(transformResponse) ? transformResponse(response, this) : response
       })
       .then(data => {
         closeLoading()
@@ -289,7 +300,10 @@ export default class Http {
   public setHttpMessage (key: string, message: string) {
     this[HttpMessage][key] = message
   }
-
+  /** 使用指定方法(默认GET)请求，并返回text */
+  public json (url: HttpRequestOption, query?: any, method = HttpMethod.GET) {
+    return this.action(url, query, method, { transformResponse: (res: Response) => res.json() })
+  }
   /** 使用指定方法(默认GET)请求，并返回text */
   public text (url: HttpRequestOption, query?: any, method = HttpMethod.GET) {
     return this.action(url, query, method, { transformResponse: (res: Response) => res.text() })
@@ -317,16 +331,20 @@ export default class Http {
   public static patch: SendRequest
   public static jsonp: SendRequest
   public static action: SendRequest
+  public static json: SendRequest
   public static text: SendRequest
   public static arrayBuffer: SendRequest
   public static blob: SendRequest
   public static formData: SendRequest
 }
 
+/** create default instance */
+Http.instance = new Http({})
+
 // install static methods
 const staticMethods = [
   'get', 'delete', 'head', 'options', 'post', 'put', 'patch', 'jsonp', 'action',
-  'text', 'arrayBuffer', 'blob', 'formData'
+  'json', 'text', 'arrayBuffer', 'blob', 'formData'
 ]
 staticMethods.forEach(method => Http[method] = function (url: HttpRequestOption, query?: any) {
   const instance = this.instance || Http.instance
@@ -341,9 +359,11 @@ export interface IHttpCache {
 export interface IHttpConfig {
   auth?: Auth
   baseURL?: string
-  validateStatus?: (code: number) => boolean
+  // 使用error code 定义
+  useErrorCode?: string
+  validateStatus?: (status: number) => boolean
   transformRequest?: (req: IHttpRequestOption) => IHttpRequestOption
-  transformResponse?: (rsp: Response, req: IHttpRequestOption) => any
+  transformResponse?: (rsp: Response, http: Http) => any
   onHeadersReceived?: (headers: Headers) => void
   // onCookiesReceived: (cookies: Headers) => void
 }
@@ -352,6 +372,7 @@ export interface IHttpRequestOption {
   /** GET请求 支持缓存 */
   cache?: boolean | number | ((fetchURL: string) => string),
   url?: string
+  api?: string
   query?: any
   body?: any
   param?: any

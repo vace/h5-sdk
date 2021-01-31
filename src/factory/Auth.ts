@@ -43,8 +43,8 @@ export default class Auth extends Http {
 
   /** 用户实例 */
   public user!: AuthUser
-  /** Auth版本号，可修改version强制重新授权 */
-  public version!: string
+  /** @deprecated Auth版本号，可修改version强制重新授权 */
+  // public version!: string
   /** 用户角色 */
   public state!: string
   /** 授权种类 */
@@ -112,16 +112,16 @@ export default class Auth extends Http {
    * 实例化Auth，只有一个实例可通过Auth.instance获取
    * @param options 初始化Auth
    */
-  constructor(options: any) {
-    super({ baseURL: Config.API_AUTH })
-    const { platform, appid, type, scope, env, url, version, onRedirectLogin } = this.transformAuthOptions(options)
-    this.platform = platform
-    this.appid = appid
-    this.type = type
-    this.scope = scope
-    this.env = env
-    this.url = url
-    this.version = version
+  constructor(options: any = {}) {
+    super({ baseURL: options.baseURL || Config.API_AUTH })
+    const { platform, appid, type, scope, env, url, onRedirectLogin } = this.transformAuthOptions(options)
+    platform && (this.platform = platform)
+    appid && (this.appid = appid)
+    type && (this.type = type)
+    scope && (this.scope = scope)
+    env && (this.env = env)
+    url && (this.url = url)
+    // this.version = version
     this.onRedirectLogin = onRedirectLogin
     this.user = new AuthUser(this)
     // 设置默认实例
@@ -209,12 +209,12 @@ export default class Auth extends Http {
   }
 
   /** 转换用户登陆请求 */
-  public transformAuthResponse(response: any): AuthUser {
-    if (isHasOwn(response, 'code') && response.code === 0 && response.data) {
-      const user = this.user.login(response.data)
+  public transformAuthResponse(userdata: any): AuthUser {
+    if (userdata) {
+      const user = this.user.login(userdata)
       this.finished.resolve(user)
       return user
     }
-    throw new AuthError(AuthErrorCode.LOGIN_FAILED, 'login failed', response)
+    throw new AuthError(AuthErrorCode.LOGIN_FAILED, 'login failed', userdata)
   }
 }

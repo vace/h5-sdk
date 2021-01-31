@@ -1,8 +1,8 @@
 {
   "name": "sdk",
-  "version": "4.0.7",
+  "version": "4.0.9",
   "description": "sdk.js 跨平台sdk",
-  "types": "index.d.ts",
+  "types": "sdk.d.ts",
   "main": "sdk.js",
   "author": "Vace <i@ahmq.net> (https://ahmq.net)",
   "private": true,

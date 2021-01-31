@@ -65,11 +65,14 @@ function initializeApp () {
 
 // jssdk设置
 function initializeJssdk () {
-  const props = ['appid', 'url', 'api', '!debug']
+  const props = ['appid', 'url', 'api', 'tag', '!debug']
   const config = _queryHeadMetaAttr('name="sdk:jssdk"', props)
   if (!config) return
   if (config.api) {
     config.jsApiList = config.api.split(',')
+  }
+  if (config.tag) {
+    config.openTagList = config.tag.split(',')
   }
   signature(config)
 

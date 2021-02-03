@@ -59,18 +59,20 @@ export const config = {
   openTagList: [] as string[]
 }
 
+const isDefWx = () => typeof wx !== 'undefined'
+
 /** 异步加载jssdk */
 export const loadJssdk = once(async () => {
   const version = config.version
   const jweixin = (endpoint: string) => `//${endpoint}.wx.qq.com/open/js/jweixin-${version}.js`
 
-  if (typeof wx === 'undefined') {
+  if (!isDefWx()) {
     try {
       await Res.js(jweixin('res')).catch(() => Res.js(jweixin('res2')))
     } catch {
       // 如果上述服务不可用，则报错
     }
-    if (typeof wx === 'undefined') {
+    if (!isDefWx()) {
       throw new JssdkError(`jweixin-${version}.js load failed`)
     }
   }
@@ -132,7 +134,15 @@ export class JssdkError extends Error {}
 export const onJsReady = (fn: EventListener) => document.addEventListener("WeixinJSBridgeReady", fn, false)
 /** on wx ready */
 export const onReady = (fn: EventListener | any) => {
-  isWechat ? wx.ready(fn) : domready.then(fn)
+  if (isWechat) {
+    if (isDefWx()) {
+      wx.ready(fn)
+    } else {
+      loadJssdk().then(() => isDefWx() && wx.ready(fn))
+    }
+  } else {
+    domready.then(fn)
+  }
 }
 
 /** 在微信浏览器环境中自动加载wx变量 */

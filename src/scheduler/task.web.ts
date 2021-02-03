@@ -37,7 +37,7 @@ function initializeScript() {
 // 应用全局设置
 function initializeSdk () {
   const props = ['api']
-  const config = _queryHeadMetaAttr('name="sdk:auth"', props)
+  const config = _queryHeadMetaAttr('name="sdk:config"', props)
   if (config) {
     Config.set(config)
   }

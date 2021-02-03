@@ -19,7 +19,7 @@ Auth.prototype.transformAuthOptions = (_opts) => {
 }
 
 Auth.prototype.autoLogin = async function _requestLogin (): Promise<AuthUser> {
-  const { appid, user, type } = this
+  const { appid, user, type, env } = this
   let token = this.token
   if (token) {
     const isValid = await wx.checkSession().then(alwaysTrue, alwaysFalse)
@@ -32,7 +32,7 @@ Auth.prototype.autoLogin = async function _requestLogin (): Promise<AuthUser> {
     const code = await wx.login().then(ret => ret.code, (err: any) => {
       throw new AuthError(AuthErrorCode.NO_CODE, err.errMsg)
     })
-    return this.doLogin('/wx/mini/login', { code, appid, type })
+    return this.doLogin('/wx/mini/login', { code, appid, type, env })
   } else {
     if (user.needRefreshed) {
       return await this.refresh()

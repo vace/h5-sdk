@@ -5,7 +5,7 @@ import mlocation from '../plugins/location.web'
 import { filterURL, createURL, isFunction } from '../functions/common'
 
 Auth.prototype.autoLogin = async function (): Promise<AuthUser> {
-  const { isTokenValid, platform, user } = this
+  const { isTokenValid, platform, user, appid, env } = this
   if (isTokenValid) {
     if (user.needRefreshed) {
       return await this.refresh()
@@ -16,7 +16,7 @@ Auth.prototype.autoLogin = async function (): Promise<AuthUser> {
   if (!code || !state) {
     throw new AuthError(AuthErrorCode.NO_CODE, 'miss `code` and `state`')
   }
-  return this.doLogin(`/api/oauth/login/${platform}`, { code, state })
+  return this.doLogin(`/api/oauth/login/${platform}`, { code, state, appid, env })
 }
 
 /**

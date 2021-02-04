@@ -178,7 +178,7 @@ function _proxyShareOption (share: IJssdkShareItem) {
   let {link, success: userSuccess} = arg
   const spm_uid = Auth.instance && Auth.instance.id || 0
   const spm_from = share.platform
-  link = createURL(link, { spm_uid, spm_from }) // 创建追踪url
+  link = createURL(link, { spm_uid, spm_from: `wx.` + spm_from }) // 创建追踪url
 
   if (spm_from === config.mini) {
     if (!isMiniapp) {

@@ -1,4 +1,4 @@
-import { dirname, filterURL, isBase64, isHttp, parse, resolvePath, global } from '../functions/common'
+import { dirname, filterURL, isBase64, isHttp, parse, global, isAbsolute } from '../functions/common'
 
 const lt = global.location
 
@@ -32,6 +32,6 @@ export default {
     if (isHttp(filename) || isBase64(filename)) {
       return filename
     }
-    return resolvePath(this.rootpath, filename)
+    return (isAbsolute(filename) ? lt.origin : this.rootpath) + filename
   }
 }

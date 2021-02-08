@@ -33,8 +33,8 @@ function initPlugin (name: string) {
 }
 
 /** 安装一个插件 */
-export function install(src: string) {
-  loader.js(src)
+export function install(src: any) {
+  loader.add(src)
   return { use, define }
 }
 

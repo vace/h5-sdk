@@ -43,9 +43,9 @@ export default class UiSheet extends UiBase {
     // bind event
     const _this = this
     this.$root.append(this.$mask).on('click', '.' + classPrefix('sheet-button'), function (this: any, evt) {
-      const key = $(this).data('key')
+      const key = $(this).data('key') // maybe string
       const { actions = [], menus = [], onClick: globalOnClick = noop } = _this.option
-      const findKey = actions => actions.find((f) => f.key === key)
+      const findKey = actions => actions.find((f) => f.key == key)
       const button = findKey(actions) || findKey(menus)
       if (button) {
         button.onClick && button.onClick.call(_this, _this) // 响应事件

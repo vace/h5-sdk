@@ -151,8 +151,8 @@ export default class UiBase extends Emitter {
   }
 
   private _releaseCloseTid() {
-    const _closeTid = <number>this._closeTid
-    if (!isDef(_closeTid)) {
+    const _closeTid = this._closeTid
+    if (isDef(_closeTid)) {
       clearTimeout(_closeTid)
     }
     this._closeTid = null

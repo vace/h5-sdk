@@ -4,8 +4,9 @@ import UiToast, { UiToastOption } from '../factory/UiToast.web';
 import UiMusic, { IUiMusicOption } from '../factory/UiMusic.web';
 import UiView, { UiViewOption } from '../factory/UiView.web';
 import UiSheet, { IUiSheetOption } from '../factory/UiSheet.web';
+import UiTip, { UiTipOption } from '../factory/UiTip.web';
 
-import { assign, isObject, isNumber, isFunction, each, regexMobile, regexChinese, once } from '../functions/common';
+import { assign, isObject, isNumber, isFunction, each, regexMobile, regexChinese, once, map, isString } from '../functions/common';
 
 /** UiAlert 配置 */
 export interface IUiAlertOption extends UiModalOption {
@@ -54,6 +55,14 @@ const closeHelper = (modal: UiModal) => modal.close()
 /** 打开一个Modal */
 export function modal(option: UiModalOption): UiModal {
   return new UiModal(option).open()
+}
+
+/** 打开一个提示框 */
+export function tip (option: UiTipOption | string) {
+  if(typeof option === 'string') {
+    option = { message: option }
+  }
+  return new UiTip(option).open()
 }
 
 /** 打开一个Alert弹窗 */
@@ -132,11 +141,11 @@ const getValidate = once(() => {
         if (regexChinese.test(value)) {
           if (value.length < 2) return '姓名不能少于两个汉字'
           else if (value.length > 4) return '姓名不能多于四个汉字'
-        } else if (/^[ a-zA-Z]+$/.test(value)) {
+        } else if (/^[a-zA-Z]+$/.test(value)) {
           if (value.length < 3) return '英文名不能少于三个字符'
-          else if (value.length > 20) return '英文名字母过多'
+          else if (value.length > 20) return '英文名字符过多'
         } else {
-          return '输入包含特殊字符，请正确输入'
+          return '请输入中文名或英文名'
         }
         return true
       }
@@ -156,7 +165,7 @@ const getValidate = once(() => {
     },
     address: {
       type: 'textarea', name: 'address', placeholder: '点击输入地址', label: '地址', tips: '请输入您的联系地址', validate: (addr: string) => {
-        if (addr.length > 64) return '地址输入内容过多，请检查输入'
+        if (addr.length > 64) return '地址输入内容过多，请删减'
       }
     },
     hidden: { type: 'hidden', name: 'hidden' }
@@ -165,27 +174,19 @@ const getValidate = once(() => {
 
 /** 打开自定义输入面板 */
 export function userbox(option: IUiUserboxOption): UiModal {
-  let { profile } = option
-  if (!profile) {
-    profile = ['username', 'mobile']
-  }
-  const inputs = option.inputs || []
-  each(profile, (data, index) => {
-    const validater = getValidate()[index]
-    if (typeof index === 'string') {
-      const input = assign({}, validater)
-      if (isObject(data)) {
-        assign(input, data)
-      } else {
-        input.value = data
-      }
-      inputs.push(input)
-    } else {
-      // 支持对象嵌套
-      inputs.push(typeof data === 'string' ? validater : data)
+  const { profile = ['username', 'mobile'], inputs = [] } = option
+  const profileList = map(profile, (value, key) => {
+    const isKeyMap = isString(key)
+    const validater = getValidate()[isKeyMap ? key : value]
+    if (isKeyMap) {
+      // 支持 {username: 'vace'} 的预备格式
+      // 支持 {username: { type: 'text', name: 'username' }}
+      return assign({}, validater, isObject(value) ? value : { value })
     }
+    // 支持对象嵌套
+    return isString(value) ? validater : value
   })
-  option.inputs = inputs
+  option.inputs = inputs.concat(profileList)
   option.isForm = true
   return confirm(option)
 }
@@ -250,96 +251,68 @@ export function preloader(content: string = '请稍后...'): UiView {
 }
 
 /** 打开一个modal弹窗，返回按钮key，取消时key=undefined */
-export const $modal = (option: UiModalOption) => wrapModal(modal, option)
+export const $modal = (option: UiModalOption): Promise<null | string> => _wrapPromise(modal, option, (done, option) => {
+  option.onClick = function (key) {
+    done(this, key)
+  }
+})
 
 /** 打开一个alert弹窗，用户点击确定，返回true */
-export const $alert = (option: IUiAlertOption) => wrapAlert(alert, option)
+export const $alert = (option: IUiAlertOption): Promise<true | null> => _wrapPromise(alert, option, (done, option) => {
+  option.ok = (e: UiModal) => done(e, true)
+})
 
 /**
  * 打开一个confirm弹窗，返回true,false
  * @example
  * var isOk = await ui.$confim({title: '确认吗？', content: '内容'})
  */
-export const $confirm = (option: IUiConfirmOption) => wrapConfirm(confirm, option)
+export const $confirm = (option: IUiConfirmOption): Promise<boolean | null> => _wrapPromise(confirm, option, (done, option) => {
+  option.ok = (e: UiModal) => done(e, true)
+})
 
 /**
  * 打开一个prompt弹窗，返回输入内容，取消返回undefined
  * @example
  * var content = await ui.$prompt({title: '输入内容', content: '请在输入框输入内容'})
  */
-export const $prompt = (option: IUiPromptOption) => wrapPrompt(prompt, option)
+export const $prompt = (option: IUiPromptOption): Promise<string | false | null> => _wrapPromise(prompt, option, (done, option) => {
+  option.ok = (e: UiModal) => done(e, e.value)
+})
 
 /**
  * 打开一个userbox弹窗，返回输入对象，取消返回undefined
  */
-export const $userbox = (option: IUiUserboxOption) => wrapUserbox(userbox, option)
+export const $userbox = (option: IUiUserboxOption): Promise<object | false | null> => _wrapPromise(userbox, option, (done, option) => {
+  option.ok = (e: UiModal) => done(e, e.data)
+})
 
-function wrapModal(fun: Function, option: UiModalOption): Promise<string | undefined> {
-  return new Promise((resolve) => {
-    let instance: any
-    option.onClick = (key) => {
-      resolve(key)
-      instance.close()
-    }
-    option.onClose = () => {
-      resolve(undefined)
-    }
-    instance = fun(option)
-  })
-}
+/**
+ * 打开一个sheet，返回sheet中的key内容
+ */
+export const $sheet = (option: IUiSheetOption): Promise<string | null> => _wrapPromise(sheet, option, (done, option) => {
+  option.onClick = function (key) {
+    done(this, key)
+  }
+})
 
-function wrapAlert(fun: Function, option: IUiAlertOption): Promise<true | undefined> {
-  return new Promise((resolve) => {
-    let instance: any
-    option.ok = (key: any) => {
-      resolve(true)
-      instance.close()
-    }
-    option.onClose = () => {
-      resolve(undefined)
-    }
-    instance = fun(option)
+function _wrapPromise<T> (fn: Function, option: T, hander: (t: any, opt: T) => void): Promise<any> {
+  const task: any = {}
+  const promise = new Promise((resolve) => {
+    task.resolve = resolve
   })
-}
-
-function wrapConfirm(fun: Function, option: IUiConfirmOption): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    option.ok = (e: UiModal) => {
-      resolve(true)
-      e.close()
-    }
-    option.no = (e: UiModal) => {
-      resolve(false)
-      e.close()
-    }
-    return fun(option)
-  })
-}
-
-function wrapPrompt(fun: Function, option: IUiPromptOption): Promise<string | undefined> {
-  return new Promise((resolve, reject) => {
-    option.ok = (e: UiModal) => {
-      resolve(e.value)
-      e.close()
-    }
-    option.no = (e: UiModal) => {
-      resolve(undefined)
-      e.close()
-    }
-    return fun(option)
-  })
-}
-
-function wrapUserbox(fun: Function, option: IUiUserboxOption): Promise<object | undefined> {
-  return new Promise((resolve, reject) => {
-    option.ok = (e: UiModal) => {
-      resolve(e.data)
-      e.close()
-    }
-    option.no = (e: UiModal) => {
-      resolve(undefined)
-      e.close()
-    }
-    return fun(option)
-  })
+  const done = (modal: UiModal, value: any) => {
+    task.resolve(value)
+    modal.close()
+  }
+  // @ts-ignore
+  option.onClose = () => {
+    task.resolve(null)
+  }
+  // @ts-ignore
+  option.no = (e: UiModal) => done(e, false)
+  hander(done, option)
+  // @ts-ignore
+  promise.instance = fn(option)
+  return promise
 }

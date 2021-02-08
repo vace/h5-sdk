@@ -6,22 +6,22 @@ import Http from "../factory/Http"
 import mlocation from './location.web'
 import { share as sendAnalysisShare } from './analysis.web'
 import tasker, { ITaskerPromise } from './tasker'
-import { isString, once, uniqueArray, assign, alwaysTrue, createURL, isFunction, timestamp, nextTick } from "../functions/common"
+import { isString, once, uniqueArray, assign, createURL, isFunction, timestamp, nextTick, isDef } from "../functions/common"
 import { isWechat, document, isMiniapp, domready } from "../functions/utils.web"
 
 
 /** 签名ready完成事件 */
 export const finished = tasker() as ITaskerPromise<boolean>
 
-export type IJssdkShareItem = { arg: null | IJssdkShareBase, platform: string, api: string, params?: any }
+export type IJssdkShareItem = { params: null | IJssdkShareBase, platform: string, api: string }
 
 export const DefaultJssdkShare: IJssdkShareItem[] = [
-  { arg: null, platform: 'timeline', api: 'onMenuShareTimeline' },
-  { arg: null, platform: 'app', api: 'onMenuShareAppMessage' },
-  { arg: null, platform: 'qq', api: 'onMenuShareQQ' },
-  { arg: null, platform: 'weibo', api: 'onMenuShareWeibo' },
-  { arg: null, platform: 'qzone', api: 'onMenuShareQZone' },
-  { arg: null, platform: 'mini', api: 'postMessage' },
+  { params: null, platform: 'timeline', api: 'onMenuShareTimeline' },
+  { params: null, platform: 'app', api: 'onMenuShareAppMessage' },
+  { params: null, platform: 'qq', api: 'onMenuShareQQ' },
+  { params: null, platform: 'weibo', api: 'onMenuShareWeibo' },
+  { params: null, platform: 'qzone', api: 'onMenuShareQZone' },
+  { params: null, platform: 'mini', api: 'postMessage' },
 ]
 
 /** jssdk 配置 */
@@ -118,13 +118,21 @@ export const signature = once(async (jssdk: IJssdkConfig) => {
 
 /** 调用分享 */
 export function share (opts?: string | IJssdkShare) {
-  if (!opts || opts === '*') return DefaultJssdkShare
-  if (isString(opts)) return DefaultJssdkShare.find(s => s.platform === platform)
-  const option = _parseShareOptions(opts)
-  const platform = opts.platform
-  const filter = platform && platform !== '*' ? (t: any) => t.platform === platform : alwaysTrue
-  DefaultJssdkShare.filter(filter).forEach(item => item.arg = assign(item.arg || {}, option))
-  return finished.then(() => DefaultJssdkShare.forEach(_proxyShareOption))
+  // 读取全部分享设置
+  if (!opts || opts === '*') {
+    return DefaultJssdkShare
+  }
+  // 读取某一项分享配置
+  if (isString(opts)) {
+    return DefaultJssdkShare.find(s => s.platform === platform)
+  }
+  // 序列化分享参数
+  const platform = opts.platform || '*'
+  return finished.then(() => DefaultJssdkShare.forEach(jssdk => {
+    if (platform === '*' || jssdk.platform === platform) {
+      _autoMergeShare(jssdk, opts)
+    }
+  }))
 }
 
 /** 错误对象 */
@@ -148,56 +156,58 @@ export const onReady = (fn: EventListener | any) => {
 /** 在微信浏览器环境中自动加载wx变量 */
 isWechat && loadJssdk()
 
-function _parseShareOptions (opts: IJssdkShare): IJssdkShareBase {
+// 格式化分享参数
+function _autoMergeShare (jssdk: IJssdkShareItem, opts: IJssdkShare): any {
   const { title, desc, link, imgUrl, type, img, imgurl, success, cancel } = opts
-  const def = {
-    title: title || document.title,
-    desc: desc || '',
-    link: link || mlocation.safeurl,
-    imgUrl: mlocation.getRootFile(imgUrl || imgurl || img || 'share.jpg'),
-    success,
-    cancel
-  } as IJssdkShareBase
+  const share = jssdk.params || (jssdk.params = <any>{})
+  const getRootFile = (file?: string) => file ? mlocation.getRootFile(file) : null
+  const patchUpdate = (prop: string, value: any, _default?: any) => {
+    if (!isDef(share[prop]) && isDef(_default)) {
+      share[prop]= _default
+    }
+    if (isDef(value) && value !== false) {
+      share[prop] = value
+    }
+  }
+  const newCover = imgUrl || img || imgurl
+  patchUpdate('title', title, document.title)
+  patchUpdate('imgUrl', getRootFile(newCover), getRootFile('share.jpg'))
+  patchUpdate('desc', desc)
   // 其他种类
   if (type && type !== 'link') {
     const { dataUrl, dataurl } = opts
     const url = dataUrl || dataurl
-    assign(def, { type, dataUrl: url && mlocation.getRootFile(url) })
+    patchUpdate('dataUrl', getRootFile(url))
+    patchUpdate('type', type)
   }
   // 小程序中读取 banner: 500x400
   if (isMiniapp) {
     const { banner, config } = opts
-    assign(def, { icon: def.imgUrl, config, banner: mlocation.getRootFile(banner || 'banner.jpg') })
+    patchUpdate('icon', newCover, getRootFile('share.jpg'))
+    patchUpdate('config', config, '')
+    patchUpdate('banner', getRootFile(banner), getRootFile('banner.jpg'))
   }
-  return def
-}
-
-function _proxyShareOption (share: IJssdkShareItem) {
-  const arg = share.arg
-  if (!arg) return false
-  let {link, success: userSuccess} = arg
   const spm_uid = Auth.instance && Auth.instance.id || 0
-  const spm_from = share.platform
-  link = createURL(link, { spm_uid, spm_from: `wx.` + spm_from }) // 创建追踪url
-
+  const spm_from = jssdk.platform
+  const spm_query = { spm_uid, spm_from: `wx.` + spm_from }
+  const spm_link = getRootFile(createURL(link || mlocation.safeurl, spm_query))
+  const addShareLog = () => sendAnalysisShare('wx.' + spm_from, config.shareLogid)
+  const withSuccess = isFunction(success) ? () => {
+    addShareLog()
+    success(spm_from)
+  } : null
+  patchUpdate('link', spm_link)
+  patchUpdate('success', withSuccess, addShareLog)
+  patchUpdate('cancel', cancel)
   if (spm_from === config.mini) {
     if (!isMiniapp) {
       return // 仅在小程序webview中支持
     }
     const app = App.instance
-    const appid = app ? app.appid : '' // 应用appid
-    const params = share.params = assign({}, arg, { appid })
-    return wx.miniProgram.postMessage({ data: params })
+    share.appid = app ? app.appid : '' // 应用appid
+    return wx.miniProgram.postMessage({ data: share })
   }
-
-  const success = () => {
-    sendAnalysisShare('wx.' + spm_from, config.shareLogid)
-    if (isFunction(userSuccess)) {
-      userSuccess(spm_from)
-    }
-  }
-  const params = share.params = assign({}, share.arg, { success, link })
-  wx[share.api](params)
+  return wx[jssdk.api](share)
 }
 
 /** 配置结构 */
@@ -223,13 +233,6 @@ export type IJssdkMessageMini = {
   icon: string
   /** 自定义小程序分享图标 */
   banner: string
-}
-
-/** 返回结构 */
-export interface IJssdkResponse extends IJssdkConfig {
-  timestamp: string
-  nonceStr: string
-  signature: string
 }
 
 export interface IJssdkShareBase {

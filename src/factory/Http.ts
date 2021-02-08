@@ -185,7 +185,7 @@ export default class Http {
 
     let requestURL: string = url || api || ''
     let requestQuery = query
-    let requestBody = body
+    let requestBody = param || body || data
     let requestHeader = headers
     let requestMethod = isString(method) ? method.toUpperCase() : HttpMethod.GET
     // 追加请求根路径
@@ -193,10 +193,9 @@ export default class Http {
       requestURL = baseURL + url
     }
     // 参数以及别名处理
-    if (inArray(requestMethod, [HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH])) {
-      requestBody = param || body || data
-    } else {
-      requestQuery = query || param || body || data
+    if (!inArray(requestMethod, [HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH])) {
+      requestQuery = query || requestBody
+      requestBody = null
     }
     requestURL = createURL(requestURL, requestQuery)
 

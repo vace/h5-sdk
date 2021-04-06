@@ -15,10 +15,11 @@ import UiBase                  from './factory/UiBase.web'
 import UiModal                 from './factory/UiModal.web'
 import UiMusic                 from './factory/UiMusic.web'
 import UiSheet                 from './factory/UiSheet.web'
+import UiTip                   from './factory/UiTip.web'
 import UiToast                 from './factory/UiToast.web'
 import UiView                  from './factory/UiView.web'
 
-export { App, Auth, AuthUser, Config, Emitter, Http, Res, UiBase, UiModal, UiMusic, UiSheet, UiToast, UiView }
+export { App, Auth, AuthUser, Config, Emitter, Http, Res, UiBase, UiModal, UiMusic, UiSheet, UiTip, UiToast, UiView }
 
 /* 导出辅助函数类 */
 export *                       from './functions/common'

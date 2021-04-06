@@ -1,5 +1,5 @@
 /*!
- * @overview h5-sdk@4.0.9 2021/1/31 下午10:39:52
+ * @overview h5-sdk@4.1.2 2021/2/8 下午2:15:50
  * @copyright (c) 2018-present, MaQu, Inc.
  * @authors Vace<i@ahmq.net>
  * @license Released under the MIT License.
@@ -1040,6 +1040,32 @@ declare namespace sdk {
     }
     
     /** 设置选项 */
+    type UiTipOption = UiBaseOption & {
+        /** 消息内容 */
+        message?: string;
+        /** 点击可关闭 */
+        clickClosed?: boolean;
+        /** 点击回调 */
+        onClick?: (this: UiTip, instance: UiTip) => void;
+    };
+    /**
+     * tip提示类
+     */
+    class UiTip extends UiBase {
+        /** 全局配置 */
+        static option: UiTipOption;
+        /** body 内容 */
+        $body: ZeptoCollection;
+        inClassName: string;
+        outClassName: string;
+        constructor(_option: UiTipOption);
+        /** 更新消息内容 */
+        setMessage(message: string): this;
+        private _openHook;
+        private _closedHook;
+    }
+    
+    /** 设置选项 */
     type UiToastOption = UiBaseOption & {
         /** 图标 */
         icon?: string;
@@ -1583,10 +1609,9 @@ declare namespace sdk {
     /** 签名ready完成事件 */
     const finished: ITaskerPromise<boolean>;
     type IJssdkShareItem = {
-        arg: null | IJssdkShareBase;
+        params: null | IJssdkShareBase;
         platform: string;
         api: string;
-        params?: any;
     };
     const DefaultJssdkShare: IJssdkShareItem[];
     /** jssdk 配置 */
@@ -1647,12 +1672,6 @@ declare namespace sdk {
         /** 自定义小程序分享图标 */
         banner: string;
     };
-    /** 返回结构 */
-    interface IJssdkResponse extends IJssdkConfig {
-        timestamp: string;
-        nonceStr: string;
-        signature: string;
-    }
     interface IJssdkShareBase {
         platform: string;
         title: string;
@@ -1711,7 +1730,6 @@ declare namespace sdk {
     const jssdk_web_onReady: typeof onReady;
     type jssdk_web_IJssdkConfig = IJssdkConfig;
     type jssdk_web_IJssdkMessageMini = IJssdkMessageMini;
-    type jssdk_web_IJssdkResponse = IJssdkResponse;
     type jssdk_web_IJssdkShareBase = IJssdkShareBase;
     type jssdk_web_IJssdkShare = IJssdkShare;
     type jssdk_web_IJssdkShareMini = IJssdkShareMini;
@@ -1729,7 +1747,6 @@ declare namespace sdk {
         jssdk_web_onReady as onReady,
         jssdk_web_IJssdkConfig as IJssdkConfig,
         jssdk_web_IJssdkMessageMini as IJssdkMessageMini,
-        jssdk_web_IJssdkResponse as IJssdkResponse,
         jssdk_web_IJssdkShareBase as IJssdkShareBase,
         jssdk_web_IJssdkShare as IJssdkShare,
         jssdk_web_IJssdkShareMini as IJssdkShareMini,
@@ -1976,7 +1993,7 @@ declare namespace sdk {
     /** 插件系统配置 */
     const loader: Res;
     /** 安装一个插件 */
-    function install(src: string): {
+    function install(src: any): {
         use: typeof use;
         define: typeof define;
     };
@@ -2077,6 +2094,8 @@ declare namespace sdk {
     }
     /** 打开一个Modal */
     function modal(option: UiModalOption): UiModal;
+    /** 打开一个提示框 */
+    function tip(option: UiTipOption | string): UiTip;
     /** 打开一个Alert弹窗 */
     function alert(option: IUiAlertOption | string): UiModal;
     /** 打开一个confirm弹窗 */
@@ -2110,25 +2129,29 @@ declare namespace sdk {
     /** 展示全局的加载动画 */
     function preloader(content?: string): UiView;
     /** 打开一个modal弹窗，返回按钮key，取消时key=undefined */
-    const $modal: (option: UiModalOption) => Promise<string | undefined>;
+    const $modal: (option: UiModalOption) => Promise<null | string>;
     /** 打开一个alert弹窗，用户点击确定，返回true */
-    const $alert: (option: IUiAlertOption) => Promise<true | undefined>;
+    const $alert: (option: IUiAlertOption) => Promise<true | null>;
     /**
      * 打开一个confirm弹窗，返回true,false
      * @example
      * var isOk = await ui.$confim({title: '确认吗？', content: '内容'})
      */
-    const $confirm: (option: IUiConfirmOption) => Promise<boolean>;
+    const $confirm: (option: IUiConfirmOption) => Promise<boolean | null>;
     /**
      * 打开一个prompt弹窗，返回输入内容，取消返回undefined
      * @example
      * var content = await ui.$prompt({title: '输入内容', content: '请在输入框输入内容'})
      */
-    const $prompt: (option: IUiPromptOption) => Promise<string | undefined>;
+    const $prompt: (option: IUiPromptOption) => Promise<string | false | null>;
     /**
      * 打开一个userbox弹窗，返回输入对象，取消返回undefined
      */
-    const $userbox: (option: IUiUserboxOption) => Promise<object | undefined>;
+    const $userbox: (option: IUiUserboxOption) => Promise<object | false | null>;
+    /**
+     * 打开一个sheet，返回sheet中的key内容
+     */
+    const $sheet: (option: IUiSheetOption) => Promise<string | null>;
     
     type ui_web_IUiAlertOption = IUiAlertOption;
     type ui_web_IUiConfirmOption = IUiConfirmOption;
@@ -2136,6 +2159,7 @@ declare namespace sdk {
     type ui_web_IUserProfileType = IUserProfileType;
     type ui_web_IUiUserboxOption = IUiUserboxOption;
     const ui_web_modal: typeof modal;
+    const ui_web_tip: typeof tip;
     const ui_web_alert: typeof alert;
     const ui_web_confirm: typeof confirm;
     const ui_web_prompt: typeof prompt;
@@ -2155,6 +2179,7 @@ declare namespace sdk {
     const ui_web_$confirm: typeof $confirm;
     const ui_web_$prompt: typeof $prompt;
     const ui_web_$userbox: typeof $userbox;
+    const ui_web_$sheet: typeof $sheet;
     namespace ui_web {
       export {
         ui_web_IUiAlertOption as IUiAlertOption,
@@ -2163,6 +2188,7 @@ declare namespace sdk {
         ui_web_IUserProfileType as IUserProfileType,
         ui_web_IUiUserboxOption as IUiUserboxOption,
         ui_web_modal as modal,
+        ui_web_tip as tip,
         ui_web_alert as alert,
         ui_web_confirm as confirm,
         ui_web_prompt as prompt,
@@ -2184,6 +2210,7 @@ declare namespace sdk {
         ui_web_$confirm as $confirm,
         ui_web_$prompt as $prompt,
         ui_web_$userbox as $userbox,
+        ui_web_$sheet as $sheet,
       };
     }
     
@@ -2195,7 +2222,7 @@ declare namespace sdk {
     const music$1: UiMusic;
     const res$1: Res;
     
-    export { App, Auth, AuthUser, Config, Emitter, Http, Res, UiBase, UiModal, UiMusic, UiSheet, UiToast, UiView, addListener, addPx, after, always, alwaysFalse, alwaysTrue, analysis_web as analysis, animationEnabled, animationEnd, animationPrefix, app, assign, auth, basename, before, camelize, cdn, classnames, cloud_web as cloud, compact, constant, createURL, css, dasherize, debounce, dirname, document, domready, each, emitter, equal, extname, filterURL, getDomAttrs, getLength, EnvGlobal as global, groupBy, _default_1 as hotcache, http, inArray, indexBy, isAbsolute, isAndroid, isArguments, isArray, isBase64, isBlob, isBoolean, isDate, isDef, isDingTalk, isDocument, isEmpty, isError, isFile, isFormData, isFunction, isHasOwn, isHttp, isIos, isMap, isMiniapp, isMobile, isNaN, isNative, isNull, isNullOrUndefined, isNumber, isNumeric, isObject, isPlainObject, isPromise, isRegExp, isSet, isString, isSymbol, isUndefined, isWechat, isWindow, jsonp, jssdk_web as jssdk, keys, _default as location, makeMap, makeMark, map, memoize, music$1 as music, navigator, nextTick, noop, now, object, onAnimationEnd, onTransitionEnd, once, parse, pick, platform, pluck, plugin_web as plugin, random, randomstr, range, regexBase64, regexChinese, regexHttp, regexMobile, regexNumber, regexSplitPath, remove, res$1 as res, resolvePath, safety_web as safefy, shuffle, splice, splitPath, spread, _default$1 as store, stringify, styles, tasker, throttle, timeago, timestamp, toFunction, tool_web as tool, transitionEnd, trim, ui_web as ui, uid, uniqueArray, unixFormat, unixtime, user$1 as user, userAgent, uuid, version, wait, webp, wrap };
+    export { App, Auth, AuthUser, Config, Emitter, Http, Res, UiBase, UiModal, UiMusic, UiSheet, UiTip, UiToast, UiView, addListener, addPx, after, always, alwaysFalse, alwaysTrue, analysis_web as analysis, animationEnabled, animationEnd, animationPrefix, app, assign, auth, basename, before, camelize, cdn, classnames, cloud_web as cloud, compact, constant, createURL, css, dasherize, debounce, dirname, document, domready, each, emitter, equal, extname, filterURL, getDomAttrs, getLength, EnvGlobal as global, groupBy, _default_1 as hotcache, http, inArray, indexBy, isAbsolute, isAndroid, isArguments, isArray, isBase64, isBlob, isBoolean, isDate, isDef, isDingTalk, isDocument, isEmpty, isError, isFile, isFormData, isFunction, isHasOwn, isHttp, isIos, isMap, isMiniapp, isMobile, isNaN, isNative, isNull, isNullOrUndefined, isNumber, isNumeric, isObject, isPlainObject, isPromise, isRegExp, isSet, isString, isSymbol, isUndefined, isWechat, isWindow, jsonp, jssdk_web as jssdk, keys, _default as location, makeMap, makeMark, map, memoize, music$1 as music, navigator, nextTick, noop, now, object, onAnimationEnd, onTransitionEnd, once, parse, pick, platform, pluck, plugin_web as plugin, random, randomstr, range, regexBase64, regexChinese, regexHttp, regexMobile, regexNumber, regexSplitPath, remove, res$1 as res, resolvePath, safety_web as safefy, shuffle, splice, splitPath, spread, _default$1 as store, stringify, styles, tasker, throttle, timeago, timestamp, toFunction, tool_web as tool, transitionEnd, trim, ui_web as ui, uid, uniqueArray, unixFormat, unixtime, user$1 as user, userAgent, uuid, version, wait, webp, wrap };
     
 }
 /** zepto **/

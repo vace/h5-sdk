@@ -6,6 +6,10 @@ describe('test plugin:jssdk', () => {
       jsApiList: ['uploadVoice'],
       openTagList: ['wx-open-launch-app']
     })
+    sdk.jssdk.share({
+      title: 'Old Title',
+      desc: 'Old DESC'
+    })
   });
   // sdk.cdn.res('default-avatar.png')
   it(`sdk.jssdk.signature`, (done) => {
@@ -17,9 +21,12 @@ describe('test plugin:jssdk', () => {
     }).then(done).catch(done)
   })
   it(`sdk.jssdk.share`, (done) => {
-    sdk.jssdk.share({ title: 'HelloTitle' }).then(() => {
+    const share = sdk.jssdk.share()
+    should(share[0].params.title).is.equal('Old Title')
+    sdk.jssdk.share({ title: 'HelloTitle', img: 'xx.jpg', link: 'xxx.html' }).then(() => {
       const share = sdk.jssdk.share()
       should(share).is.Array()
+      should(share[0].params.desc).is.equal('Old DESC')
       should(share[0].params.title).is.equal('HelloTitle')
       share[0].params.success.should.is.Function() // 分享回调函数
     }).then(done, done)

@@ -1,3 +1,7 @@
+/**
+ * 创建交互视频，如果多个实例建议 `change`方法切换
+ */
+
 class ActioVideo {
   constructor(options = {}) {
     this.setOptions(options)

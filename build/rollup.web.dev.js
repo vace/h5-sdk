@@ -7,6 +7,8 @@ if (isWatchMode) {
     port: 1235,
     contentBase: ['dist', 'demo']
   }))
+} else {
+  rollup.output.sourcemap = true
 }
 
 console.log('🙏 Create ·web-sdk/sdk.dev.js·')

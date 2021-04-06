@@ -8,7 +8,6 @@ rollup.plugins.push(uglify({
 }))
 
 rollup.output.file = './dist/web-sdk/sdk.js'
-rollup.output.sourcemap = true
 
 console.log('🙏 Create ·web-sdk/sdk.js·')
 

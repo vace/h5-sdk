@@ -1,4 +1,13 @@
 {
+  "typedocOptions": {
+    "entryPoints": [
+      "src/entry.web.ts",
+      "src/entry.mini.ts",
+      "src/entry.node.ts"
+    ],
+    "exclude": [],
+    "out": "docs"
+  },
   "exclude": [".git", "node_modules", "build", "dist", "demo"],
   "compilerOptions": {
     "baseUrl": ".",

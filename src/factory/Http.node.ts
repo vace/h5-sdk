@@ -10,7 +10,7 @@ Http.HttpRequest = Request
 Http.HttpResponse = Response
 Http.request = (url: string, request: Request) => {
   if (request.method === HttpMethod.JSONP) {
-    throw new HttpError(-1, 'not support method: JSONP', null, this)
+    throw new HttpError(-1, 'not support method: JSONP', null)
   }
   return fetch(url, request)
 }

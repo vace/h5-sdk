@@ -5,6 +5,17 @@ import { appid } from '../functions/utils.mini'
 
 declare var wx: any
 
+Auth.config = {
+  api: {
+    /** 登陆接口 */
+    login: '/wx/mini/login',
+    /** 头像昵称绑定接口 */
+    authorize: '/wx/mini/loginuser',
+    /** 手机号绑定接口 */
+    bindmobile: '/wx/mini/bindmobile'
+  }
+}
+
 Auth.prototype.transformAuthOptions = (_opts) => {
   const options: any = _opts || {}
   options.platform = 'mini'
@@ -18,7 +29,7 @@ Auth.prototype.transformAuthOptions = (_opts) => {
   return options
 }
 
-Auth.prototype.autoLogin = async function _requestLogin (): Promise<AuthUser> {
+Auth.prototype.autoLogin = async function _requestLogin (query?: any): Promise<AuthUser> {
   const { appid, user, type, env } = this
   let token = this.token
   if (token) {
@@ -32,7 +43,7 @@ Auth.prototype.autoLogin = async function _requestLogin (): Promise<AuthUser> {
     const code = await wx.login().then(ret => ret.code, (err: any) => {
       throw new AuthError(AuthErrorCode.NO_CODE, err.errMsg)
     })
-    return this.doLogin('/wx/mini/login', { code, appid, type, env })
+    return this.doLogin(Auth.config.api.login, { code, appid, type, env, ...query })
   } else {
     if (user.needRefreshed) {
       return await this.refresh()
@@ -49,7 +60,7 @@ Auth.prototype.redirectLogin = function (reason: AuthError) {
 }
 
 Auth.prototype.authorize = async function authorize (userinfo?: any) {
-  const { appid, user } = this
+  const { appid } = this
   if (!userinfo) {
     const user = await this.login()
     if (!user) {
@@ -68,9 +79,22 @@ Auth.prototype.authorize = async function authorize (userinfo?: any) {
   }
   await this.login()
   const param = { iv, data: encryptedData, signature, appid }
-  const authuser = await this.doLogin('/wx/mini/loginuser', param)
-  this.type = AuthType.user
+  const authuser = await this.doLogin(Auth.config.api.authorize, param)
   return authuser
+}
+
+// 绑定授权手机号
+Auth.prototype.bindmobile = async function bindmobile(ev: any, query?: any) {
+  const { appid } = this
+  const { code, encryptedData, iv, signature, errMsg } = ev.detail
+  // 可以使用code或者encryptedData获取用户信息
+  if (!encryptedData && !code) {
+    throw new AuthError(AuthErrorCode.LOGIN_FAILED, errMsg, ev)
+  }
+  const param = code ? { appid, code } : { iv, data: encryptedData, signature, appid }
+  const authuser = await this.get(Auth.config.api.bindmobile, Object.assign(param, query))
+  this.user.login(authuser)
+  return this.user
 }
 
 export default Auth

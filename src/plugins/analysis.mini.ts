@@ -1,5 +1,5 @@
 import { config, error, pv } from './analysis'
-import { isArray, isString, assign, parse } from '../functions/common'
+import { isArray, isString, assign, parse, once } from '../functions/common'
 import { getCurrentPage, getSystemInfoSync } from '../functions/utils.mini'
 export * from './analysis'
 
@@ -13,10 +13,10 @@ const webConfig = {
     const page = getCurrentPage()
     return page.route || ''
   },
-  getAgent() {
+  getAgent: once(() => {
     const { SDKVersion, model, system, language } = getSystemInfoSync()
     return `Wechatmini/${SDKVersion} (${model}; ${system}) Language/${language}`
-  },
+  }),
   // 用户溯源探针
   getSpm() {
     const query = parse(webConfig.query)

@@ -112,7 +112,7 @@ export default class App extends Http {
       this.setting = setting
       if (isFunction(fn)) fn(this)
       return this.finished.resolve(this)
-    } catch (err) {
+    } catch (err: any) {
       return this.finished.reject(err)
     }
   }

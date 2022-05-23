@@ -20,16 +20,23 @@ Auth.prototype.autoLogin = async function (): Promise<AuthUser> {
 }
 
 /**
-   * 跳转到登陆页面
-   * TODO 避免循环重定向登陆
-   */
-Auth.prototype.redirectLogin =  function(reason: AuthError) {
+ * 获取跳转URL，可用于web端登陆
+ */
+Auth.prototype.getRedirectLoginUrl = function(): string {
   const { platform, appid, env, scope, url, type } = this
   // 跳转到登陆授权页面
   const redirectURL = filterURL(url || mlocation.url, ['code', 'state', 'appid'])
   const redirectArg = { appid, env, scope, type, url: redirectURL }
   const redirect = createURL(Config.API_AUTH + `/api/oauth/redirect/${platform}`, redirectArg)
+  return redirect
+}
 
+/**
+   * 跳转到登陆页面
+   * TODO 避免循环重定向登陆
+   */
+Auth.prototype.redirectLogin =  function(reason: AuthError) {
+  const redirect = this.getRedirectLoginUrl()
   // 支持拦截自定义登陆事件
   if (isFunction(this.onRedirectLogin)) {
     return this.onRedirectLogin(redirect, reason)

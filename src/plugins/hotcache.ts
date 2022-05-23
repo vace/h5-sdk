@@ -20,7 +20,7 @@ export default memoize(function hotcache(cacheKey: string, maxLength: number = 3
   // 读取当前缓存项目
   let hotCacheList: ICacheObject[]
   // 当前内存缓存
-  const memocache = new Map()
+  const map = new Map()
   // lzcache
   const _getHotList: () => ICacheObject[] = () => {
     if (!isDef(hotCacheList)) {
@@ -43,12 +43,12 @@ export default memoize(function hotcache(cacheKey: string, maxLength: number = 3
   /** 读取值 */
   const get = (key: string, _default?: any) => {
     // 尝试从内存中查找
-    if (memocache.has(key)) {
-      return memocache.get(key)
+    if (map.has(key)) {
+      return map.get(key)
     }
     const hit = _find(key)
     if (isDef(hit)) {
-      memocache.set(key, hit.value)
+      map.set(key, hit.value)
       return hit.value
     }
     return _default
@@ -60,21 +60,21 @@ export default memoize(function hotcache(cacheKey: string, maxLength: number = 3
     cache.unshift({ key, value, hot: now() })
     // 排序后只缓存最新的值
     store.set(cacheKey, cache.slice(0, maxLength))
-    memocache.set(key, value)
+    map.set(key, value)
     return value
   }
   /** 移除指定值 */
   const remove = (key: string) => {
     if (_spliced(key)) {
       store.set(cacheKey, _getHotList())
-      memocache.delete(key)
+      map.delete(key)
     }
   }
   /** 清空列表 */
   const clearAll = () => {
     store.remove(cacheKey)
-    memocache.clear()
+    map.clear()
   }
 
-  return { get, set, remove, clearAll }
+  return { map, get, set, remove, clearAll }
 })

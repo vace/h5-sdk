@@ -41,7 +41,7 @@ import * as ui                 from './plugins/ui.web'
 
 export { cdn, cloud, safefy, plugin, tool, ui }
 
-// import './scheduler/index'
+/** 执行自动化任务调度任务 */
 import './scheduler/task.web'
 
 /** 导出动态加载 */

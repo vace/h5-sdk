@@ -43,6 +43,7 @@ const getPkgConfig = () => {
       description: 'sdk.js 用于Web程序开发的sdk',
       scripts: {},
       files: ['*'],
+      main: 'index.js',
       devDependencies: {},
       dependencies: {
         "@types/zepto": packages.dependencies['@types/zepto']
@@ -84,8 +85,12 @@ function makeDtsConfig () {
 function makePkgConfig () {
   console.log('⚽️ Create package.json')
   const pkgfile = path.resolve(projectPath, `./dist/${platform}-sdk/package.json`)
+  const devjs = path.resolve(projectPath, `./dist/${platform}-sdk/index.js`)
   const pkgconfig = getPkgConfig()
   fs.writeFileSync(pkgfile, JSON.stringify(pkgconfig, null, 2), 'utf-8')
+  if (platform === 'web') {
+    fs.writeFileSync(devjs, fs.readFileSync(path.resolve(__dirname, '../index.js'), 'utf-8'), 'utf-8')
+  }
 }
 
 function _mergePkg (newpkg) {

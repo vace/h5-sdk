@@ -58,6 +58,10 @@ export class Headers {
       }
     }
   }
+
+  public raw () {
+    return this.map
+  }
 }
 
 export class Body {

@@ -32,6 +32,8 @@ export class AuthError extends Error {
  * Auth 授权
  */
 export default class Auth extends Http {
+  /** auth配置 */
+  static config: Record<string, any> = {}
   /** 导出用户类 */
   static AuthUser = AuthUser
   /** 导出授权错误类 */
@@ -130,13 +132,18 @@ export default class Auth extends Http {
     }
   }
 
+  private _finished!: any
   /** 登陆任务 */
-  public finished!: ITaskerPromise<AuthUser>
+  public get finished(): ITaskerPromise<AuthUser> {
+    if (!this._finished) {
+      this._finished = tasker()
+    }
+    return this._finished
+  }
 
   /** 登陆用户 */
   public login (): Promise<AuthUser> {
-    if (!this.finished) {
-      this.finished = tasker()
+    if (!this._finished) {
       // 尝试使用code 和 state 登陆用户
       this.autoLogin()
         .then(user => this.finished.resolve(user))
@@ -151,6 +158,10 @@ export default class Auth extends Http {
   /** 授权用户 */
   public authorize (arg: any): Promise<AuthUser> {
     throw new TypeError('authorize is undefined')
+  }
+  /** 授权用户 */
+  public bindmobile(arg: any): Promise<AuthUser> {
+    throw new TypeError('bindmobile is undefined')
   }
 
   /** 刷新用户资料 */
@@ -168,11 +179,17 @@ export default class Auth extends Http {
   public logout() {
     AuthStore.remove(this.$key)
     this.user.logout()
+    return Promise.resolve(this.user)
   }
 
   /** 尝试使用现有参数登陆 */
   public autoLogin(): Promise<AuthUser> {
     throw new TypeError('_requestLogin is undefined')
+  }
+
+  /** 获取跳转到登陆页链接 */
+  public getRedirectLoginUrl (): string {
+    throw new TypeError('getRedirectLoginUrl is undefined')
   }
 
   /** 跳转到登录页或自行处理逻辑 */
@@ -187,7 +204,9 @@ export default class Auth extends Http {
   }
 
   /** 转换配置参数，子类可覆盖实现 */
-  public transformAuthOptions = always
+  public transformAuthOptions (opts: any) {
+    return opts
+  }
 
   /** 全局请求转换 */
   public transformAuthRequest(config: any) {

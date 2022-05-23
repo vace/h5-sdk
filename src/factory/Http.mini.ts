@@ -23,10 +23,17 @@ Http.request = (url: string, request: IRequest) => {
       return reject(new DOMException('Aborted', 'AbortError'))
     }
 
+    //! bug fix 小程序不支持原生 Header，使用header会转换为map{}形式
+    //见`node-fetch`.`Header` 以及 headers 文档
+    let rheader: any = request.headers
+    if (rheader instanceof IHeader) {
+      rheader = rheader.raw()
+    }
+
     const task = wx.request({
       url,
       data: request.body,
-      header: request.headers,
+      header: rheader,
       method: request.method,
       timeout: request.timeout,
       // 不对返回值进行处理
@@ -38,7 +45,8 @@ Http.request = (url: string, request: IRequest) => {
         const response: any = new IResponse(data, {
           headers: header,
           status: statusCode,
-          url: url
+          url: url,
+          cookies: cookies,
         })
         resolve(response)
       },

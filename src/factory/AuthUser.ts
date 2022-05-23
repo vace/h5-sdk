@@ -72,7 +72,8 @@ export default class AuthUser {
     // 保存用户登录时间
     user.$logintime = timestamp()
     this.reset(user)
-    UserStore.set(this.$key, user)
+    // merge user data
+    UserStore.set(this.$key, {...UserStore.get(this.$key), ...user})
     return this
   }
   /** 登出用户 */

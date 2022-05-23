@@ -19,7 +19,7 @@ export default {
         compilerOptions: {
           removeComments: false,
           target: 'ES2016',
-          module: 'es2015'
+          module: 'ESNext'
         }
       }
     }),

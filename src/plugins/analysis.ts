@@ -75,8 +75,15 @@ const ANA_REQEST_SIGNATURE = '_s' // 此次请求签名
 export function send (event: string, data: any = '', value: number = 0) {
   const app = App.instance
   // 无应用，不发送数据
-  if (!app || !app.appid || app.analysisoff || !config.enabled) {
+  if (!app || !app.appid || app.analysisoff) {
     return null
+  }
+
+  // 不允许pv, unload事件上报，但允许自定义事件上报
+  if (!config.enabled) {
+    if (event === EVENT_VIEW || event === EVENT_UNLOAD) {
+      return
+    }
   }
   
   if (!isString(data) && !isNumber(data)) {

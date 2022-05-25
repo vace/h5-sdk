@@ -27,7 +27,7 @@
     "autoprefixer": "^9.4.9",
     "dts-generator": "^3.0.0",
     "less": "^4.1.0",
-    "postcss": "^8.2.4",
+    "postcss": "^8.4.14",
     "rollup": "^2.36.2",
     "rollup-plugin-dts": "^2.0.1",
     "rollup-plugin-postcss": "^4.0.0",
@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@types/zepto": "^1.0.31",
-    "node-fetch": "^2.6.1",
-    "whatwg-fetch": "^3.5.0"
+    "node-fetch": "^2.6.7",
+    "whatwg-fetch": "^3.6.2"
   }
 }

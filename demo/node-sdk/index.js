@@ -18,7 +18,7 @@ const auth = new sdk.Auth({
   env: ''
 })
 
-auth.saveToken('Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJpZCI6Miwic3RhdGUiOiJzdXBlciIsImlzcyI6Ind4ZTJhYWM0OTc3Y2U2YzBhZCIsImV4cCI6MTYxMzMxMTc3MSwic3ViIjoib3BlbiIsInR5cCI6InVzZXIifQ.Sifm6Nt6WKXcqXr4N7c6epXJyRGZmKMxhvkAqz6FFapXE2qVYsLW_s0OMyUxh5WRqKSiUOVvMVRvhM7NILy52imCg0rL9jLYNLjwBVmgi5UAwmLmI5Bu6B9Uecjmsr42alApVDW50DJZU1axfOB19Zdj5n1Dqc24-twPIVizRZQ')
+auth.saveToken('Bearer {token}')
 
 auth.login().then(user => {
   console.log('👌 user.login() :', {id: user.id, nickname: user.nickname})

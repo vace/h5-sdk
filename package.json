@@ -13,7 +13,7 @@
     "node": "rollup --config build/rollup.node.prod.js && node build/package.js node",
     "mini": "rollup --config build/rollup.mini.prod.js && node build/package.js mini",
     "dts": "node build/rollup.sdk.dts.js",
-    "prepare": "npm run dev && npm run web && npm run mini && npm run node",
+    "prepare": "npm run web && npm run web && npm run mini && npm run node",
     "test": "mocha --require ts-node/register --watch-extensions ts,tsx \"src/**/*.spec.ts\"",
     "docs": "typedoc --out docs --mode file --exclude \"**/*+(index.ts|.spec.ts|.e2e.ts|.js)\" --excludeNotExported src/web-entry.ts"
   },

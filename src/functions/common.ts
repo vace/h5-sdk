@@ -7,7 +7,6 @@ let GLOBAL_UID = 0
  * 常用原型
  */
 const ObjProto = Object.prototype
-const ArrProto = Array.prototype
 const toString = ObjProto.toString
 
 /** 当前环境全局变量 */

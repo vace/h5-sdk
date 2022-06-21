@@ -2,10 +2,10 @@ import { uid } from '../functions/common'
 
 export * from './tool'
 
-/** 生成微信账号二维码 */
-export function getQrcode(username: string): string {
-  return `https://open.weixin.qq.com/qr/code?username=${username}`
-}
+// /** 生成微信账号二维码 */
+// export function getQrcode(username: string): string {
+//   return `https://open.weixin.qq.com/qr/code?username=${username}`
+// }
 
 /** 读取文件的base64 */
 export function readAsDataURL(inputer: File): Promise<string> {

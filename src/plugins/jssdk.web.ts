@@ -9,6 +9,7 @@ import tasker, { ITaskerPromise } from './tasker'
 import { isString, once, uniqueArray, assign, createURL, isFunction, timestamp, nextTick, isDef } from "../functions/common"
 import { isWechat, document, isMiniapp, domready } from "../functions/utils.web"
 
+declare var wx: any
 
 /** 签名ready完成事件 */
 export const finished = tasker() as ITaskerPromise<boolean>

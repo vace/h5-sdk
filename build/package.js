@@ -4,37 +4,9 @@ const packages = require('../package.json')
 const projectPath = path.resolve(path.dirname(__dirname))
 const rootPath = path.resolve(projectPath, './src')
 const platform = process.argv.pop()
-
-const getDtsConfig = () => {
-  const lazyLoader = {
-    web: () => _mergeDTS({
-      name: 'h5-sdk',
-      prefix: 'h5-sdk',
-      main: 'h5-sdk/src/entry.web',
-      out: 'dist/web-sdk/index.d.ts',
-      types: ['zepto'],
-      exclude: ['**/*.node.ts', '**/*.mini.ts']
-    }),
-    mini: () => _mergeDTS({
-      name: platform + '-sdk',
-      prefix: platform + '-sdk',
-      main: platform + '-sdk/src/entry.mini',
-      out: 'dist/mini-sdk/index.d.ts',
-      exclude: ['**/*.web.ts', '**/*.node.ts']
-    }),
-    node: () => _mergeDTS({
-      name: platform + '-sdk',
-      prefix: platform + '-sdk',
-      main: platform + '-sdk/src/entry.node',
-      out: 'dist/node-sdk/node.d.ts',
-      exclude: ['**/*.web.ts', '**/*.mini.ts']
-    })
-  }[platform]
-  if (!lazyLoader) {
-    throw new TypeError(`未找到${platform}，当前支持 web|mini|node 创建dts文件`)
-  }
-  return lazyLoader()
-}
+const rollup = require('rollup')
+const dts = require("rollup-plugin-dts").default
+const postcss = require('rollup-plugin-postcss')
 
 const getPkgConfig = () => {
   const lazyLoader = {
@@ -77,9 +49,23 @@ const getPkgConfig = () => {
 makeDtsConfig();
 makePkgConfig();
 
-function makeDtsConfig () {
+async function makeDtsConfig () {
   console.log('⚽️ Create index.d.ts')
-  return require('dts-generator').default(getDtsConfig())
+  const output = `./dist/${platform}-sdk/index.d.ts`
+  const config = {
+    input: `./src/entry.${platform}.ts`,
+    output: [{ file: output, format: "es" }],
+    plugins: [
+      dts(),
+      postcss({
+        plugins: [],
+        extract: 'dist/sdk.css',
+        extensions: ['.css', '.less']
+      })
+    ],
+  }
+  const bundle = await rollup.rollup(config)
+  const ret = await bundle.write({ file: output, format: 'es', name: 'library', sourcemap: false })
 }
 
 function makePkgConfig () {
@@ -95,24 +81,4 @@ function makePkgConfig () {
 
 function _mergePkg (newpkg) {
   return Object.assign(packages, { private: false }, newpkg)
-}
-
-function _mergeDTS (config) {
-  const def = {
-    baseDir: rootPath,
-    project: projectPath,
-    out: 'index.d.ts',
-    // sendMessage: console.log,
-    exclude: [
-      'node_modules/**/*.d.ts',
-      'src/scheduler/*.ts',
-      '**/*.js',
-      '**/*.d.ts',
-    ]
-  }
-  if (config.exclude) {
-    def.exclude.push(...config.exclude)
-    delete config.exclude
-  }
-  return Object.assign(def, config)
 }

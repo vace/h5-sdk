@@ -5,12 +5,15 @@ import { isObject, each, timestamp } from '../functions/common'
 const AuthSymbol = Symbol('auth')
 const UserStore = hotcache('@SdkUsers')
 
+// normal=普通用户,black=黑名单用户,admin=管理员用户,super=超级管理员,developer=开发者
+type IAuthUserState = 'normal' | 'black' | 'admin' | 'super' | 'developer'
+
 /**
  * 用户类
  */
 export default class AuthUser {
   /** 用户资料刷新时间 */
-  public static REFRESH_TIME = 5 * 24 * 3600
+  public static REFRESH_TIME = 2 * 24 * 3600
   /** 用户登录时间 */
   private $logintime: number = 0
   /** 用户ID */
@@ -26,17 +29,11 @@ export default class AuthUser {
   /** 用户OPENID */
   public openid: string = ''
   /** 用户状态 */
-  public state: string = ''
-  /** 性别，0未知，1男，2女 */
-  public gender: number = 0
-  /** 用户邮箱 */
-  public email: string = ''
+  public state!: IAuthUserState
   /** 用户名 */
   public username: string = ''
   /** 用户类型 */
   public type: string = ''
-  /** 用户地理位置 */
-  public location: string = ''
   /** 同一主体下的ID */
   public unionid: string = ''
   /** 绑定的auth实例 */

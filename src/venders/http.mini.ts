@@ -189,6 +189,7 @@ export class Request extends Body {
   readonly credentials!: RequestCredentials
   readonly destination!: RequestDestination;
 
+  // @ts-ignore
   public headers!: Headers
   public integrity!: string
   public url: string = ''

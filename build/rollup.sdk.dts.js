@@ -49,13 +49,10 @@ async function package () {
 
   const filename = path.resolve(__dirname, '../', output)
   const content = await fs.promises.readFile(filename, 'utf-8')
-  const zeptodts = await fs.promises.readFile(path.resolve(__dirname, '../node_modules/@types/zepto/index.d.ts'))
   const declaration = `${banner}
 declare namespace sdk {
     ${content.replace(/declare /ig, '').split('\n').join('\n    ')}
 }
-/** zepto **/
-${zeptodts}
 `
   await fs.promises.writeFile(filename, declaration)
   return filename

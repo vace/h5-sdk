@@ -2,9 +2,9 @@ import Http from './Http'
 import AuthUser from './AuthUser'
 import Config from './Config'
 import hotcache from '../plugins/hotcache'
-import { isString, isHasOwn, now, always } from '../functions/common'
+import { isString, isHasOwn, now } from '../functions/common'
 import { jwtDecode } from '../plugins/safety'
-import tasker, { ITaskerPromise } from '../plugins/tasker'
+import tasker from '../plugins/tasker'
 
 const AuthStore = hotcache('@SdkTokens')
 
@@ -14,8 +14,6 @@ const AuthStore = hotcache('@SdkTokens')
 
 export const enum AuthType { none = 'none', base = 'base', user = 'user' }
 export enum AuthErrorCode { OK, NO_CODE, LOGIN_FAILED }
-// 可使用此函数实现自定义登陆
-type AuthOnRedirectLogin = (url: string, reason: AuthError) => AuthUser
 
 // 授权错误
 export class AuthError extends Error {
@@ -41,12 +39,10 @@ export default class Auth extends Http {
 
   /** 用户Auth实例，使用时生成 */
   // @ts-ignore
-  public static instance:Auth = null
+  public static instance!: Auth = null
 
   /** 用户实例 */
-  public user!: AuthUser
-  /** @deprecated Auth版本号，可修改version强制重新授权 */
-  // public version!: string
+  public user: AuthUser
   /** 用户角色 */
   public state!: string
   /** 授权种类 */
@@ -63,8 +59,6 @@ export default class Auth extends Http {
   public env!: string
   /** 回调url */
   public url!: string
-  /** 自定义redirect方法 */
-  public onRedirectLogin!: AuthOnRedirectLogin
   /** 仅在子类中使用 */
   protected $tryUseAuth = true
 
@@ -116,52 +110,34 @@ export default class Auth extends Http {
    */
   constructor(options: any = {}) {
     super({ baseURL: options.baseURL || Config.API_AUTH })
-    const { platform, appid, type, scope, env, url, onRedirectLogin } = this.transformAuthOptions(options)
+    const { platform, appid, type, scope, env, url } = this.transformAuthOptions(options)
     platform && (this.platform = platform)
     appid && (this.appid = appid)
     type && (this.type = type)
     scope && (this.scope = scope)
     env && (this.env = env)
     url && (this.url = url)
-    // this.version = version
-    this.onRedirectLogin = onRedirectLogin
-    this.user = new AuthUser(this)
     // 设置默认实例
-    if (!(Auth.instance instanceof Auth)) {
+    if (!Auth.instance) {
       Auth.instance = this
     }
+    this.user = new AuthUser(this)
   }
 
-  private _finished!: any
-  /** 登陆任务 */
-  public get finished(): ITaskerPromise<AuthUser> {
-    if (!this._finished) {
-      this._finished = tasker()
-    }
-    return this._finished
-  }
+  public tasker = tasker<AuthUser>()
+
+  private isLogining = false
 
   /** 登陆用户 */
   public login (): Promise<AuthUser> {
-    if (!this._finished) {
-      // 尝试使用code 和 state 登陆用户
-      this.autoLogin()
-        .then(user => this.finished.resolve(user))
-        // 登陆失败，跳转到登录页继续尝试
-        .catch(error => this.redirectLogin(error))
-        // 捕获上述错误
-        .catch(error => this.finished.reject(error))
+    if (this.isLogining) {
+      return this.tasker
     }
-    return this.finished
-  }
-
-  /** 授权用户 */
-  public authorize (arg: any): Promise<AuthUser> {
-    throw new TypeError('authorize is undefined')
-  }
-  /** 授权用户 */
-  public bindmobile(arg: any): Promise<AuthUser> {
-    throw new TypeError('bindmobile is undefined')
+    this.isLogining = true
+    this.autoLogin()
+      .then(user => this.tasker.resolve(user))
+      .catch(error => this.tasker.reject(error))
+    return this.tasker
   }
 
   /** 刷新用户资料 */
@@ -179,22 +155,13 @@ export default class Auth extends Http {
   public logout() {
     AuthStore.remove(this.$key)
     this.user.logout()
+    this.isLogining = false
     return Promise.resolve(this.user)
   }
 
   /** 尝试使用现有参数登陆 */
-  public autoLogin(): Promise<AuthUser> {
+  protected autoLogin(): Promise<AuthUser> {
     throw new TypeError('_requestLogin is undefined')
-  }
-
-  /** 获取跳转到登陆页链接 */
-  public getRedirectLoginUrl (): string {
-    throw new TypeError('getRedirectLoginUrl is undefined')
-  }
-
-  /** 跳转到登录页或自行处理逻辑 */
-  public redirectLogin (reason: AuthError): AuthUser {
-    throw reason
   }
 
   /** 跳转到登陆 */
@@ -231,7 +198,7 @@ export default class Auth extends Http {
   public transformAuthResponse(userdata: any): AuthUser {
     if (userdata) {
       const user = this.user.login(userdata)
-      this.finished.resolve(user)
+      this.tasker.resolve(user)
       return user
     }
     throw new AuthError(AuthErrorCode.LOGIN_FAILED, 'login failed', userdata)

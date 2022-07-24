@@ -1,3 +1,5 @@
+import type { ZeptoCollection } from '../types/zepto'
+
 import '../assets/ui-modal.less'
 import { noop, parse, isPromise, assign } from '../functions/common'
 import $ from '../venders/zepto.js'

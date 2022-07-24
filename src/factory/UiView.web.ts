@@ -1,3 +1,5 @@
+import type { ZeptoCollection } from '../types/zepto'
+
 import '../assets/ui-view.less'
 import { SvgWindmill } from '../assets/svg-string'
 

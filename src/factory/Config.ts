@@ -52,9 +52,12 @@ export default class Config {
 
   /** 获取cdn文件 */
   public static cdn (filename: string, process?: string) {
-    if (!filename || isHttp(filename) || isBase64(filename)) {
+    if (!filename || isBase64(filename) || filename.includes('?')) {
       return filename
     }
-    return Config.CDN_ROOT + (isAbsolute(filename) ? '' : '/') + filename + (process ? `?x-oss-process=${process}` : '')
+    if (!isHttp(filename)) {
+      filename = Config.CDN_ROOT + (isAbsolute(filename) ? '' : '/') + filename
+    }
+    return filename + (process ? `?x-oss-process=${process}` : '')
   }
 }

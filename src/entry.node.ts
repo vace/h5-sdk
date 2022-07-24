@@ -26,6 +26,7 @@ import * as safefy            from './plugins/safety.node'
 export { cdn, cloud, safefy }
 
 /** 导出动态加载 */
+// @ts-ignore
 const define = (key: string, get: any) => Object.defineProperty(exports, key, { get })
 define('app',                 () => App.instance)
 define('auth',                () => Auth.instance)

@@ -1,3 +1,6 @@
+import type { ZeptoCollection } from '../types/zepto'
+import $ from '../venders/zepto.js';
+
 import UiBase, { UiBaseOption, UiButtonOption, classPrefix, createClsElement } from "./UiBase.web";
 import { noop, assign } from '../functions/common'
 

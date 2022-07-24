@@ -1,4 +1,5 @@
 declare var wx: any
+declare var global: any
 
 // @private 全局UID
 let GLOBAL_UID = 0

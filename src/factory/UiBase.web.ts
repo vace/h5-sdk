@@ -1,3 +1,5 @@
+import type { ZeptoCollection } from '../types/zepto'
+
 import Emitter from './Emitter'
 import { uid, wait, isDef, isArray, splice, isPromise } from '../functions/common'
 import $ from '../venders/zepto.js'

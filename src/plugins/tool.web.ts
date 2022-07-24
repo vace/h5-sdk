@@ -1,3 +1,5 @@
+import type { ZeptoCollection } from '../types/zepto'
+import $ from '../venders/zepto.js';
 import { uid } from '../functions/common'
 
 export * from './tool'

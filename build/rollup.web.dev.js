@@ -8,7 +8,7 @@ if (isWatchMode) {
     contentBase: ['dist', 'demo']
   }))
 } else {
-  rollup.output.sourcemap = true
+  rollup.output.sourcemap = false
 }
 
 console.log('🙏 Create ·web-sdk/sdk.dev.js·')

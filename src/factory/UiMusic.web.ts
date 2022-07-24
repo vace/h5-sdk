@@ -1,3 +1,4 @@
+import type { ZeptoCollection } from '../types/zepto'
 import $ from '../venders/zepto.js';
 import '../assets/ui-music.less'
 import { SvgWindmill } from '../assets/svg-string'

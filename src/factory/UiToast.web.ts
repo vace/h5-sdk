@@ -1,3 +1,5 @@
+import type { ZeptoCollection } from '../types/zepto'
+
 import '../assets/ui-toast.less'
 import { noop, assign } from "../functions/common";
 import UiBase, { UiBaseOption, classPrefix, createClsElement, createSdkIcon } from "./UiBase.web";

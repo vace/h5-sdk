@@ -42,7 +42,7 @@ export default class AuthMini extends Auth {
       const code = await wx.login().then(ret => ret.code, (err: any) => {
         throw new AuthError(AuthErrorCode.NO_CODE, err.errMsg)
       })
-      return this.doLogin(Auth.config.api.login, { code, appid, type, env, ...query })
+      return this.doLogin(AuthMini.api.login, { code, appid, type, env, ...query })
     } else {
       if (user.needRefreshed) {
         return await this.refresh()
@@ -71,7 +71,7 @@ export default class AuthMini extends Auth {
     }
     await this.login()
     const param = { iv, data: encryptedData, signature, appid }
-    const authuser = await this.doLogin(Auth.config.api.authorize, param)
+    const authuser = await this.doLogin(AuthMini.api.authorize, param)
     return authuser
   }
 
@@ -83,7 +83,7 @@ export default class AuthMini extends Auth {
       throw new AuthError(AuthErrorCode.LOGIN_FAILED, errMsg, ev)
     }
     const param = code ? { appid, code } : { iv, data: encryptedData, signature, appid }
-    const authuser = await this.get(Auth.config.api.bindmobile, Object.assign(param, query))
+    const authuser = await this.get(AuthMini.api.bindmobile, Object.assign(param, query))
     this.user.login(authuser)
     return this.user
   }

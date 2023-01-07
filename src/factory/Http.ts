@@ -167,7 +167,7 @@ export default class Http {
     return this.request<T>(req)
   }
   /** 发送request */
-  public request<T = any>(req: IHttpRequestOption): Promise<T> {
+  public async request<T = any>(req: IHttpRequestOption): Promise<T> {
     const auth = <null | Auth>(this.$tryUseAuth ? this : this.auth)
     const HttpHeaders = Http.HttpHeaders
     const httpcache = this[HttpCache]
